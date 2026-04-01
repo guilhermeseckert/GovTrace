@@ -3,14 +3,18 @@
   "private": true,
   "version": "0.0.1",
   "scripts": {
-    "dev": "pnpm --filter @govtrace/web dev",
-    "build": "pnpm --filter @govtrace/web build",
+    "dev": "turbo run dev --filter=@govtrace/web",
+    "build": "turbo run build --filter=@govtrace/web",
     "db:generate": "pnpm --filter @govtrace/db generate",
     "db:migrate": "pnpm --filter @govtrace/db migrate",
     "db:studio": "pnpm --filter @govtrace/db studio",
     "ingest": "pnpm --filter @govtrace/ingestion start",
-    "lint": "pnpm -r exec -- biome check .",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
     "format": "pnpm -r exec -- ultracite fix"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.0"
   },
   "packageManager": "pnpm@9.0.0"
 }

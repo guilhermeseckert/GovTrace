@@ -39,7 +39,7 @@ services:
   web:
     build:
       context: .
-      dockerfile: packages/web/Dockerfile
+      dockerfile: apps/web/Dockerfile
     environment:
       DATABASE_URL: postgres://govtrace:govtrace@postgres:5432/govtrace
       NODE_ENV: production
