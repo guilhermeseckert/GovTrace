@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm'
-import { getDb } from '@govtrace/db/src/client.ts'
-import { ingestionRuns } from '@govtrace/db/src/schema/jobs.ts'
+import { getDb } from '@govtrace/db/client'
+import { ingestionRuns } from '@govtrace/db/schema/jobs'
 import { downloadLobbyRegistrations } from '../downloaders/lobby-registrations.ts'
 import { parseLobbyRegistrationsFile } from '../parsers/lobby-registrations.ts'
 import { upsertLobbyRegistrations } from '../upsert/lobby-registrations.ts'

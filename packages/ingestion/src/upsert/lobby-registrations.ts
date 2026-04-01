@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm'
-import { getDb } from '@govtrace/db/src/client.ts'
-import { lobbyRegistrations } from '@govtrace/db/src/schema/raw.ts'
+import { getDb } from '@govtrace/db/client'
+import { lobbyRegistrations } from '@govtrace/db/schema/raw'
 import type { LobbyRegistrationRecord } from '../parsers/lobby-registrations.ts'
 
 const BATCH_SIZE = 500
