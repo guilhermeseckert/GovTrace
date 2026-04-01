@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 01-data-foundation 01-07-PLAN.md
-last_updated: "2026-04-01T04:42:10.790Z"
+status: verifying
+stopped_at: Completed 01-data-foundation 01-08-PLAN.md
+last_updated: "2026-04-01T04:46:53.260Z"
 last_activity: 2026-04-01
 progress:
   total_phases: 4
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 8
-  completed_plans: 7
+  completed_plans: 8
   percent: 0
 ---
 
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-03-31)
 
 Phase: 01 (data-foundation) — EXECUTING
 Plan: 8 of 8
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-04-01
 
 Progress: [░░░░░░░░░░] 0%
@@ -59,6 +59,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01-data-foundation P05 | 5 minutes | 3 tasks | 10 files |
 | Phase 01-data-foundation P06 | 10 minutes | 2 tasks | 7 files |
 | Phase 01-data-foundation P07 | 2 minutes | 2 tasks | 3 files |
+| Phase 01-data-foundation P08 | 3 minutes | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -89,6 +90,8 @@ Recent decisions affecting current work:
 - [Phase 01-data-foundation]: claude-haiku-3-5 as default model for cost-efficient AI entity verification; SONNET_MODEL exported for caller escalation to stronger model
 - [Phase 01-data-foundation]: Circuit breaker at 10,000 uncertain candidates with cost estimate in error message — prevents AI cost runaway during historical backfill (D-07, Pitfall 4)
 - [Phase 01-data-foundation]: Claude Batch API flow: collect uncertain records → circuit breaker → batches.create → store batchId in matchMethod → poll until ended → stream results; every decision logged with aiModel/aiConfidence/aiReasoning
+- [Phase 01-data-foundation]: Mark-stale/rebuild/cleanup pattern for idempotent entity_connections rebuild — no empty-table window during rebuild vs DELETE+INSERT
+- [Phase 01-data-foundation]: pg-boss scheduler: weekly cadence for elections-canada and lobbying sources, quarterly first-Sunday for contracts and grants, build-connections at 8am Sunday after all other jobs
 
 ### Pending Todos
 
@@ -101,6 +104,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-01T04:42:10.788Z
-Stopped at: Completed 01-data-foundation 01-07-PLAN.md
+Last session: 2026-04-01T04:46:53.257Z
+Stopped at: Completed 01-data-foundation 01-08-PLAN.md
 Resume file: None
