@@ -12,7 +12,7 @@ GovTrace is built data-first: nothing can be searched, displayed, or visualized 
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Data Foundation** - Ingestion pipeline, entity matching, and pre-computed graph table for all 5 federal data sources
+- [x] **Phase 1: Data Foundation** - Ingestion pipeline, entity matching, and pre-computed graph table for all 5 federal data sources (completed 2026-04-01)
 - [ ] **Phase 2: Search and Entity Profiles** - Full product loop: search → autocomplete → entity profile with tabbed data, AI summaries, and community flagging
 - [ ] **Phase 3: Visualizations** - Force-directed relationship graph, Sankey money-flow diagram, activity timeline, and supporting API endpoints
 - [ ] **Phase 4: Newsletter and Secondary Visualizations** - GovTrace Weekly AI newsletter, subscriber management, network heatmap, spending treemap, and donations trend chart
@@ -42,7 +42,7 @@ Plans:
 - [x] 01-08-PLAN.md — entity_connections builder, pg-boss scheduler, Phase 1 end-to-end verification
 - [x] 01-09-PLAN.md — Gap closure: fix broken onConflictDoUpdate conflict target in deterministic.ts
 - [x] 01-10-PLAN.md — Gap closure: move packages/web → apps/web, add Turborepo, update all path references
-- [ ] 01-11-PLAN.md — Gap closure: TanStack Start web scaffold (vite.config.ts, routes, client.tsx), fix vinxi build scripts, .env.example
+- [x] 01-11-PLAN.md — Gap closure: TanStack Start web scaffold (vite.config.ts, routes, client.tsx), fix vinxi build scripts, .env.example
 
 ### Phase 2: Search and Entity Profiles
 **Goal**: Users can search any name and immediately see their complete financial and lobbying picture across all government datasets
@@ -88,7 +88,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Data Foundation | 10/11 | In Progress|  |
+| 1. Data Foundation | 11/11 | Complete   | 2026-04-01 |
 | 2. Search and Entity Profiles | 0/TBD | Not started | - |
 | 3. Visualizations | 0/TBD | Not started | - |
 | 4. Newsletter and Secondary Visualizations | 0/TBD | Not started | - |

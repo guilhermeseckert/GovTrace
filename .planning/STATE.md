@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: verifying
-stopped_at: Completed 01-data-foundation 01-10-PLAN.md
-last_updated: "2026-04-01T22:29:35.307Z"
+stopped_at: Completed 01-data-foundation 01-11-PLAN.md
+last_updated: "2026-04-01T22:37:17.573Z"
 last_activity: 2026-04-01
 progress:
   total_phases: 4
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 11
-  completed_plans: 10
+  completed_plans: 11
   percent: 0
 ---
 
@@ -62,6 +62,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01-data-foundation P08 | 3 minutes | 2 tasks | 3 files |
 | Phase 01-data-foundation P09 | 3 minutes | 1 tasks | 2 files |
 | Phase 01-data-foundation P10 | 1 minute | 2 tasks | 9 files |
+| Phase 01-data-foundation P11 | 25min | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -98,6 +99,10 @@ Recent decisions affecting current work:
 - [Phase 01-data-foundation]: apps/ for applications, packages/ for shared libs — required monorepo split before web scaffold in Plan 01-11
 - [Phase 01-data-foundation]: packages/web renamed to packages/web-deprecated rather than deleted — preserves reference files, avoids duplicate @govtrace/web conflict
 - [Phase 01-data-foundation]: Turborepo turbo run with --filter=@govtrace/web for targeted dev/build rather than running all workspace packages
+- [Phase 01-data-foundation]: HeadContent from @tanstack/react-router replaces Meta from @tanstack/react-start in TanStack Start v1.167 (Meta not exported in v1.167)
+- [Phase 01-data-foundation]: router.tsx exports getRouter() not createRouter() — TanStack Start plugin aliases it as #tanstack-router-entry and imports { getRouter } in hydrateStart
+- [Phase 01-data-foundation]: client.tsx uses @tanstack/react-start/client for StartClient with no router prop — StartClient hydrates from SSR context in v1.167
+- [Phase 01-data-foundation]: packages/web-deprecated renamed to @govtrace/web-deprecated package name to prevent pnpm --filter @govtrace/web conflict with apps/web
 
 ### Pending Todos
 
@@ -110,6 +115,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-01T22:29:35.304Z
-Stopped at: Completed 01-data-foundation 01-10-PLAN.md
+Last session: 2026-04-01T22:37:17.569Z
+Stopped at: Completed 01-data-foundation 01-11-PLAN.md
 Resume file: None
