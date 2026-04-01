@@ -6,10 +6,13 @@
   "scripts": {
     "dev": "vinxi dev",
     "build": "vinxi build",
-    "start": "vinxi start"
+    "start": "vinxi start",
+    "start:prod": "node server.js",
+    "build:server": "tsc --project tsconfig.server.json"
   },
   "dependencies": {
     "@govtrace/db": "workspace:*",
+    "srvx": "^0.6.0",
     "@tanstack/react-start": "^1.167.0",
     "@tanstack/react-router": "^1.167.0",
     "@tanstack/react-query": "^5.0.0",
