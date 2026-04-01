@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planning
-stopped_at: Phase 1 context gathered
-last_updated: "2026-04-01T03:06:00.674Z"
-last_activity: 2026-03-31 — Roadmap created, ready to plan Phase 1
+status: executing
+stopped_at: Completed 01-data-foundation 01-01-PLAN.md
+last_updated: "2026-04-01T04:14:22.531Z"
+last_activity: 2026-04-01
 progress:
   total_phases: 4
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_plans: 8
+  completed_plans: 1
   percent: 0
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-31)
 
 **Core value:** Anyone can search a name and instantly trace the flow of money and influence across all public government datasets — with clarity a 9-year-old could follow.
-**Current focus:** Phase 1 — Data Foundation
+**Current focus:** Phase 01 — data-foundation
 
 ## Current Position
 
-Phase: 1 of 4 (Data Foundation)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-03-31 — Roadmap created, ready to plan Phase 1
+Phase: 01 (data-foundation) — EXECUTING
+Plan: 2 of 8
+Status: Ready to execute
+Last activity: 2026-04-01
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -52,6 +52,7 @@ Progress: [░░░░░░░░░░] 0%
 - Trend: —
 
 *Updated after each plan completion*
+| Phase 01-data-foundation P01 | 39 | 3 tasks | 24 files |
 
 ## Accumulated Context
 
@@ -64,6 +65,10 @@ Recent decisions affecting current work:
 - pg_trgm extension required on PostgreSQL 16 — must be enabled during infra setup
 - Claude Batch API for historical backfill — circuit breaker required above 10,000 candidates
 - TanStack Start requires custom server wrapper for Coolify deployment (GitHub issue #5476)
+- [Phase 01-data-foundation]: pnpm Catalogs enforce single drizzle-orm version across packages — prevents multi-instance bug
+- [Phase 01-data-foundation]: Lazy DB singleton (let _db = null) in packages/db/src/client.ts prevents HMR connection pool exhaustion
+- [Phase 01-data-foundation]: Deterministic text IDs (SHA256 hash) for all raw source tables enables idempotent CSV re-ingestion
+- [Phase 01-data-foundation]: Pre-computed entityConnections table — no runtime JOINs across 5 raw tables for graph queries
 
 ### Pending Todos
 
@@ -76,6 +81,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-01T03:06:00.666Z
-Stopped at: Phase 1 context gathered
-Resume file: .planning/phases/01-data-foundation/01-CONTEXT.md
+Last session: 2026-04-01T04:14:22.529Z
+Stopped at: Completed 01-data-foundation 01-01-PLAN.md
+Resume file: None

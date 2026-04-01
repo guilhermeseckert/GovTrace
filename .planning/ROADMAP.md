@@ -32,7 +32,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 8 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Monorepo scaffold, shared DB schema (10 tables), Docker Compose with pg_trgm
+- [x] 01-01-PLAN.md — Monorepo scaffold, shared DB schema (10 tables), Docker Compose with pg_trgm
 - [ ] 01-02-PLAN.md — Docker production config: web Dockerfile, TanStack Start server wrapper, Coolify deployment security
 - [ ] 01-03-PLAN.md — Elections Canada ingestion: encoding detection, multi-era parser, idempotent upsert
 - [ ] 01-04-PLAN.md — Federal contracts and grants ingestion pipelines

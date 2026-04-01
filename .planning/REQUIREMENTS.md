@@ -94,13 +94,13 @@
 
 ### Infrastructure
 
-- [ ] **INFRA-01**: Monorepo with pnpm workspaces (packages/ingestion, packages/web)
-- [ ] **INFRA-02**: PostgreSQL 16 with pg_trgm extension enabled
-- [ ] **INFRA-03**: Drizzle ORM with shared schema, pnpm Catalogs for single instance
-- [ ] **INFRA-04**: Docker Compose for local development (PostgreSQL)
+- [x] **INFRA-01**: Monorepo with pnpm workspaces (packages/ingestion, packages/web)
+- [x] **INFRA-02**: PostgreSQL 16 with pg_trgm extension enabled
+- [x] **INFRA-03**: Drizzle ORM with shared schema, pnpm Catalogs for single instance
+- [x] **INFRA-04**: Docker Compose for local development (PostgreSQL)
 - [ ] **INFRA-05**: Docker deployment configuration for Coolify on Hetzner
 - [ ] **INFRA-06**: PostgreSQL not exposed to internet (use expose: not ports: in Docker)
-- [ ] **INFRA-07**: Database indexes: GIN on normalized_name, FKs, composite on entity_connections, pg_trgm
+- [x] **INFRA-07**: Database indexes: GIN on normalized_name, FKs, composite on entity_connections, pg_trgm
 
 ### Design
 
@@ -210,13 +210,13 @@
 | API-11 | Phase 2 | Pending |
 | API-12 | Phase 2 | Pending |
 | API-13 | Phase 4 | Pending |
-| INFRA-01 | Phase 1 | Pending |
-| INFRA-02 | Phase 1 | Pending |
-| INFRA-03 | Phase 1 | Pending |
-| INFRA-04 | Phase 1 | Pending |
+| INFRA-01 | Phase 1 | Complete |
+| INFRA-02 | Phase 1 | Complete |
+| INFRA-03 | Phase 1 | Complete |
+| INFRA-04 | Phase 1 | Complete |
 | INFRA-05 | Phase 1 | Pending |
 | INFRA-06 | Phase 1 | Pending |
-| INFRA-07 | Phase 1 | Pending |
+| INFRA-07 | Phase 1 | Complete |
 | DSGN-01 | Phase 2 | Pending |
 | DSGN-02 | Phase 2 | Pending |
 | DSGN-03 | Phase 2 | Pending |
