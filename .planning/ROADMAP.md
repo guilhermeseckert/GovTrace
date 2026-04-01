@@ -29,7 +29,17 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Every entity match record has a confidence score, match method, and (for AI-routed matches) Claude reasoning stored in entity_matches_log
   4. The entity_connections table is populated with aggregated relationship data after a full ingestion run completes
   5. Local development environment starts with a single `docker compose up` and the web app can query all 5 source tables
-**Plans**: TBD
+**Plans**: 8 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — Monorepo scaffold, shared DB schema (10 tables), Docker Compose with pg_trgm
+- [ ] 01-02-PLAN.md — Docker production config: web Dockerfile, TanStack Start server wrapper, Coolify deployment security
+- [ ] 01-03-PLAN.md — Elections Canada ingestion: encoding detection, multi-era parser, idempotent upsert
+- [ ] 01-04-PLAN.md — Federal contracts and grants ingestion pipelines
+- [ ] 01-05-PLAN.md — Lobbyist registrations and communications ingestion pipelines
+- [ ] 01-06-PLAN.md — Entity normalizer + deterministic + fuzzy (pg_trgm) matching pipeline
+- [ ] 01-07-PLAN.md — Claude AI verification stage: Batch API with circuit breaker, full match provenance
+- [ ] 01-08-PLAN.md — entity_connections builder, pg-boss scheduler, Phase 1 end-to-end verification
 
 ### Phase 2: Search and Entity Profiles
 **Goal**: Users can search any name and immediately see their complete financial and lobbying picture across all government datasets
@@ -75,7 +85,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Data Foundation | 0/TBD | Not started | - |
+| 1. Data Foundation | 0/8 | Not started | - |
 | 2. Search and Entity Profiles | 0/TBD | Not started | - |
 | 3. Visualizations | 0/TBD | Not started | - |
 | 4. Newsletter and Secondary Visualizations | 0/TBD | Not started | - |
