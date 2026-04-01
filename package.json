@@ -5,9 +5,9 @@
   "scripts": {
     "dev": "pnpm --filter @govtrace/web dev",
     "build": "pnpm --filter @govtrace/web build",
-    "db:generate": "pnpm --filter @govtrace/db drizzle-kit generate",
-    "db:migrate": "pnpm --filter @govtrace/db drizzle-kit migrate",
-    "db:studio": "pnpm --filter @govtrace/db drizzle-kit studio",
+    "db:generate": "pnpm --filter @govtrace/db generate",
+    "db:migrate": "pnpm --filter @govtrace/db migrate",
+    "db:studio": "pnpm --filter @govtrace/db studio",
     "ingest": "pnpm --filter @govtrace/ingestion start",
     "lint": "pnpm -r exec -- biome check .",
     "format": "pnpm -r exec -- ultracite fix"

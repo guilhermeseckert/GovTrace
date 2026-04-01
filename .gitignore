@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.env
+.env.local
+.DS_Store
+
+# Drizzle generated migrations (keep - version control desired)
+# packages/db/drizzle/
+
+# pnpm lock (keep for reproducibility)
+# pnpm-lock.yaml
