@@ -1,61 +1,95 @@
 const command = process.argv[2]
 const source = process.argv[3]
 
-if (command === 'ingest') {
-  switch (source) {
-    case 'elections-canada': {
-      const { runElectionsCanadaIngestion } = await import('./runners/elections-canada.ts')
-      await runElectionsCanadaIngestion()
-      break
-    }
-    case 'contracts': {
-      const { runContractsIngestion } = await import('./runners/contracts.ts')
-      await runContractsIngestion()
-      break
-    }
-    case 'grants': {
-      const { runGrantsIngestion } = await import('./runners/grants.ts')
-      await runGrantsIngestion()
-      break
-    }
-    case 'lobby-registrations': {
-      const { runLobbyRegistrationsIngestion } = await import('./runners/lobby-registrations.ts')
-      await runLobbyRegistrationsIngestion()
-      break
-    }
-    case 'lobby-communications': {
-      const { runLobbyCommunicationsIngestion } = await import('./runners/lobby-communications.ts')
-      await runLobbyCommunicationsIngestion()
-      break
-    }
-    case 'all': {
-      const { runElectionsCanadaIngestion } = await import('./runners/elections-canada.ts')
-      const { runContractsIngestion } = await import('./runners/contracts.ts')
-      const { runGrantsIngestion } = await import('./runners/grants.ts')
-      const { runLobbyRegistrationsIngestion } = await import('./runners/lobby-registrations.ts')
-      const { runLobbyCommunicationsIngestion } = await import('./runners/lobby-communications.ts')
+switch (command) {
+  case 'ingest': {
+    switch (source) {
+      case 'elections-canada': {
+        const { runElectionsCanadaIngestion } = await import('./runners/elections-canada.ts')
+        await runElectionsCanadaIngestion()
+        break
+      }
+      case 'contracts': {
+        const { runContractsIngestion } = await import('./runners/contracts.ts')
+        await runContractsIngestion()
+        break
+      }
+      case 'grants': {
+        const { runGrantsIngestion } = await import('./runners/grants.ts')
+        await runGrantsIngestion()
+        break
+      }
+      case 'lobby-registrations': {
+        const { runLobbyRegistrationsIngestion } = await import('./runners/lobby-registrations.ts')
+        await runLobbyRegistrationsIngestion()
+        break
+      }
+      case 'lobby-communications': {
+        const { runLobbyCommunicationsIngestion } = await import('./runners/lobby-communications.ts')
+        await runLobbyCommunicationsIngestion()
+        break
+      }
+      case 'all': {
+        const { runElectionsCanadaIngestion } = await import('./runners/elections-canada.ts')
+        const { runContractsIngestion } = await import('./runners/contracts.ts')
+        const { runGrantsIngestion } = await import('./runners/grants.ts')
+        const { runLobbyRegistrationsIngestion } = await import('./runners/lobby-registrations.ts')
+        const { runLobbyCommunicationsIngestion } = await import('./runners/lobby-communications.ts')
 
-      console.log('Running full ingestion for all 5 sources...')
-      await runElectionsCanadaIngestion()
-      await runContractsIngestion()
-      await runGrantsIngestion()
-      await runLobbyRegistrationsIngestion()
-      await runLobbyCommunicationsIngestion()
-      console.log('All sources ingested.')
-      break
+        console.log('Running full ingestion for all 5 sources...')
+        await runElectionsCanadaIngestion()
+        await runContractsIngestion()
+        await runGrantsIngestion()
+        await runLobbyRegistrationsIngestion()
+        await runLobbyCommunicationsIngestion()
+        console.log('All sources ingested.')
+        break
+      }
+      default: {
+        console.error(`Unknown source: ${source ?? '(none)'}`)
+        console.log(
+          'Available: elections-canada, contracts, grants, lobby-registrations, lobby-communications, all',
+        )
+        process.exit(1)
+      }
     }
-    default: {
-      console.error(`Unknown source: ${source ?? '(none)'}`)
-      console.log(
-        'Available: elections-canada, contracts, grants, lobby-registrations, lobby-communications, all',
-      )
-      process.exit(1)
-    }
+    break
   }
-} else {
-  console.log('GovTrace Ingestion Pipeline')
-  console.log('Usage: pnpm ingest [source]')
-  console.log(
-    'Sources: elections-canada, contracts, grants, lobby-registrations, lobby-communications, all',
-  )
+
+  case 'build-connections': {
+    const { buildEntityConnections } = await import('./graph/build-connections.ts')
+    const result = await buildEntityConnections()
+    console.log(`Built ${result.total} entity connections.`)
+    break
+  }
+
+  case 'scheduler': {
+    const databaseUrl = process.env['DATABASE_URL']
+    if (!databaseUrl) throw new Error('DATABASE_URL required for scheduler')
+    const { registerIngestionJobs } = await import('./scheduler/jobs.ts')
+    await registerIngestionJobs(databaseUrl)
+    // Keep process alive for scheduler
+    console.log('Scheduler running. Press Ctrl+C to stop.')
+    process.on('SIGINT', () => {
+      console.log('Scheduler stopped.')
+      process.exit(0)
+    })
+    break
+  }
+
+  default: {
+    console.log('GovTrace Ingestion Pipeline')
+    console.log('')
+    console.log('Usage: pnpm ingest <command> [source]')
+    console.log('')
+    console.log('Commands:')
+    console.log('  ingest <source>       Ingest data from a source')
+    console.log('  build-connections     Rebuild entity_connections table from all sources')
+    console.log('  scheduler             Start the pg-boss scheduled job runner')
+    console.log('')
+    console.log('Ingest sources:')
+    console.log(
+      '  elections-canada, contracts, grants, lobby-registrations, lobby-communications, all',
+    )
+  }
 }
