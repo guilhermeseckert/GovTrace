@@ -86,7 +86,7 @@ Each task was committed atomically:
 1. **Task 1: Add TanStack Start custom server wrapper for Coolify** - `761de37` (feat)
 2. **Task 2: Create web Dockerfile and update docker-compose.yml for production security** - `bd38f23` (feat)
 
-**Plan metadata:** (pending final commit)
+**Plan metadata:** `4779c08` (docs)
 
 ## Files Created/Modified
 
@@ -126,6 +126,17 @@ None - no external service configuration required for this plan. Coolify port ma
 - PostgreSQL is production-secure — no risk of firewall bypass on Hetzner deployment
 - Local dev DB access pattern established (docker-compose.override.yml, gitignored)
 - Ingestion worker Dockerfile not yet created (packages/ingestion/Dockerfile was referenced in compose but not built in this plan — required for next ingestion plans)
+
+## Self-Check: PASSED
+
+- packages/web/server.ts: FOUND
+- packages/web/Dockerfile: FOUND
+- packages/web/tsconfig.server.json: FOUND
+- docker-compose.override.yml: FOUND
+- .planning/phases/01-data-foundation/01-02-SUMMARY.md: FOUND
+- Commit 761de37 (Task 1): FOUND
+- Commit bd38f23 (Task 2): FOUND
+- Commit 4779c08 (metadata): FOUND
 
 ---
 *Phase: 01-data-foundation*
