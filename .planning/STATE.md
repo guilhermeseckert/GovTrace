@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: verifying
-stopped_at: Completed 01-data-foundation 01-08-PLAN.md
-last_updated: "2026-04-01T04:46:53.260Z"
+stopped_at: Completed 01-data-foundation 01-09-PLAN.md
+last_updated: "2026-04-01T22:29:27.184Z"
 last_activity: 2026-04-01
 progress:
   total_phases: 4
-  completed_phases: 1
-  total_plans: 8
-  completed_plans: 8
+  completed_phases: 0
+  total_plans: 11
+  completed_plans: 10
   percent: 0
 ---
 
@@ -60,6 +60,8 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01-data-foundation P06 | 10 minutes | 2 tasks | 7 files |
 | Phase 01-data-foundation P07 | 2 minutes | 2 tasks | 3 files |
 | Phase 01-data-foundation P08 | 3 minutes | 2 tasks | 3 files |
+| Phase 01-data-foundation P09 | 3 minutes | 1 tasks | 2 files |
+| Phase 01-data-foundation P10 | 1 minute | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -92,6 +94,7 @@ Recent decisions affecting current work:
 - [Phase 01-data-foundation]: Claude Batch API flow: collect uncertain records → circuit breaker → batches.create → store batchId in matchMethod → poll until ended → stream results; every decision logged with aiModel/aiConfidence/aiReasoning
 - [Phase 01-data-foundation]: Mark-stale/rebuild/cleanup pattern for idempotent entity_connections rebuild — no empty-table window during rebuild vs DELETE+INSERT
 - [Phase 01-data-foundation]: pg-boss scheduler: weekly cadence for elections-canada and lobbying sources, quarterly first-Sunday for contracts and grants, build-connections at 8am Sunday after all other jobs
+- [Phase 01-data-foundation]: onConflictDoUpdate conflict target must match composite uniqueIndex (canonical_name, entity_type) — normalized_name only has GIN index for pg_trgm, not a unique constraint
 
 ### Pending Todos
 
@@ -104,6 +107,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-01T04:46:53.257Z
-Stopped at: Completed 01-data-foundation 01-08-PLAN.md
+Last session: 2026-04-01T22:29:21.380Z
+Stopped at: Completed 01-data-foundation 01-09-PLAN.md
 Resume file: None
