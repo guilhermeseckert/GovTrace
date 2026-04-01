@@ -150,85 +150,85 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DATA-01 | — | Pending |
-| DATA-02 | — | Pending |
-| DATA-03 | — | Pending |
-| DATA-04 | — | Pending |
-| DATA-05 | — | Pending |
-| DATA-06 | — | Pending |
-| DATA-07 | — | Pending |
-| DATA-08 | — | Pending |
-| MATCH-01 | — | Pending |
-| MATCH-02 | — | Pending |
-| MATCH-03 | — | Pending |
-| MATCH-04 | — | Pending |
-| MATCH-05 | — | Pending |
-| MATCH-06 | — | Pending |
-| SRCH-01 | — | Pending |
-| SRCH-02 | — | Pending |
-| SRCH-03 | — | Pending |
-| SRCH-04 | — | Pending |
-| SRCH-05 | — | Pending |
-| PROF-01 | — | Pending |
-| PROF-02 | — | Pending |
-| PROF-03 | — | Pending |
-| PROF-04 | — | Pending |
-| PROF-05 | — | Pending |
-| PROF-06 | — | Pending |
-| AI-01 | — | Pending |
-| AI-02 | — | Pending |
-| AI-03 | — | Pending |
-| AI-04 | — | Pending |
-| AI-05 | — | Pending |
-| COMM-01 | — | Pending |
-| COMM-02 | — | Pending |
-| COMM-03 | — | Pending |
-| VIZ-01 | — | Pending |
-| VIZ-02 | — | Pending |
-| VIZ-03 | — | Pending |
-| VIZ-04 | — | Pending |
-| VIZ-05 | — | Pending |
-| VIZ-06 | — | Pending |
-| VIZ-07 | — | Pending |
-| VIZ-08 | — | Pending |
-| NEWS-01 | — | Pending |
-| NEWS-02 | — | Pending |
-| NEWS-03 | — | Pending |
-| NEWS-04 | — | Pending |
-| NEWS-05 | — | Pending |
-| NEWS-06 | — | Pending |
-| API-01 | — | Pending |
-| API-02 | — | Pending |
-| API-03 | — | Pending |
-| API-04 | — | Pending |
-| API-05 | — | Pending |
-| API-06 | — | Pending |
-| API-07 | — | Pending |
-| API-08 | — | Pending |
-| API-09 | — | Pending |
-| API-10 | — | Pending |
-| API-11 | — | Pending |
-| API-12 | — | Pending |
-| API-13 | — | Pending |
-| INFRA-01 | — | Pending |
-| INFRA-02 | — | Pending |
-| INFRA-03 | — | Pending |
-| INFRA-04 | — | Pending |
-| INFRA-05 | — | Pending |
-| INFRA-06 | — | Pending |
-| INFRA-07 | — | Pending |
-| DSGN-01 | — | Pending |
-| DSGN-02 | — | Pending |
-| DSGN-03 | — | Pending |
-| DSGN-04 | — | Pending |
-| DSGN-05 | — | Pending |
-| DSGN-06 | — | Pending |
+| DATA-01 | Phase 1 | Pending |
+| DATA-02 | Phase 1 | Pending |
+| DATA-03 | Phase 1 | Pending |
+| DATA-04 | Phase 1 | Pending |
+| DATA-05 | Phase 1 | Pending |
+| DATA-06 | Phase 1 | Pending |
+| DATA-07 | Phase 1 | Pending |
+| DATA-08 | Phase 1 | Pending |
+| MATCH-01 | Phase 1 | Pending |
+| MATCH-02 | Phase 1 | Pending |
+| MATCH-03 | Phase 1 | Pending |
+| MATCH-04 | Phase 1 | Pending |
+| MATCH-05 | Phase 1 | Pending |
+| MATCH-06 | Phase 1 | Pending |
+| SRCH-01 | Phase 2 | Pending |
+| SRCH-02 | Phase 2 | Pending |
+| SRCH-03 | Phase 2 | Pending |
+| SRCH-04 | Phase 2 | Pending |
+| SRCH-05 | Phase 2 | Pending |
+| PROF-01 | Phase 2 | Pending |
+| PROF-02 | Phase 2 | Pending |
+| PROF-03 | Phase 2 | Pending |
+| PROF-04 | Phase 2 | Pending |
+| PROF-05 | Phase 2 | Pending |
+| PROF-06 | Phase 2 | Pending |
+| AI-01 | Phase 2 | Pending |
+| AI-02 | Phase 2 | Pending |
+| AI-03 | Phase 2 | Pending |
+| AI-04 | Phase 2 | Pending |
+| AI-05 | Phase 2 | Pending |
+| COMM-01 | Phase 2 | Pending |
+| COMM-02 | Phase 2 | Pending |
+| COMM-03 | Phase 2 | Pending |
+| VIZ-01 | Phase 3 | Pending |
+| VIZ-02 | Phase 3 | Pending |
+| VIZ-03 | Phase 3 | Pending |
+| VIZ-04 | Phase 3 | Pending |
+| VIZ-05 | Phase 3 | Pending |
+| VIZ-06 | Phase 4 | Pending |
+| VIZ-07 | Phase 4 | Pending |
+| VIZ-08 | Phase 4 | Pending |
+| NEWS-01 | Phase 4 | Pending |
+| NEWS-02 | Phase 4 | Pending |
+| NEWS-03 | Phase 4 | Pending |
+| NEWS-04 | Phase 4 | Pending |
+| NEWS-05 | Phase 4 | Pending |
+| NEWS-06 | Phase 4 | Pending |
+| API-01 | Phase 2 | Pending |
+| API-02 | Phase 2 | Pending |
+| API-03 | Phase 2 | Pending |
+| API-04 | Phase 2 | Pending |
+| API-05 | Phase 2 | Pending |
+| API-06 | Phase 3 | Pending |
+| API-07 | Phase 3 | Pending |
+| API-08 | Phase 3 | Pending |
+| API-09 | Phase 4 | Pending |
+| API-10 | Phase 4 | Pending |
+| API-11 | Phase 2 | Pending |
+| API-12 | Phase 2 | Pending |
+| API-13 | Phase 4 | Pending |
+| INFRA-01 | Phase 1 | Pending |
+| INFRA-02 | Phase 1 | Pending |
+| INFRA-03 | Phase 1 | Pending |
+| INFRA-04 | Phase 1 | Pending |
+| INFRA-05 | Phase 1 | Pending |
+| INFRA-06 | Phase 1 | Pending |
+| INFRA-07 | Phase 1 | Pending |
+| DSGN-01 | Phase 2 | Pending |
+| DSGN-02 | Phase 2 | Pending |
+| DSGN-03 | Phase 2 | Pending |
+| DSGN-04 | Phase 2 | Pending |
+| DSGN-05 | Phase 2 | Pending |
+| DSGN-06 | Phase 2 | Pending |
 
 **Coverage:**
 - v1 requirements: 66 total
-- Mapped to phases: 0
-- Unmapped: 66 ⚠️
+- Mapped to phases: 66
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-03-31*
-*Last updated: 2026-03-31 after initial definition*
+*Last updated: 2026-03-31 after roadmap creation*
