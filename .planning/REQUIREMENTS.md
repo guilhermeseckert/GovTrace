@@ -98,8 +98,8 @@
 - [x] **INFRA-02**: PostgreSQL 16 with pg_trgm extension enabled
 - [x] **INFRA-03**: Drizzle ORM with shared schema, pnpm Catalogs for single instance
 - [x] **INFRA-04**: Docker Compose for local development (PostgreSQL)
-- [ ] **INFRA-05**: Docker deployment configuration for Coolify on Hetzner
-- [ ] **INFRA-06**: PostgreSQL not exposed to internet (use expose: not ports: in Docker)
+- [x] **INFRA-05**: Docker deployment configuration for Coolify on Hetzner
+- [x] **INFRA-06**: PostgreSQL not exposed to internet (use expose: not ports: in Docker)
 - [x] **INFRA-07**: Database indexes: GIN on normalized_name, FKs, composite on entity_connections, pg_trgm
 
 ### Design
@@ -214,8 +214,8 @@
 | INFRA-02 | Phase 1 | Complete |
 | INFRA-03 | Phase 1 | Complete |
 | INFRA-04 | Phase 1 | Complete |
-| INFRA-05 | Phase 1 | Pending |
-| INFRA-06 | Phase 1 | Pending |
+| INFRA-05 | Phase 1 | Complete |
+| INFRA-06 | Phase 1 | Complete |
 | INFRA-07 | Phase 1 | Complete |
 | DSGN-01 | Phase 2 | Pending |
 | DSGN-02 | Phase 2 | Pending |

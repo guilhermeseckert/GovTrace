@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 01-data-foundation 01-01-PLAN.md
-last_updated: "2026-04-01T04:14:22.531Z"
+stopped_at: Completed 01-data-foundation 01-02-PLAN.md
+last_updated: "2026-04-01T04:20:02.621Z"
 last_activity: 2026-04-01
 progress:
   total_phases: 4
   completed_phases: 0
   total_plans: 8
-  completed_plans: 1
+  completed_plans: 2
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-03-31)
 ## Current Position
 
 Phase: 01 (data-foundation) — EXECUTING
-Plan: 2 of 8
+Plan: 3 of 8
 Status: Ready to execute
 Last activity: 2026-04-01
 
@@ -53,6 +53,7 @@ Progress: [░░░░░░░░░░] 0%
 
 *Updated after each plan completion*
 | Phase 01-data-foundation P01 | 39 | 3 tasks | 24 files |
+| Phase 01-data-foundation P02 | 2 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -69,6 +70,9 @@ Recent decisions affecting current work:
 - [Phase 01-data-foundation]: Lazy DB singleton (let _db = null) in packages/db/src/client.ts prevents HMR connection pool exhaustion
 - [Phase 01-data-foundation]: Deterministic text IDs (SHA256 hash) for all raw source tables enables idempotent CSV re-ingestion
 - [Phase 01-data-foundation]: Pre-computed entityConnections table — no runtime JOINs across 5 raw tables for graph queries
+- [Phase 01-data-foundation]: srvx toNodeHandler wraps TanStack Start handler for Coolify Node.js HTTP compatibility (GitHub issue #5476 workaround)
+- [Phase 01-data-foundation]: expose: not ports: for postgres in docker-compose.yml — Docker DNAT bypasses Hetzner firewall with ports: mapping (INFRA-06)
+- [Phase 01-data-foundation]: docker-compose.override.yml gitignored pattern for local dev DB port access — never committed to production compose
 
 ### Pending Todos
 
@@ -81,6 +85,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-01T04:14:22.529Z
-Stopped at: Completed 01-data-foundation 01-01-PLAN.md
+Last session: 2026-04-01T04:20:02.618Z
+Stopped at: Completed 01-data-foundation 01-02-PLAN.md
 Resume file: None

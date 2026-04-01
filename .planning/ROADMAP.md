@@ -33,7 +33,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 Plans:
 - [x] 01-01-PLAN.md — Monorepo scaffold, shared DB schema (10 tables), Docker Compose with pg_trgm
-- [ ] 01-02-PLAN.md — Docker production config: web Dockerfile, TanStack Start server wrapper, Coolify deployment security
+- [x] 01-02-PLAN.md — Docker production config: web Dockerfile, TanStack Start server wrapper, Coolify deployment security
 - [ ] 01-03-PLAN.md — Elections Canada ingestion: encoding detection, multi-era parser, idempotent upsert
 - [ ] 01-04-PLAN.md — Federal contracts and grants ingestion pipelines
 - [ ] 01-05-PLAN.md — Lobbyist registrations and communications ingestion pipelines
@@ -85,7 +85,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Data Foundation | 0/8 | Not started | - |
+| 1. Data Foundation | 2/8 | In Progress|  |
 | 2. Search and Entity Profiles | 0/TBD | Not started | - |
 | 3. Visualizations | 0/TBD | Not started | - |
 | 4. Newsletter and Secondary Visualizations | 0/TBD | Not started | - |
