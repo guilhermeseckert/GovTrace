@@ -18,10 +18,10 @@
 
 ### Entity Matching
 
-- [ ] **MATCH-01**: System normalizes entity names (lowercase, strip legal suffixes, remove filler words, normalize whitespace)
-- [ ] **MATCH-02**: System performs fuzzy matching using PostgreSQL pg_trgm (trigram similarity > 0.6)
+- [x] **MATCH-01**: System normalizes entity names (lowercase, strip legal suffixes, remove filler words, normalize whitespace)
+- [x] **MATCH-02**: System performs fuzzy matching using PostgreSQL pg_trgm (trigram similarity > 0.6)
 - [ ] **MATCH-03**: System sends medium-confidence matches (0.6–0.85) to Claude API for verification with reasoning
-- [ ] **MATCH-04**: System stores match decisions in entity_matches_log with method, confidence, and AI reasoning
+- [x] **MATCH-04**: System stores match decisions in entity_matches_log with method, confidence, and AI reasoning
 - [ ] **MATCH-05**: System pre-computes entity_connections table with aggregated relationship data (type, total value, transaction count, date range)
 - [ ] **MATCH-06**: Entity matching uses Claude Batch API for historical backfill (cost efficiency)
 
@@ -158,10 +158,10 @@
 | DATA-06 | Phase 1 | Complete |
 | DATA-07 | Phase 1 | Complete |
 | DATA-08 | Phase 1 | Complete |
-| MATCH-01 | Phase 1 | Pending |
-| MATCH-02 | Phase 1 | Pending |
+| MATCH-01 | Phase 1 | Complete |
+| MATCH-02 | Phase 1 | Complete |
 | MATCH-03 | Phase 1 | Pending |
-| MATCH-04 | Phase 1 | Pending |
+| MATCH-04 | Phase 1 | Complete |
 | MATCH-05 | Phase 1 | Pending |
 | MATCH-06 | Phase 1 | Pending |
 | SRCH-01 | Phase 2 | Pending |

@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 01-data-foundation 01-05-PLAN.md
-last_updated: "2026-04-01T04:23:25.674Z"
+stopped_at: Completed 01-data-foundation 01-06-PLAN.md
+last_updated: "2026-04-01T04:37:08.544Z"
 last_activity: 2026-04-01
 progress:
   total_phases: 4
   completed_phases: 0
   total_plans: 8
-  completed_plans: 5
+  completed_plans: 6
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-03-31)
 ## Current Position
 
 Phase: 01 (data-foundation) — EXECUTING
-Plan: 6 of 8
+Plan: 7 of 8
 Status: Ready to execute
 Last activity: 2026-04-01
 
@@ -57,6 +57,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01-data-foundation P04 | 15 | 3 tasks | 9 files |
 | Phase 01-data-foundation P03 | 5 | 3 tasks | 11 files |
 | Phase 01-data-foundation P05 | 5 minutes | 3 tasks | 10 files |
+| Phase 01-data-foundation P06 | 10 minutes | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -82,6 +83,8 @@ Recent decisions affecting current work:
 - [Phase 01-data-foundation]: deriveSourceKey normalizes fields (trim+toLowerCase) before hashing for consistent IDs despite whitespace variation
 - [Phase 01-data-foundation]: sourceFileHash.slice(0,8) included in donation ID derivation to scope keys to source file, preventing cross-file ID collisions
 - [Phase 01-data-foundation]: Lobby registrations use government registration_number directly as ID (stable key, no hash); communications use deriveSourceKey([regNum, date, lobbyist, official]) since no government key exists
+- [Phase 01-data-foundation]: LEGAL_SUFFIXES contains only true legal registration forms (Inc/Ltd/Corp/Ltée) — not generic business words like 'group', 'services', 'canada' which are meaningful name parts
+- [Phase 01-data-foundation]: Drizzle select() API used instead of db.query relational API in matcher — avoids TypeScript type inference issue with merged schema export in getDb()
 
 ### Pending Todos
 
@@ -94,6 +97,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-01T04:23:25.672Z
-Stopped at: Completed 01-data-foundation 01-05-PLAN.md
+Last session: 2026-04-01T04:37:08.542Z
+Stopped at: Completed 01-data-foundation 01-06-PLAN.md
 Resume file: None
