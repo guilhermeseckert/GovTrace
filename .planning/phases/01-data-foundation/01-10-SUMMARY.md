@@ -80,7 +80,7 @@ Each task was committed atomically:
 1. **Task 1: Move packages/web to apps/web and update workspace config** - `196c57e` (chore)
 2. **Task 2: Add Turborepo and update docker-compose + root scripts** - `6b6db86` (chore)
 
-**Plan metadata:** pending final commit
+**Plan metadata:** `d38da9b` (docs: complete plan)
 
 ## Files Created/Modified
 
