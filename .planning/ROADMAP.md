@@ -35,7 +35,7 @@ Plans:
 - [x] 01-01-PLAN.md — Monorepo scaffold, shared DB schema (10 tables), Docker Compose with pg_trgm
 - [x] 01-02-PLAN.md — Docker production config: web Dockerfile, TanStack Start server wrapper, Coolify deployment security
 - [ ] 01-03-PLAN.md — Elections Canada ingestion: encoding detection, multi-era parser, idempotent upsert
-- [ ] 01-04-PLAN.md — Federal contracts and grants ingestion pipelines
+- [x] 01-04-PLAN.md — Federal contracts and grants ingestion pipelines
 - [ ] 01-05-PLAN.md — Lobbyist registrations and communications ingestion pipelines
 - [ ] 01-06-PLAN.md — Entity normalizer + deterministic + fuzzy (pg_trgm) matching pipeline
 - [ ] 01-07-PLAN.md — Claude AI verification stage: Batch API with circuit breaker, full match provenance

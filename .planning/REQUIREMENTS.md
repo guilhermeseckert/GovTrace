@@ -8,13 +8,13 @@
 ### Data Ingestion
 
 - [ ] **DATA-01**: System downloads and parses Elections Canada political contributions CSV (2004–present)
-- [ ] **DATA-02**: System downloads and parses federal contracts CSV from open.canada.ca
-- [ ] **DATA-03**: System downloads and parses federal grants CSV from open.canada.ca
+- [x] **DATA-02**: System downloads and parses federal contracts CSV from open.canada.ca
+- [x] **DATA-03**: System downloads and parses federal grants CSV from open.canada.ca
 - [ ] **DATA-04**: System downloads and parses lobbyist registrations from lobbycanada.gc.ca
 - [ ] **DATA-05**: System downloads and parses lobbyist communication reports from lobbycanada.gc.ca
-- [ ] **DATA-06**: System detects and handles CSV encoding (UTF-8, ISO-8859-1, Windows-1252) per file
-- [ ] **DATA-07**: Ingestion is idempotent — re-running with same data produces no duplicates (upsert on source-derived keys)
-- [ ] **DATA-08**: Raw source data preserved in jsonb column for every record
+- [x] **DATA-06**: System detects and handles CSV encoding (UTF-8, ISO-8859-1, Windows-1252) per file
+- [x] **DATA-07**: Ingestion is idempotent — re-running with same data produces no duplicates (upsert on source-derived keys)
+- [x] **DATA-08**: Raw source data preserved in jsonb column for every record
 
 ### Entity Matching
 
@@ -151,13 +151,13 @@
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | DATA-01 | Phase 1 | Pending |
-| DATA-02 | Phase 1 | Pending |
-| DATA-03 | Phase 1 | Pending |
+| DATA-02 | Phase 1 | Complete |
+| DATA-03 | Phase 1 | Complete |
 | DATA-04 | Phase 1 | Pending |
 | DATA-05 | Phase 1 | Pending |
-| DATA-06 | Phase 1 | Pending |
-| DATA-07 | Phase 1 | Pending |
-| DATA-08 | Phase 1 | Pending |
+| DATA-06 | Phase 1 | Complete |
+| DATA-07 | Phase 1 | Complete |
+| DATA-08 | Phase 1 | Complete |
 | MATCH-01 | Phase 1 | Pending |
 | MATCH-02 | Phase 1 | Pending |
 | MATCH-03 | Phase 1 | Pending |
