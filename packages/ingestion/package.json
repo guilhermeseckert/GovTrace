@@ -1,0 +1,28 @@
+{
+  "name": "@govtrace/ingestion",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node --import tsx/esm src/index.ts",
+    "dev": "node --watch --import tsx/esm src/index.ts",
+    "ingest": "node --import tsx/esm src/index.ts ingest"
+  },
+  "dependencies": {
+    "@govtrace/db": "workspace:*",
+    "drizzle-orm": "catalog:",
+    "postgres": "catalog:",
+    "zod": "catalog:",
+    "papaparse": "catalog:",
+    "chardet": "catalog:",
+    "iconv-lite": "catalog:",
+    "pg-boss": "catalog:",
+    "@anthropic-ai/sdk": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@types/papaparse": "catalog:",
+    "typescript": "catalog:",
+    "tsx": "^4.19.0"
+  }
+}
