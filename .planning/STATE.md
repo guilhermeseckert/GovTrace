@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 01-data-foundation 01-06-PLAN.md
-last_updated: "2026-04-01T04:37:08.544Z"
+stopped_at: Completed 01-data-foundation 01-07-PLAN.md
+last_updated: "2026-04-01T04:42:10.790Z"
 last_activity: 2026-04-01
 progress:
   total_phases: 4
   completed_phases: 0
   total_plans: 8
-  completed_plans: 6
+  completed_plans: 7
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-03-31)
 ## Current Position
 
 Phase: 01 (data-foundation) — EXECUTING
-Plan: 7 of 8
+Plan: 8 of 8
 Status: Ready to execute
 Last activity: 2026-04-01
 
@@ -58,6 +58,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01-data-foundation P03 | 5 | 3 tasks | 11 files |
 | Phase 01-data-foundation P05 | 5 minutes | 3 tasks | 10 files |
 | Phase 01-data-foundation P06 | 10 minutes | 2 tasks | 7 files |
+| Phase 01-data-foundation P07 | 2 minutes | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -85,6 +86,9 @@ Recent decisions affecting current work:
 - [Phase 01-data-foundation]: Lobby registrations use government registration_number directly as ID (stable key, no hash); communications use deriveSourceKey([regNum, date, lobbyist, official]) since no government key exists
 - [Phase 01-data-foundation]: LEGAL_SUFFIXES contains only true legal registration forms (Inc/Ltd/Corp/Ltée) — not generic business words like 'group', 'services', 'canada' which are meaningful name parts
 - [Phase 01-data-foundation]: Drizzle select() API used instead of db.query relational API in matcher — avoids TypeScript type inference issue with merged schema export in getDb()
+- [Phase 01-data-foundation]: claude-haiku-3-5 as default model for cost-efficient AI entity verification; SONNET_MODEL exported for caller escalation to stronger model
+- [Phase 01-data-foundation]: Circuit breaker at 10,000 uncertain candidates with cost estimate in error message — prevents AI cost runaway during historical backfill (D-07, Pitfall 4)
+- [Phase 01-data-foundation]: Claude Batch API flow: collect uncertain records → circuit breaker → batches.create → store batchId in matchMethod → poll until ended → stream results; every decision logged with aiModel/aiConfidence/aiReasoning
 
 ### Pending Todos
 
@@ -97,6 +101,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-01T04:37:08.542Z
-Stopped at: Completed 01-data-foundation 01-06-PLAN.md
+Last session: 2026-04-01T04:42:10.788Z
+Stopped at: Completed 01-data-foundation 01-07-PLAN.md
 Resume file: None

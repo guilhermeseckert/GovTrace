@@ -38,7 +38,7 @@ Plans:
 - [x] 01-04-PLAN.md — Federal contracts and grants ingestion pipelines
 - [x] 01-05-PLAN.md — Lobbyist registrations and communications ingestion pipelines
 - [x] 01-06-PLAN.md — Entity normalizer + deterministic + fuzzy (pg_trgm) matching pipeline
-- [ ] 01-07-PLAN.md — Claude AI verification stage: Batch API with circuit breaker, full match provenance
+- [x] 01-07-PLAN.md — Claude AI verification stage: Batch API with circuit breaker, full match provenance
 - [ ] 01-08-PLAN.md — entity_connections builder, pg-boss scheduler, Phase 1 end-to-end verification
 
 ### Phase 2: Search and Entity Profiles
@@ -85,7 +85,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Data Foundation | 6/8 | In Progress|  |
+| 1. Data Foundation | 7/8 | In Progress|  |
 | 2. Search and Entity Profiles | 0/TBD | Not started | - |
 | 3. Visualizations | 0/TBD | Not started | - |
 | 4. Newsletter and Secondary Visualizations | 0/TBD | Not started | - |
