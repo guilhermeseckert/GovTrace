@@ -1,0 +1,16 @@
+packages:
+  - 'packages/*'
+
+catalog:
+  drizzle-orm: ^0.45.2
+  drizzle-kit: ^0.30.0
+  postgres: ^3.4.5
+  zod: ^3.24.0
+  '@anthropic-ai/sdk': ^0.80.0
+  papaparse: ^5.4.1
+  '@types/papaparse': ^5.3.14
+  pg-boss: ^9.0.0
+  chardet: ^2.0.0
+  iconv-lite: ^0.6.3
+  '@types/node': ^22.0.0
+  typescript: ^5.7.0
