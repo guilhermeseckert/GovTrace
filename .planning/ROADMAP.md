@@ -29,7 +29,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Every entity match record has a confidence score, match method, and (for AI-routed matches) Claude reasoning stored in entity_matches_log
   4. The entity_connections table is populated with aggregated relationship data after a full ingestion run completes
   5. Local development environment starts with a single `docker compose up` and the web app can query all 5 source tables
-**Plans**: 8 plans
+**Plans**: 10 plans
 
 Plans:
 - [x] 01-01-PLAN.md — Monorepo scaffold, shared DB schema (10 tables), Docker Compose with pg_trgm
@@ -40,6 +40,8 @@ Plans:
 - [x] 01-06-PLAN.md — Entity normalizer + deterministic + fuzzy (pg_trgm) matching pipeline
 - [x] 01-07-PLAN.md — Claude AI verification stage: Batch API with circuit breaker, full match provenance
 - [x] 01-08-PLAN.md — entity_connections builder, pg-boss scheduler, Phase 1 end-to-end verification
+- [ ] 01-09-PLAN.md — Gap closure: fix broken onConflictDoUpdate conflict target in deterministic.ts
+- [ ] 01-10-PLAN.md — Gap closure: TanStack Start web scaffold (app.config.ts, routes), fix vinxi build scripts, .env.example
 
 ### Phase 2: Search and Entity Profiles
 **Goal**: Users can search any name and immediately see their complete financial and lobbying picture across all government datasets
@@ -85,7 +87,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Data Foundation | 8/8 | Complete   | 2026-04-01 |
+| 1. Data Foundation | 8/10 | Gap closure | - |
 | 2. Search and Entity Profiles | 0/TBD | Not started | - |
 | 3. Visualizations | 0/TBD | Not started | - |
 | 4. Newsletter and Secondary Visualizations | 0/TBD | Not started | - |
