@@ -54,8 +54,16 @@ Plans:
   3. User can click through tabbed sections (Donations, Contracts, Grants, Lobbying, Connections) and sort/filter/paginate each table
   4. Every individual record shows a direct link to the original government data source
   5. User can click "Flag an error" on any entity match and submit a correction without creating an account
-**Plans**: TBD
-**UI hint**: yes
+**Plans**: 7 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — shadcn init + Tailwind v4 design system, i18n file, cookie dark mode, root layout
+- [ ] 02-02-PLAN.md — Search and autocomplete server functions, stats server function, /api/search and /api/stats routes
+- [ ] 02-03-PLAN.md — Landing page (hero search + stat chips) and search results page with filters
+- [ ] 02-04-PLAN.md — Entity profile + dataset server functions, AI summary generation, flag submission, /api/entity/:id/flag route
+- [ ] 02-05-PLAN.md — Entity profile route (/entity/:id), EntityHeader, AISummary, ConfidenceBadge, ProfileTabs
+- [ ] 02-06-PLAN.md — Five data tables (Donations, Contracts, Grants, Lobbying, Connections) wired into ProfileTabs
+- [ ] 02-07-PLAN.md — FlagModal (shadcn Dialog), AI summary explanation dialog, wire into entity profile
 
 ### Phase 3: Visualizations
 **Goal**: Users can see entity relationships and money flows as interactive visual graphs — the patterns hidden in tabular data become immediately apparent
@@ -89,6 +97,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Data Foundation | 11/11 | Complete   | 2026-04-01 |
-| 2. Search and Entity Profiles | 0/TBD | Not started | - |
+| 2. Search and Entity Profiles | 0/7 | Not started | - |
 | 3. Visualizations | 0/TBD | Not started | - |
 | 4. Newsletter and Secondary Visualizations | 0/TBD | Not started | - |
