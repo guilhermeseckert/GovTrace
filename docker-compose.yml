@@ -1,3 +1,18 @@
+# GovTrace Docker Compose
+# Production + Local Dev configuration
+#
+# LOCAL DEV ONLY — accessing PostgreSQL from host (drizzle-kit studio, etc.):
+#   Create docker-compose.override.yml with:
+#     services:
+#       postgres:
+#         ports:
+#           - "127.0.0.1:5432:5432"
+#   This override is gitignored and only applies locally.
+#
+# SECURITY NOTE: Never use ports: for postgres in production.
+# Docker bypasses UFW and Hetzner firewall rules when ports: is used.
+# See: PITFALLS.md — Docker port exposure (INFRA-06)
+
 version: '3.9'
 
 services:
@@ -7,13 +22,10 @@ services:
       POSTGRES_USER: govtrace
       POSTGRES_PASSWORD: govtrace
       POSTGRES_DB: govtrace
-    # CRITICAL: use expose: not ports: to prevent Docker DNAT from bypassing Hetzner firewall (D-10)
-    # For local dev, use: docker exec govtrace-postgres-1 psql -U govtrace govtrace
-    # OR use: docker compose exec postgres psql -U govtrace govtrace
-    # To access from host for dev tools (drizzle studio), use localhost:5432 via the ports below
-    # In production Coolify deployment: change ports: to expose: for security
-    ports:
-      - "127.0.0.1:5432:5432"  # Local dev: bind to 127.0.0.1 only (not 0.0.0.0)
+    # INFRA-06: expose: keeps postgres inside Docker network only
+    # Docker bypasses Hetzner firewall with ports: mapping — never use in production
+    expose:
+      - "5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./docker/postgres-init.sql:/docker-entrypoint-initdb.d/01-extensions.sql:ro
@@ -22,6 +34,23 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: packages/web/Dockerfile
+    environment:
+      DATABASE_URL: postgres://govtrace:govtrace@postgres:5432/govtrace
+      NODE_ENV: production
+      PORT: 3000
+    expose:
+      - "3000"
+    # In Coolify, configure the port mapping via the Coolify UI (proxy handles TLS)
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
 
   ingestion:
     build:
@@ -29,12 +58,14 @@ services:
       dockerfile: packages/ingestion/Dockerfile
     environment:
       DATABASE_URL: postgres://govtrace:govtrace@postgres:5432/govtrace
-      NODE_ENV: development
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      NODE_ENV: production
     depends_on:
       postgres:
         condition: service_healthy
     profiles:
-      - ingestion  # Only start with: docker compose --profile ingestion up
+      - ingestion
+    restart: unless-stopped
 
 volumes:
   postgres_data:

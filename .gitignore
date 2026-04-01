@@ -4,6 +4,9 @@ dist/
 .env.local
 .DS_Store
 
+# Local Docker override (exposes DB port for dev tools — not for production)
+docker-compose.override.yml
+
 # Drizzle generated migrations (keep - version control desired)
 # packages/db/drizzle/
 
