@@ -1,0 +1,27 @@
+{
+  "name": "@govtrace/db",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./schema/raw": "./src/schema/raw.ts",
+    "./schema/entities": "./src/schema/entities.ts",
+    "./schema/connections": "./src/schema/connections.ts",
+    "./schema/jobs": "./src/schema/jobs.ts",
+    "./client": "./src/client.ts"
+  },
+  "scripts": {
+    "generate": "drizzle-kit generate",
+    "migrate": "drizzle-kit migrate",
+    "studio": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "drizzle-orm": "catalog:",
+    "postgres": "catalog:"
+  },
+  "devDependencies": {
+    "drizzle-kit": "catalog:",
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}
