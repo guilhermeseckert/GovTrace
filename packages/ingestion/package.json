@@ -19,13 +19,15 @@
     "chardet": "catalog:",
     "iconv-lite": "catalog:",
     "pg-boss": "catalog:",
-    "@anthropic-ai/sdk": "catalog:"
+    "@anthropic-ai/sdk": "catalog:",
+    "adm-zip": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",
     "@types/papaparse": "catalog:",
     "typescript": "catalog:",
     "tsx": "^4.19.0",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "@types/adm-zip": "catalog:"
   }
 }
