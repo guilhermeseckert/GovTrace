@@ -82,8 +82,8 @@ export async function createNewEntity(
     normalizedName,
     entityType: inferredType,
   }).onConflictDoUpdate({
-    target: entities.normalizedName,
-    set: { canonicalName: rawName },
+    target: [entities.canonicalName, entities.entityType],
+    set: { normalizedName: normalizeName(rawName) ?? normalizedName ?? '' },
   }).returning()
 
   if (!entity) throw new Error(`Failed to create entity for: ${rawName}`)
