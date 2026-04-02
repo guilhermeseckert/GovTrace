@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-05-PLAN.md
-last_updated: "2026-04-02T01:08:29.309Z"
+stopped_at: Completed 02-03-PLAN.md
+last_updated: "2026-04-02T01:10:30.483Z"
 last_activity: 2026-04-02
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 18
-  completed_plans: 15
+  completed_plans: 16
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-03-31)
 ## Current Position
 
 Phase: 02 (search-and-entity-profiles) — EXECUTING
-Plan: 5 of 7
+Plan: 6 of 7
 Status: Ready to execute
 Last activity: 2026-04-02
 
@@ -67,6 +67,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 02-search-and-entity-profiles P01 | 6min | 2 tasks | 18 files |
 | Phase 02-search-and-entity-profiles P04 | 6min | 2 tasks | 7 files |
 | Phase 02-search-and-entity-profiles P05 | 2min | 2 tasks | 6 files |
+| Phase 02-search-and-entity-profiles P03 | 3min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -116,6 +117,8 @@ Recent decisions affecting current work:
 - [Phase 02-search-and-entity-profiles]: Lobby tables use dual-FK pattern (lobbyistEntityId OR clientEntityId) — no single entityId FK; queries must use OR
 - [Phase 02-search-and-entity-profiles]: ProfileTabs accepts optional ReactNode slot props (donationsTable etc.) so Plan 06 can inject DataTable components without modifying tab structure
 - [Phase 02-search-and-entity-profiles]: 3-state badge pattern: getState() pure function + STATE_CONFIG as const map for type-safe color/icon/label selection (ConfidenceBadge)
+- [Phase 02-search-and-entity-profiles]: loaderDeps pattern in search.tsx instead of context.location.search — avoids TypeScript type inference issues with TanStack Start v1.167 loader context shape
+- [Phase 02-search-and-entity-profiles]: SearchResults seenLabels Set deduplicates Companies/Organizations group label across company and organization entity type keys
 
 ### Pending Todos
 
@@ -128,6 +131,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-02T01:08:29.306Z
-Stopped at: Completed 02-05-PLAN.md
+Last session: 2026-04-02T01:10:30.480Z
+Stopped at: Completed 02-03-PLAN.md
 Resume file: None
