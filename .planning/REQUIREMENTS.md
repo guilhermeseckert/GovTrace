@@ -47,8 +47,8 @@
 - [x] **AI-01**: System generates plain-language summaries using Claude API (simple words, rounded numbers, emoji icons)
 - [x] **AI-02**: Summaries include "connections do not imply wrongdoing" caveat when showing relationships
 - [x] **AI-03**: Summaries are cached and regenerated weekly on data refresh
-- [ ] **AI-04**: AI match transparency badge shows confidence score, match method, and expandable AI reasoning
-- [ ] **AI-05**: "How do we write this summary?" link explains AI generation from public data
+- [x] **AI-04**: AI match transparency badge shows confidence score, match method, and expandable AI reasoning
+- [x] **AI-05**: "How do we write this summary?" link explains AI generation from public data
 
 ### Community
 
@@ -178,8 +178,8 @@
 | AI-01 | Phase 2 | Complete |
 | AI-02 | Phase 2 | Complete |
 | AI-03 | Phase 2 | Complete |
-| AI-04 | Phase 2 | Pending |
-| AI-05 | Phase 2 | Pending |
+| AI-04 | Phase 2 | Complete |
+| AI-05 | Phase 2 | Complete |
 | COMM-01 | Phase 2 | Complete |
 | COMM-02 | Phase 2 | Complete |
 | COMM-03 | Phase 2 | Complete |
