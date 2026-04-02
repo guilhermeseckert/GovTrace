@@ -4,7 +4,7 @@ import { sql } from 'drizzle-orm'
 import { getDb } from '@govtrace/db/client'
 import { ingestionRuns } from '@govtrace/db/schema/jobs'
 import { downloadGrants } from '../downloaders/grants.ts'
-import { parseGrantsFile } from '../parsers/grants.ts'
+import { streamGrantsFile } from '../parsers/grants.ts'
 import { upsertGrants } from '../upsert/grants.ts'
 
 export async function runGrantsIngestion(): Promise<void> {
@@ -16,49 +16,43 @@ export async function runGrantsIngestion(): Promise<void> {
     .values({
       source: 'grants',
       status: 'running',
-      sourceFileUrl:
-        'https://open.canada.ca/data/dataset/432527ab-7aac-45b5-81d6-7597107a7013/resource/1d15a62f-5656-49ad-8c88-f40ce689d831/download/grants.csv',
+      sourceFileUrl: 'https://open.canada.ca/data/dataset/432527ab-7aac-45b5-81d6-7597107a7013',
     })
     .returning()
 
   const runId = run.id
+  let totalRecords = 0
+  let totalInserted = 0
 
   try {
     console.log('Downloading federal grants CSV...')
     const { localPath, fileHash, fileSizeBytes } = await downloadGrants(destDir)
-    console.log(`Downloaded ${fileSizeBytes} bytes, hash: ${fileHash.slice(0, 8)}...`)
+    console.log(`Downloaded ${(fileSizeBytes / 1024 / 1024).toFixed(1)} MB, hash: ${fileHash.slice(0, 8)}...`)
 
-    console.log('Parsing CSV...')
-    const records = await parseGrantsFile(localPath, fileHash, (count) => {
-      console.log(`  Parsed ${count.toLocaleString()} records...`)
-    })
-    console.log(`Parsed ${records.length.toLocaleString()} grant records`)
+    console.log('Streaming CSV parse + upsert...')
+    totalRecords = await streamGrantsFile(
+      localPath, fileHash,
+      async (batch) => {
+        const result = await upsertGrants(batch)
+        totalInserted += result.total
+      },
+      5000,
+      (count) => console.log(`  Processed ${count.toLocaleString()} records...`),
+    )
 
-    console.log('Upserting to database...')
-    const result = await upsertGrants(records)
-    console.log(`Upserted ${result.total.toLocaleString()} records`)
+    console.log(`Total: ${totalRecords.toLocaleString()} parsed, ${totalInserted.toLocaleString()} upserted`)
 
-    await db
-      .update(ingestionRuns)
-      .set({
-        status: 'completed',
-        sourceFileHash: fileHash,
-        recordsProcessed: records.length,
-        recordsInserted: result.inserted,
-        completedAt: new Date(),
-      })
-      .where(sql`id = ${runId}`)
+    await db.update(ingestionRuns).set({
+      status: 'completed', sourceFileHash: fileHash,
+      recordsProcessed: totalRecords, recordsInserted: totalInserted, completedAt: new Date(),
+    }).where(sql`id = ${runId}`)
 
     console.log('Grants ingestion complete.')
   } catch (error) {
-    await db
-      .update(ingestionRuns)
-      .set({
-        status: 'failed',
-        errorMessage: error instanceof Error ? error.message : String(error),
-        completedAt: new Date(),
-      })
-      .where(sql`id = ${runId}`)
+    await db.update(ingestionRuns).set({
+      status: 'failed', errorMessage: error instanceof Error ? error.message : String(error),
+      completedAt: new Date(),
+    }).where(sql`id = ${runId}`)
     throw error
   }
 }

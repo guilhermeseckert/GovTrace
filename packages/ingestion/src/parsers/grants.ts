@@ -1,10 +1,11 @@
-import { readFile } from 'node:fs/promises'
+import { createReadStream, readSync, openSync, closeSync } from 'node:fs'
 import Papa from 'papaparse'
-import { detectAndTranscode } from '../lib/encoding.ts'
+import chardet from 'chardet'
+import iconv from 'iconv-lite'
 import { deriveSourceKey } from '../lib/hash.ts'
 
 export interface GrantRecord {
-  id: string // deterministic SHA-256 hash (no government-assigned ID in public CSV)
+  id: string
   recipientName: string
   recipientLegalName: string | null
   department: string
@@ -21,7 +22,6 @@ export interface GrantRecord {
   rawData: Record<string, unknown>
 }
 
-// Column aliases: each array lists known header variants across open.canada.ca schema versions
 const COLUMN_ALIASES: Record<string, string[]> = {
   recipientName: ['recipient_name', 'legal_name_en', 'org_name_en', 'recipient'],
   recipientLegalName: ['legal_name_en', 'recipient_legal_name', 'full_name_en'],
@@ -40,108 +40,107 @@ const COLUMN_ALIASES: Record<string, string[]> = {
 function buildColumnMapping(headers: string[]): Map<string, number> {
   const mapping = new Map<string, number>()
   const normalizedHeaders = headers.map((h) => h.trim().toLowerCase().replace(/\s+/g, '_'))
-
   for (const [field, aliases] of Object.entries(COLUMN_ALIASES)) {
-    // Avoid overwriting already-mapped fields (first match wins)
-    if (mapping.has(field)) continue
     const normalizedAliases = aliases.map((a) => a.trim().toLowerCase().replace(/\s+/g, '_'))
     const idx = normalizedHeaders.findIndex((h) => normalizedAliases.includes(h))
-    if (idx !== -1) {
-      mapping.set(field, idx)
-    }
+    if (idx !== -1) mapping.set(field, idx)
   }
   return mapping
 }
 
-/**
- * Parses a federal grants CSV file to GrantRecord[].
- * - Detects encoding and transcodes to UTF-8 before parsing
- * - Maps columns by header name, never by position
- * - Generates deterministic IDs for idempotent upserts (no government-assigned grant ID)
- * - Preserves full original CSV row in rawData (DATA-08)
- */
-export async function parseGrantsFile(
+function detectFileEncoding(filePath: string): string {
+  const buffer = Buffer.alloc(65536)
+  const fd = openSync(filePath, 'r')
+  try { readSync(fd, buffer, 0, 65536, 0) } finally { closeSync(fd) }
+  return chardet.detect(buffer) ?? 'UTF-8'
+}
+
+export async function streamGrantsFile(
   csvPath: string,
   sourceFileHash: string,
+  onBatch: (records: GrantRecord[]) => Promise<void>,
+  batchSize = 5000,
   onProgress?: (count: number) => void,
-): Promise<GrantRecord[]> {
-  const rawBuffer = await readFile(csvPath)
-  const { utf8Content, detectedEncoding } = await detectAndTranscode(rawBuffer)
+): Promise<number> {
+  const encoding = detectFileEncoding(csvPath)
+  console.log(`Grants CSV: detected encoding ${encoding}`)
 
-  console.log(`Grants CSV: detected encoding ${detectedEncoding}, size ${rawBuffer.length} bytes`)
+  const fileStream = createReadStream(csvPath)
+  const inputStream = fileStream.pipe(iconv.decodeStream(encoding)).pipe(iconv.encodeStream('utf-8'))
 
-  const records: GrantRecord[] = []
   let columnMapping: Map<string, number> | null = null
   let isFirstRow = true
+  let batch: GrantRecord[] = []
+  let totalCount = 0
+  let pendingFlush: Promise<void> | null = null
 
-  const parseResult = Papa.parse<string[]>(utf8Content, {
-    skipEmptyLines: true,
-    header: false,
+  return new Promise<number>((resolve, reject) => {
+    Papa.parse(inputStream as NodeJS.ReadableStream, {
+      skipEmptyLines: true,
+      header: false,
+      step: (result: Papa.ParseStepResult<string[]>, parser: Papa.Parser) => {
+        const row = result.data
+        if (isFirstRow) {
+          if (row[0]) row[0] = row[0].replace(/^\uFEFF/, '')
+          columnMapping = buildColumnMapping(row)
+          console.log(`Column mapping: ${columnMapping.size} fields matched from ${row.length} headers`)
+          isFirstRow = false
+          return
+        }
+        if (!columnMapping) return
+
+        const get = (field: string): string | null => {
+          const idx = columnMapping!.get(field)
+          if (idx === undefined) return null
+          const val = row[idx]
+          return val !== undefined && val.trim() !== '' ? val.trim() : null
+        }
+
+        const recipientName = get('recipientName')
+        const department = get('department')
+        if (!recipientName || !department) return
+
+        const amount = get('amount')
+        const agreementDate = get('agreementDate')
+        const description = get('description')
+
+        const id = deriveSourceKey([
+          recipientName, department, amount ?? '', agreementDate ?? '', (description ?? '').slice(0, 50),
+        ])
+
+        batch.push({
+          id, recipientName, recipientLegalName: get('recipientLegalName'),
+          department, programName: get('programName'), description, amount,
+          agreementDate, startDate: get('startDate'), endDate: get('endDate'),
+          province: get('province'), city: get('city'), grantType: get('grantType'),
+          sourceFileHash,
+          rawData: Object.fromEntries(row.map((val, idx) => [idx.toString(), val])),
+        })
+
+        if (batch.length >= batchSize) {
+          const currentBatch = batch
+          batch = []
+          totalCount += currentBatch.length
+          parser.pause()
+          pendingFlush = onBatch(currentBatch).then(() => {
+            if (onProgress) onProgress(totalCount)
+            parser.resume()
+          }).catch(reject)
+        }
+      },
+      complete: () => {
+        const finish = async () => {
+          if (pendingFlush) await pendingFlush
+          if (batch.length > 0) {
+            totalCount += batch.length
+            await onBatch(batch)
+            if (onProgress) onProgress(totalCount)
+          }
+          resolve(totalCount)
+        }
+        finish().catch(reject)
+      },
+      error: (error: Error) => reject(error),
+    })
   })
-
-  for (const row of parseResult.data) {
-    if (isFirstRow) {
-      columnMapping = buildColumnMapping(row)
-      isFirstRow = false
-      continue
-    }
-
-    if (!columnMapping) continue
-
-    const get = (field: string): string | null => {
-      const idx = columnMapping!.get(field)
-      if (idx === undefined) return null
-      const val = row[idx]
-      return val !== undefined && val.trim() !== '' ? val.trim() : null
-    }
-
-    const recipientName = get('recipientName')
-    const department = get('department')
-
-    // Skip rows missing required fields
-    if (!recipientName || !department) continue
-
-    // Build raw data map from header-indexed row values
-    const rawData: Record<string, unknown> = {}
-    for (const [i, val] of row.entries()) {
-      rawData[i.toString()] = val
-    }
-
-    const amount = get('amount')
-    const agreementDate = get('agreementDate')
-    const startDate = get('startDate')
-
-    // Deterministic ID from source fields (no government-assigned grant ID in public CSV)
-    const id = deriveSourceKey([
-      recipientName,
-      department,
-      amount ?? '',
-      agreementDate ?? startDate ?? '',
-    ])
-
-    const record: GrantRecord = {
-      id,
-      recipientName,
-      recipientLegalName: get('recipientLegalName'),
-      department,
-      programName: get('programName'),
-      description: get('description'),
-      amount,
-      agreementDate,
-      startDate,
-      endDate: get('endDate'),
-      province: get('province'),
-      city: get('city'),
-      grantType: get('grantType'),
-      sourceFileHash,
-      rawData,
-    }
-
-    records.push(record)
-    if (onProgress && records.length % 10000 === 0) {
-      onProgress(records.length)
-    }
-  }
-
-  return records
 }
