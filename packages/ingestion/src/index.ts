@@ -7,6 +7,11 @@ config({ path: resolve(import.meta.dirname, '../../../.env') })
 const command = process.argv[2]
 const source = process.argv[3]
 
+// --limit N flag: only process first N records (for testing)
+const limitIdx = process.argv.indexOf('--limit')
+const RECORD_LIMIT = limitIdx !== -1 ? Number(process.argv[limitIdx + 1]) : undefined
+if (RECORD_LIMIT) console.log(`[limit] Processing max ${RECORD_LIMIT.toLocaleString()} records`)
+
 switch (command) {
   case 'ingest': {
     switch (source) {
@@ -66,6 +71,19 @@ switch (command) {
     const { buildEntityConnections } = await import('./graph/build-connections.ts')
     const result = await buildEntityConnections()
     console.log(`Built ${result.total} entity connections.`)
+    break
+  }
+
+  case 'match': {
+    const { runMatchingPipeline } = await import('./matcher/run-matching.ts')
+    console.log('Running entity matching pipeline (Stages 1+2: deterministic + fuzzy)...')
+    const stats = await runMatchingPipeline()
+    console.log(`Matching complete:`)
+    console.log(`  Total names processed: ${stats.total.toLocaleString()}`)
+    console.log(`  Deterministic matches: ${stats.deterministic.toLocaleString()}`)
+    console.log(`  High-confidence fuzzy: ${stats.highConfidenceFuzzy.toLocaleString()}`)
+    console.log(`  Medium-confidence (queued for AI): ${stats.mediumConfidenceQueued.toLocaleString()}`)
+    console.log(`  New entities created: ${stats.newEntities.toLocaleString()}`)
     break
   }
 
