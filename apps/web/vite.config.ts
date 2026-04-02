@@ -8,6 +8,7 @@ export default defineConfig({
     tanstackStart(),
     tailwindcss(),
   ],
+  envDir: resolve(import.meta.dirname, '../..'),
   resolve: {
     alias: {
       '@': resolve(import.meta.dirname, './src'),
