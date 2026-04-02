@@ -25,7 +25,7 @@ export type EntityProfile = {
 }
 
 export const getEntityProfile = createServerFn({ method: 'GET' })
-  .validator((data: unknown) => EntityIdSchema.parse(data))
+  .inputValidator(EntityIdSchema)
   .handler(async ({ data }): Promise<EntityProfile | null> => {
     const db = getDb()
 
@@ -79,7 +79,7 @@ export type EntityProvenance = {
 }
 
 export const getEntityProvenance = createServerFn({ method: 'GET' })
-  .validator((data: unknown) => EntityIdSchema.parse(data))
+  .inputValidator(EntityIdSchema)
   .handler(async ({ data }): Promise<EntityProvenance> => {
     const db = getDb()
 
@@ -146,7 +146,7 @@ export const getEntityProvenance = createServerFn({ method: 'GET' })
 
 // Stats for the tab count badges — returns row counts per dataset
 export const getEntityStats = createServerFn({ method: 'GET' })
-  .validator((data: unknown) => EntityIdSchema.parse(data))
+  .inputValidator(EntityIdSchema)
   .handler(async ({ data }) => {
     const db = getDb()
 

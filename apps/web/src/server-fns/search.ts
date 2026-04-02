@@ -59,7 +59,7 @@ async function getEntityCounts(
 }
 
 export const searchEntities = createServerFn({ method: 'GET' })
-  .validator((data: unknown) => SearchInputSchema.parse(data))
+  .inputValidator(SearchInputSchema)
   .handler(async ({ data }) => {
     const db = getDb()
     const normalizedQuery = data.query.toLowerCase().trim()
@@ -115,7 +115,7 @@ export const searchEntities = createServerFn({ method: 'GET' })
   })
 
 export const getAutocomplete = createServerFn({ method: 'GET' })
-  .validator((data: unknown) => AutocompleteInputSchema.parse(data))
+  .inputValidator(AutocompleteInputSchema)
   .handler(async ({ data }) => {
     const db = getDb()
     const normalizedQuery = data.query.toLowerCase().trim()

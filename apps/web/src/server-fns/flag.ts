@@ -13,7 +13,7 @@ const FlagInputSchema = z.object({
 })
 
 export const submitFlag = createServerFn({ method: 'POST' })
-  .validator((data: unknown) => FlagInputSchema.parse(data))
+  .inputValidator(FlagInputSchema)
   .handler(async ({ data }) => {
     const db = getDb()
     await db.insert(flags).values({

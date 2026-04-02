@@ -43,7 +43,7 @@ Summary:`
 // Per Pitfall 5: do NOT await generation in the profile page loader — let the component
 // trigger it client-side if missing. (PROF-02)
 export const getOrGenerateSummary = createServerFn({ method: 'GET' })
-  .validator((data: unknown) => SummaryInputSchema.parse(data))
+  .inputValidator(SummaryInputSchema)
   .handler(async ({ data }): Promise<string | null> => {
     const db = getDb()
 

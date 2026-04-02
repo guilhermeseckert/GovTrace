@@ -15,7 +15,7 @@ const DatasetInputSchema = z.object({
 })
 
 export const getDonations = createServerFn({ method: 'GET' })
-  .validator((data: unknown) => DatasetInputSchema.parse(data))
+  .inputValidator(DatasetInputSchema)
   .handler(async ({ data }) => {
     const db = getDb()
     const offset = (data.page - 1) * data.pageSize
@@ -51,7 +51,7 @@ export const getDonations = createServerFn({ method: 'GET' })
   })
 
 export const getContracts = createServerFn({ method: 'GET' })
-  .validator((data: unknown) => DatasetInputSchema.parse(data))
+  .inputValidator(DatasetInputSchema)
   .handler(async ({ data }) => {
     const db = getDb()
     const offset = (data.page - 1) * data.pageSize
@@ -90,7 +90,7 @@ export const getContracts = createServerFn({ method: 'GET' })
   })
 
 export const getGrants = createServerFn({ method: 'GET' })
-  .validator((data: unknown) => DatasetInputSchema.parse(data))
+  .inputValidator(DatasetInputSchema)
   .handler(async ({ data }) => {
     const db = getDb()
     const offset = (data.page - 1) * data.pageSize
@@ -130,7 +130,7 @@ export const getGrants = createServerFn({ method: 'GET' })
   })
 
 export const getLobbying = createServerFn({ method: 'GET' })
-  .validator((data: unknown) => DatasetInputSchema.parse(data))
+  .inputValidator(DatasetInputSchema)
   .handler(async ({ data }) => {
     const db = getDb()
     const offset = (data.page - 1) * data.pageSize
@@ -216,7 +216,7 @@ export const getLobbying = createServerFn({ method: 'GET' })
   })
 
 export const getConnections = createServerFn({ method: 'GET' })
-  .validator((data: unknown) => DatasetInputSchema.parse(data))
+  .inputValidator(DatasetInputSchema)
   .handler(async ({ data }) => {
     const db = getDb()
     const offset = (data.page - 1) * data.pageSize
