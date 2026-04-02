@@ -22,7 +22,15 @@ export async function upsertDonations(records: DonationRecord[]): Promise<Upsert
   for (let i = 0; i < records.length; i += BATCH_SIZE) {
     const batch = records.slice(i, i + BATCH_SIZE)
 
-    const values = batch.map((r) => ({
+    // Deduplicate within batch — same hash key can appear twice in the source data
+    const seen = new Set<string>()
+    const uniqueBatch = batch.filter((r) => {
+      if (seen.has(r.id)) return false
+      seen.add(r.id)
+      return true
+    })
+
+    const values = uniqueBatch.map((r) => ({
       id: r.id,
       contributorName: r.contributorName,
       contributorType: r.contributorType,
@@ -62,7 +70,7 @@ export async function upsertDonations(records: DonationRecord[]): Promise<Upsert
         },
       })
 
-    inserted += batch.length
+    inserted += uniqueBatch.length
   }
 
   return { inserted, total: records.length }
