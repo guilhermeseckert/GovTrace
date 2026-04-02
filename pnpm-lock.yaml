@@ -181,6 +181,9 @@ importers:
       chardet:
         specifier: 'catalog:'
         version: 2.1.1
+      dotenv:
+        specifier: ^17.4.0
+        version: 17.4.0
       drizzle-orm:
         specifier: 'catalog:'
         version: 0.45.2(gel@2.2.0)(pg@8.20.0)(postgres@3.4.8)

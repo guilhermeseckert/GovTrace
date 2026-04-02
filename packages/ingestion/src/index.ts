@@ -1,3 +1,9 @@
+import { config } from 'dotenv'
+import { resolve } from 'node:path'
+
+// Load .env from monorepo root
+config({ path: resolve(import.meta.dirname, '../../../.env') })
+
 const command = process.argv[2]
 const source = process.argv[3]
 

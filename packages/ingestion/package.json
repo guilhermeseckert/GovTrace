@@ -11,23 +11,24 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@govtrace/db": "workspace:*",
-    "drizzle-orm": "catalog:",
-    "postgres": "catalog:",
-    "zod": "catalog:",
-    "papaparse": "catalog:",
-    "chardet": "catalog:",
-    "iconv-lite": "catalog:",
-    "pg-boss": "catalog:",
     "@anthropic-ai/sdk": "catalog:",
-    "adm-zip": "catalog:"
+    "@govtrace/db": "workspace:*",
+    "adm-zip": "catalog:",
+    "chardet": "catalog:",
+    "dotenv": "^17.4.0",
+    "drizzle-orm": "catalog:",
+    "iconv-lite": "catalog:",
+    "papaparse": "catalog:",
+    "pg-boss": "catalog:",
+    "postgres": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
+    "@types/adm-zip": "catalog:",
     "@types/node": "catalog:",
     "@types/papaparse": "catalog:",
-    "typescript": "catalog:",
     "tsx": "^4.19.0",
-    "vitest": "catalog:",
-    "@types/adm-zip": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }
