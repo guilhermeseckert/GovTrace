@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: verifying
-stopped_at: Phase 2 UI-SPEC approved
-last_updated: "2026-04-01T23:26:34.188Z"
-last_activity: 2026-04-01
+status: executing
+stopped_at: Completed 02-02-PLAN.md (search server functions)
+last_updated: "2026-04-02T00:59:00.247Z"
+last_activity: 2026-04-02
 progress:
   total_phases: 4
   completed_phases: 1
-  total_plans: 11
-  completed_plans: 11
+  total_plans: 18
+  completed_plans: 12
   percent: 0
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-31)
 
 **Core value:** Anyone can search a name and instantly trace the flow of money and influence across all public government datasets — with clarity a 9-year-old could follow.
-**Current focus:** Phase 01 — data-foundation
+**Current focus:** Phase 02 — search-and-entity-profiles
 
 ## Current Position
 
-Phase: 2
-Plan: Not started
-Status: Phase complete — ready for verification
-Last activity: 2026-04-01
+Phase: 02 (search-and-entity-profiles) — EXECUTING
+Plan: 2 of 7
+Status: Ready to execute
+Last activity: 2026-04-02
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -63,6 +63,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01-data-foundation P09 | 3 minutes | 1 tasks | 2 files |
 | Phase 01-data-foundation P10 | 1 minute | 2 tasks | 9 files |
 | Phase 01-data-foundation P11 | 25min | 2 tasks | 9 files |
+| Phase 02-search-and-entity-profiles P02 | 5min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -103,6 +104,8 @@ Recent decisions affecting current work:
 - [Phase 01-data-foundation]: router.tsx exports getRouter() not createRouter() — TanStack Start plugin aliases it as #tanstack-router-entry and imports { getRouter } in hydrateStart
 - [Phase 01-data-foundation]: client.tsx uses @tanstack/react-start/client for StartClient with no router prop — StartClient hydrates from SSR context in v1.167
 - [Phase 01-data-foundation]: packages/web-deprecated renamed to @govtrace/web-deprecated package name to prevent pnpm --filter @govtrace/web conflict with apps/web
+- [Phase 02-search-and-entity-profiles]: lobbyRegistrations uses lobbyistEntityId and clientEntityId FKs (not entityId) — lobby count uses OR across both columns to capture entity in both lobbyist and client roles
+- [Phase 02-search-and-entity-profiles]: createAPIFileRoute routes do not appear in routeTree.gen.ts — correct TanStack Start v1.167 behavior; API routes handled separately from page routes by Vite plugin
 
 ### Pending Todos
 
@@ -115,6 +118,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-01T23:26:34.184Z
-Stopped at: Phase 2 UI-SPEC approved
-Resume file: .planning/phases/02-search-and-entity-profiles/02-UI-SPEC.md
+Last session: 2026-04-02T00:59:00.244Z
+Stopped at: Completed 02-02-PLAN.md (search server functions)
+Resume file: None

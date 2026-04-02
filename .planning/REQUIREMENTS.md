@@ -27,11 +27,11 @@
 
 ### Search
 
-- [ ] **SRCH-01**: User can search for any entity (person, company, politician) from a prominent search bar
-- [ ] **SRCH-02**: Search provides autocomplete suggestions as user types (< 150ms perceived latency)
-- [ ] **SRCH-03**: Search results are grouped by entity type (Politicians, Companies/Organizations, People)
-- [ ] **SRCH-04**: Each search result shows summary counts (donations, contracts, lobbying, grants)
-- [ ] **SRCH-05**: User can filter search results by entity type, date range, and province
+- [x] **SRCH-01**: User can search for any entity (person, company, politician) from a prominent search bar
+- [x] **SRCH-02**: Search provides autocomplete suggestions as user types (< 150ms perceived latency)
+- [x] **SRCH-03**: Search results are grouped by entity type (Politicians, Companies/Organizations, People)
+- [x] **SRCH-04**: Each search result shows summary counts (donations, contracts, lobbying, grants)
+- [x] **SRCH-05**: User can filter search results by entity type, date range, and province
 
 ### Entity Profiles
 
@@ -78,7 +78,7 @@
 
 ### API
 
-- [ ] **API-01**: GET /api/search with query, type filter, and pagination
+- [x] **API-01**: GET /api/search with query, type filter, and pagination
 - [ ] **API-02**: GET /api/entity/:id returns full entity profile with all related data
 - [ ] **API-03**: GET /api/entity/:id/donations, /contracts, /lobbying, /grants with pagination
 - [ ] **API-04**: GET /api/entity/:id/connections returns related entities
@@ -88,7 +88,7 @@
 - [ ] **API-08**: GET /api/entity/:id/timeline returns chronological events
 - [ ] **API-09**: GET /api/entity/:id/heatmap returns relationship intensity matrix
 - [ ] **API-10**: GET /api/entity/:id/spending-breakdown returns department spending data
-- [ ] **API-11**: GET /api/stats returns platform-wide statistics
+- [x] **API-11**: GET /api/stats returns platform-wide statistics
 - [ ] **API-12**: POST /api/entity/:id/flag submits an error flag
 - [ ] **API-13**: Newsletter API endpoints (subscribe, confirm, unsubscribe, latest, archive)
 
@@ -164,11 +164,11 @@
 | MATCH-04 | Phase 1 | Complete |
 | MATCH-05 | Phase 1 | Complete |
 | MATCH-06 | Phase 1 | Complete |
-| SRCH-01 | Phase 2 | Pending |
-| SRCH-02 | Phase 2 | Pending |
-| SRCH-03 | Phase 2 | Pending |
-| SRCH-04 | Phase 2 | Pending |
-| SRCH-05 | Phase 2 | Pending |
+| SRCH-01 | Phase 2 | Complete |
+| SRCH-02 | Phase 2 | Complete |
+| SRCH-03 | Phase 2 | Complete |
+| SRCH-04 | Phase 2 | Complete |
+| SRCH-05 | Phase 2 | Complete |
 | PROF-01 | Phase 2 | Pending |
 | PROF-02 | Phase 2 | Pending |
 | PROF-03 | Phase 2 | Pending |
@@ -197,7 +197,7 @@
 | NEWS-04 | Phase 4 | Pending |
 | NEWS-05 | Phase 4 | Pending |
 | NEWS-06 | Phase 4 | Pending |
-| API-01 | Phase 2 | Pending |
+| API-01 | Phase 2 | Complete |
 | API-02 | Phase 2 | Pending |
 | API-03 | Phase 2 | Pending |
 | API-04 | Phase 2 | Pending |
@@ -207,7 +207,7 @@
 | API-08 | Phase 3 | Pending |
 | API-09 | Phase 4 | Pending |
 | API-10 | Phase 4 | Pending |
-| API-11 | Phase 2 | Pending |
+| API-11 | Phase 2 | Complete |
 | API-12 | Phase 2 | Pending |
 | API-13 | Phase 4 | Pending |
 | INFRA-01 | Phase 1 | Complete |
