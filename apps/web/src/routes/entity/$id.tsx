@@ -5,6 +5,7 @@ import { getOrGenerateSummary } from '@/server-fns/summary'
 import { EntityHeader } from '@/components/entity/EntityHeader'
 import { AISummary } from '@/components/entity/AISummary'
 import { ProfileTabs } from '@/components/entity/ProfileTabs'
+import { FlagModal } from '@/components/entity/FlagModal'
 import { en } from '@/i18n/en'
 
 export const Route = createFileRoute('/entity/$id')({
@@ -70,28 +71,7 @@ function EntityProfilePage() {
         </footer>
       </div>
 
-      {/* FlagModal is wired in Plan 07 */}
-      {flagModalOpen && (
-        <div
-          role="presentation"
-          onClick={() => setFlagModalOpen(false)}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="mx-4 w-full max-w-md rounded-lg bg-background p-6"
-          >
-            <p className="text-sm text-muted-foreground">Flag modal coming in Plan 07</p>
-            <button
-              type="button"
-              onClick={() => setFlagModalOpen(false)}
-              className="mt-4 text-sm underline"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
+      <FlagModal entityId={profile.id} open={flagModalOpen} onOpenChange={setFlagModalOpen} />
     </main>
   )
 }
