@@ -1,17 +1,20 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { getPlatformStats } from '@/server-fns/stats'
+import { HeroSearch } from '@/components/landing/HeroSearch'
 
 export const Route = createFileRoute('/')({
+  loader: async () => {
+    const stats = await getPlatformStats()
+    return { stats }
+  },
   component: IndexPage,
 })
 
 function IndexPage() {
+  const { stats } = Route.useLoaderData()
   return (
-    <main>
-      <h1>GovTrace</h1>
-      <p>Trace the flow of money and influence in Canadian government.</p>
-      <p>
-        <em>Search and entity profiles coming in Phase 2.</em>
-      </p>
+    <main id="main-content">
+      <HeroSearch stats={stats} />
     </main>
   )
 }
