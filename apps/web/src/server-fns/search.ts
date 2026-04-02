@@ -97,11 +97,19 @@ export const searchEntities = createServerFn({ method: 'GET' })
       OFFSET ${(data.page - 1) * data.pageSize}
     `)
 
-    const entityIds = results.rows.map((r) => r.id)
+    // drizzle-orm with postgres-js returns RowList (T[]), not { rows: T[] }
+    const rows = results as unknown as Array<{
+      id: string
+      canonical_name: string
+      entity_type: string
+      province: string | null
+      score: number
+    }>
+    const entityIds = rows.map((r) => r.id)
     const counts = await getEntityCounts(db, entityIds)
 
     return {
-      results: results.rows.map((r) => ({
+      results: rows.map((r) => ({
         id: r.id,
         canonicalName: r.canonical_name,
         entityType: r.entity_type,
@@ -135,7 +143,13 @@ export const getAutocomplete = createServerFn({ method: 'GET' })
       LIMIT 8
     `)
 
-    return results.rows.map((r) => ({
+    const rows = results as unknown as Array<{
+      id: string
+      canonical_name: string
+      entity_type: string
+      score: number
+    }>
+    return rows.map((r) => ({
       id: r.id,
       canonicalName: r.canonical_name,
       entityType: r.entity_type,
