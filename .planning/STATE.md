@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 02-07-PLAN.md
-last_updated: "2026-04-02T01:14:10.744Z"
+status: verifying
+stopped_at: Completed 02-06-PLAN.md
+last_updated: "2026-04-02T01:17:08.564Z"
 last_activity: 2026-04-02
 progress:
   total_phases: 4
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 18
-  completed_plans: 17
+  completed_plans: 18
   percent: 0
 ---
 
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-03-31)
 
 Phase: 02 (search-and-entity-profiles) — EXECUTING
 Plan: 7 of 7
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-04-02
 
 Progress: [░░░░░░░░░░] 0%
@@ -69,6 +69,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 02-search-and-entity-profiles P05 | 2min | 2 tasks | 6 files |
 | Phase 02-search-and-entity-profiles P03 | 3min | 2 tasks | 7 files |
 | Phase 02-search-and-entity-profiles P07 | 6min | 2 tasks | 4 files |
+| Phase 02-search-and-entity-profiles P06 | 4min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -122,6 +123,9 @@ Recent decisions affecting current work:
 - [Phase 02-search-and-entity-profiles]: SearchResults seenLabels Set deduplicates Companies/Organizations group label across company and organization entity type keys
 - [Phase 02-search-and-entity-profiles]: FlagModal copy strings all sourced from en.ts (en.flag.*) — never hardcoded, ensuring DSGN-04 compliance and i18n readiness
 - [Phase 02-search-and-entity-profiles]: Confirmation-replace pattern for FlagModal: after submit success, modal body replaced with confirmation paragraph and single Close button
+- [Phase 02-search-and-entity-profiles]: LobbyingTable merges getLobbying nested {registrations, communications} response into flat LobbyRow[] before useReactTable — avoids dual-table pagination complexity
+- [Phase 02-search-and-entity-profiles]: getEntityProvenance uses Drizzle max() aggregation in parallel Promise.all across 5 tables — called in route loader not lazily on client
+- [Phase 02-search-and-entity-profiles]: ContractsTable constructs buyandsell.gc.ca fallback URL from contractId when rawData.source_url absent
 
 ### Pending Todos
 
@@ -134,6 +138,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-02T01:14:10.740Z
-Stopped at: Completed 02-07-PLAN.md
+Last session: 2026-04-02T01:17:08.561Z
+Stopped at: Completed 02-06-PLAN.md
 Resume file: None

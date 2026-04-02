@@ -62,7 +62,7 @@ Plans:
 - [x] 02-03-PLAN.md — Landing page (hero search + stat chips) and search results page with filters
 - [x] 02-04-PLAN.md — Entity profile + dataset server functions, AI summary generation, flag submission, /api/entity/:id/flag route
 - [x] 02-05-PLAN.md — Entity profile route (/entity/:id), EntityHeader, AISummary, ConfidenceBadge, ProfileTabs
-- [ ] 02-06-PLAN.md — Five data tables (Donations, Contracts, Grants, Lobbying, Connections) wired into ProfileTabs
+- [x] 02-06-PLAN.md — Five data tables (Donations, Contracts, Grants, Lobbying, Connections) wired into ProfileTabs
 - [x] 02-07-PLAN.md — FlagModal (shadcn Dialog), AI summary explanation dialog, wire into entity profile
 
 ### Phase 3: Visualizations
