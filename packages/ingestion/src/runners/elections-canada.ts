@@ -4,14 +4,13 @@ import { sql } from 'drizzle-orm'
 import { getDb } from '@govtrace/db/client'
 import { ingestionRuns } from '@govtrace/db/schema/jobs'
 import { downloadElectionsCanada } from '../downloaders/elections-canada.ts'
-import { parseElectionsCanadaFile } from '../parsers/elections-canada.ts'
+import { streamElectionsCanadaFile } from '../parsers/elections-canada.ts'
 import { upsertDonations } from '../upsert/donations.ts'
 
 export async function runElectionsCanadaIngestion(): Promise<void> {
   const db = getDb()
   const destDir = join(tmpdir(), 'govtrace-ingestion', 'elections-canada')
 
-  // Log ingestion run start
   const [run] = await db
     .insert(ingestionRuns)
     .values({
@@ -22,30 +21,37 @@ export async function runElectionsCanadaIngestion(): Promise<void> {
     .returning()
 
   const runId = run.id
+  let totalRecords = 0
+  let totalInserted = 0
 
   try {
     console.log('Downloading Elections Canada contributions ZIP...')
     const { localPath, fileHash, fileSizeBytes } = await downloadElectionsCanada(destDir)
     console.log(`Downloaded ${fileSizeBytes} bytes, hash: ${fileHash.slice(0, 8)}...`)
 
-    console.log('Parsing CSV...')
-    const records = await parseElectionsCanadaFile(localPath, fileHash, (count) => {
-      console.log(`  Parsed ${count.toLocaleString()} records...`)
-    })
-    console.log(`Parsed ${records.length.toLocaleString()} donation records`)
+    console.log('Streaming CSV parse + upsert...')
+    totalRecords = await streamElectionsCanadaFile(
+      localPath,
+      fileHash,
+      async (batch) => {
+        const result = await upsertDonations(batch)
+        totalInserted += result.total
+      },
+      5000,
+      (count) => {
+        console.log(`  Processed ${count.toLocaleString()} records...`)
+      },
+    )
 
-    console.log('Upserting to database...')
-    const result = await upsertDonations(records)
-    console.log(`Upserted ${result.total.toLocaleString()} records`)
+    console.log(`Total: ${totalRecords.toLocaleString()} records parsed, ${totalInserted.toLocaleString()} upserted`)
 
-    // Update run to completed
     await db
       .update(ingestionRuns)
       .set({
         status: 'completed',
         sourceFileHash: fileHash,
-        recordsProcessed: records.length,
-        recordsInserted: result.inserted,
+        recordsProcessed: totalRecords,
+        recordsInserted: totalInserted,
         completedAt: new Date(),
       })
       .where(sql`id = ${runId}`)
