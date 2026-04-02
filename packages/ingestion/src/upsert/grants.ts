@@ -22,7 +22,14 @@ export async function upsertGrants(records: GrantRecord[]): Promise<UpsertResult
   for (let i = 0; i < records.length; i += BATCH_SIZE) {
     const batch = records.slice(i, i + BATCH_SIZE)
 
-    const values = batch.map((r) => ({
+    const seen = new Set<string>()
+    const uniqueBatch = batch.filter((r) => {
+      if (seen.has(r.id)) return false
+      seen.add(r.id)
+      return true
+    })
+
+    const values = uniqueBatch.map((r) => ({
       id: r.id,
       recipientName: r.recipientName,
       recipientLegalName: r.recipientLegalName,
@@ -65,7 +72,7 @@ export async function upsertGrants(records: GrantRecord[]): Promise<UpsertResult
         },
       })
 
-    inserted += batch.length
+    inserted += uniqueBatch.length
   }
 
   return { inserted, total: records.length }

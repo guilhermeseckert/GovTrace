@@ -22,7 +22,14 @@ export async function upsertContracts(records: ContractRecord[]): Promise<Upsert
   for (let i = 0; i < records.length; i += BATCH_SIZE) {
     const batch = records.slice(i, i + BATCH_SIZE)
 
-    const values = batch.map((r) => ({
+    const seen = new Set<string>()
+    const uniqueBatch = batch.filter((r) => {
+      if (seen.has(r.id)) return false
+      seen.add(r.id)
+      return true
+    })
+
+    const values = uniqueBatch.map((r) => ({
       id: r.id,
       contractId: r.contractId,
       vendorName: r.vendorName,
@@ -63,7 +70,7 @@ export async function upsertContracts(records: ContractRecord[]): Promise<Upsert
         },
       })
 
-    inserted += batch.length
+    inserted += uniqueBatch.length
   }
 
   return { inserted, total: records.length }
