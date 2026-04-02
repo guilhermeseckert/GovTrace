@@ -1,7 +1,11 @@
-import { mkdir, writeFile } from 'node:fs/promises'
+import { mkdir } from 'node:fs/promises'
 import { createHash } from 'node:crypto'
+import { createWriteStream } from 'node:fs'
+import { stat } from 'node:fs/promises'
 import { join } from 'node:path'
-import AdmZip from 'adm-zip'
+import { Readable } from 'node:stream'
+import { pipeline } from 'node:stream/promises'
+import unzipper from 'unzipper'
 
 // Source: https://www.elections.ca/fin/oda/od_cntrbtn_audt_e.zip
 const ELECTIONS_CANADA_URL = 'https://www.elections.ca/fin/oda/od_cntrbtn_audt_e.zip'
@@ -14,12 +18,15 @@ export interface DownloadResult {
 
 /**
  * Downloads the Elections Canada contributions ZIP and extracts CSV files.
- * Returns the path to the extracted CSV file, SHA-256 hash of the ZIP, and file size.
- * The hash is used for idempotency checking (DATA-07).
+ * Uses streaming extraction to handle the 2GB+ uncompressed CSV.
  */
 export async function downloadElectionsCanada(destDir: string): Promise<DownloadResult> {
   await mkdir(destDir, { recursive: true })
 
+  const zipPath = join(destDir, 'od_cntrbtn_audt_e.zip')
+
+  // Stream download to disk (ZIP is ~300MB)
+  console.log('Downloading Elections Canada contributions ZIP...')
   const response = await fetch(ELECTIONS_CANADA_URL)
   if (!response.ok) {
     throw new Error(
@@ -27,34 +34,49 @@ export async function downloadElectionsCanada(destDir: string): Promise<Download
     )
   }
 
-  const buffer = Buffer.from(await response.arrayBuffer())
-  const zipPath = join(destDir, 'od_cntrbtn_audt_e.zip')
+  const body = response.body
+  if (!body) throw new Error('No response body')
 
-  // Write ZIP to disk
-  await writeFile(zipPath, buffer)
+  const hash = createHash('sha256')
+  const fileStream = createWriteStream(zipPath)
+  const webStream = Readable.fromWeb(body as import('node:stream/web').ReadableStream)
 
-  // Hash the ZIP for idempotency check (DATA-07)
-  const fileHash = createHash('sha256').update(buffer).digest('hex')
+  // Pipe through hash and to file simultaneously
+  await new Promise<void>((resolve, reject) => {
+    webStream.on('data', (chunk: Buffer) => hash.update(chunk))
+    webStream.pipe(fileStream)
+    fileStream.on('finish', resolve)
+    fileStream.on('error', reject)
+    webStream.on('error', reject)
+  })
 
-  // Extract CSV from ZIP using adm-zip
-  const zip = new AdmZip(zipPath)
-  const entries = zip.getEntries().filter((e) => e.entryName.endsWith('.csv'))
+  const fileHash = hash.digest('hex')
+  const fileStat = await stat(zipPath)
 
-  if (entries.length === 0) {
-    throw new Error('No CSV file found in Elections Canada ZIP')
+  // Stream-extract CSV from ZIP (handles 2GB+ files)
+  console.log('Extracting CSV from ZIP (streaming)...')
+  let csvPath = ''
+
+  const directory = await unzipper.Open.file(zipPath)
+  for (const entry of directory.files) {
+    if (entry.path.endsWith('.csv')) {
+      csvPath = join(destDir, entry.path)
+      await pipeline(
+        entry.stream(),
+        createWriteStream(csvPath),
+      )
+      console.log(`Extracted: ${entry.path} (${entry.uncompressedSize} bytes)`)
+      break
+    }
   }
 
-  const firstEntry = entries[0]
-  if (!firstEntry) {
+  if (!csvPath) {
     throw new Error('No CSV file found in Elections Canada ZIP')
   }
-
-  zip.extractEntryTo(firstEntry.entryName, destDir, false, true)
-  const csvPath = join(destDir, firstEntry.entryName)
 
   return {
     localPath: csvPath,
     fileHash,
-    fileSizeBytes: buffer.length,
+    fileSizeBytes: Number(fileStat.size),
   }
 }
