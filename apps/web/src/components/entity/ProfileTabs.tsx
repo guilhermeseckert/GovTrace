@@ -12,6 +12,13 @@ type TabCounts = {
   connections: number
 }
 
+type TabConfig = {
+  label: string
+  count: number
+  content: ReactNode
+  disclaimer?: boolean
+}
+
 type ProfileTabsProps = {
   counts: TabCounts
   entityId: string
@@ -24,85 +31,79 @@ type ProfileTabsProps = {
 
 export function ProfileTabs({
   counts,
-  entityId: _entityId,
   donationsTable,
   contractsTable,
   grantsTable,
   lobbyingTable,
   connectionsTable,
 }: ProfileTabsProps) {
+  const tabs: TabConfig[] = [
+    {
+      label: 'Donations',
+      count: counts.donations,
+      content: donationsTable,
+    },
+    {
+      label: 'Contracts',
+      count: counts.contracts,
+      content: contractsTable,
+    },
+    {
+      label: 'Grants',
+      count: counts.grants,
+      content: grantsTable,
+    },
+    {
+      label: 'Lobbying',
+      count: counts.lobbying,
+      content: lobbyingTable,
+    },
+    {
+      label: 'Connections',
+      count: counts.connections,
+      content: connectionsTable,
+      disclaimer: true,
+    },
+  ]
+
   return (
-    <Tabs defaultValue="donations" className="w-full">
-      <TabsList className="h-auto w-full justify-start gap-0 rounded-none border-b bg-transparent p-0">
-        {[
-          { value: 'donations', label: 'Donations', count: counts.donations },
-          { value: 'contracts', label: 'Contracts', count: counts.contracts },
-          { value: 'grants', label: 'Grants', count: counts.grants },
-          { value: 'lobbying', label: 'Lobbying', count: counts.lobbying },
-          { value: 'connections', label: 'Connections', count: counts.connections },
-        ].map((tab) => (
+    <Tabs defaultValue={0} className="w-full">
+      <TabsList variant="line" className="w-full justify-start border-b">
+        {tabs.map((tab, i) => (
           <TabsTrigger
-            key={tab.value}
-            value={tab.value}
-            className="min-h-[44px] rounded-none border-b-2 border-transparent px-4 py-2 font-normal data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:font-semibold data-[state=active]:shadow-none"
+            key={i}
+            value={i}
+            className="min-h-[44px] px-4 py-2 text-sm"
           >
             {tab.label}
             {tab.count > 0 && (
-              <Badge variant="secondary" className="ml-2">
-                {tab.count}
+              <Badge variant="secondary" className="ml-2 text-xs">
+                {tab.count.toLocaleString()}
               </Badge>
             )}
           </TabsTrigger>
         ))}
       </TabsList>
 
-      <TabsContent value="donations" className="pt-6">
-        {donationsTable ?? (
-          <p className="text-sm text-muted-foreground">
-            {en.table.empty.replace('{dataset}', 'donation')}
-          </p>
-        )}
-      </TabsContent>
-
-      <TabsContent value="contracts" className="pt-6">
-        {contractsTable ?? (
-          <p className="text-sm text-muted-foreground">
-            {en.table.empty.replace('{dataset}', 'contract')}
-          </p>
-        )}
-      </TabsContent>
-
-      <TabsContent value="grants" className="pt-6">
-        {grantsTable ?? (
-          <p className="text-sm text-muted-foreground">
-            {en.table.empty.replace('{dataset}', 'grant')}
-          </p>
-        )}
-      </TabsContent>
-
-      <TabsContent value="lobbying" className="pt-6">
-        {lobbyingTable ?? (
-          <p className="text-sm text-muted-foreground">
-            {en.table.empty.replace('{dataset}', 'lobbying')}
-          </p>
-        )}
-      </TabsContent>
-
-      <TabsContent value="connections" className="pt-6">
-        <div
-          role="status"
-          aria-live="polite"
-          className="mb-4 flex items-center gap-2 rounded-md bg-amber-50 px-4 py-3 text-sm dark:bg-amber-950/20"
-        >
-          <Info className="h-4 w-4 shrink-0 text-amber-600" />
-          <span>{en.profile.connections_disclaimer}</span>
-        </div>
-        {connectionsTable ?? (
-          <p className="text-sm text-muted-foreground">
-            {en.table.empty.replace('{dataset}', 'connections')}
-          </p>
-        )}
-      </TabsContent>
+      {tabs.map((tab, i) => (
+        <TabsContent key={i} value={i} className="pt-6">
+          {tab.disclaimer && (
+            <div
+              role="status"
+              aria-live="polite"
+              className="mb-4 flex items-center gap-2 rounded-md bg-amber-50 px-4 py-3 text-sm dark:bg-amber-950/20"
+            >
+              <Info className="h-4 w-4 shrink-0 text-amber-600" />
+              <span>{en.profile.connections_disclaimer}</span>
+            </div>
+          )}
+          {tab.content ?? (
+            <p className="py-8 text-center text-sm text-muted-foreground">
+              {en.table.empty.replace('{dataset}', tab.label.toLowerCase())}
+            </p>
+          )}
+        </TabsContent>
+      ))}
     </Tabs>
   )
 }

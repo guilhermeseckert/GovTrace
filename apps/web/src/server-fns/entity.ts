@@ -150,11 +150,22 @@ export const getEntityStats = createServerFn({ method: 'GET' })
   .handler(async ({ data }) => {
     const db = getDb()
 
-    // ai_summaries imported above — include summary freshness flag
-    const [donCount, conCount, grCount, summaryRows] = await Promise.all([
-      db.select({ c: count() }).from(donations).where(eq(donations.entityId, data.id)),
+    // Check entity type — politicians receive donations, others make them
+    const entity = await db.select({ canonicalName: entities.canonicalName, entityType: entities.entityType })
+      .from(entities).where(eq(entities.id, data.id)).limit(1)
+
+    const isPolitician = entity[0]?.entityType === 'politician'
+    const donWhere = isPolitician && entity[0]?.canonicalName
+      ? eq(donations.recipientName, entity[0].canonicalName)
+      : eq(donations.entityId, data.id)
+
+    const [donCount, conCount, grCount, lobCount, summaryRows] = await Promise.all([
+      db.select({ c: count() }).from(donations).where(donWhere),
       db.select({ c: count() }).from(contracts).where(eq(contracts.entityId, data.id)),
       db.select({ c: count() }).from(grants).where(eq(grants.entityId, data.id)),
+      db.select({ c: count() }).from(lobbyRegistrations).where(
+        or(eq(lobbyRegistrations.lobbyistEntityId, data.id), eq(lobbyRegistrations.clientEntityId, data.id))
+      ),
       db.select({ isStale: aiSummaries.isStale }).from(aiSummaries).where(eq(aiSummaries.entityId, data.id)).limit(1),
     ])
 
@@ -162,7 +173,7 @@ export const getEntityStats = createServerFn({ method: 'GET' })
       donations: Number(donCount[0]?.c ?? 0),
       contracts: Number(conCount[0]?.c ?? 0),
       grants: Number(grCount[0]?.c ?? 0),
-      lobbying: 0,
+      lobbying: Number(lobCount[0]?.c ?? 0),
       connections: 0,
       hasFreshSummary: summaryRows.length > 0 && !summaryRows[0]?.isStale,
     }
