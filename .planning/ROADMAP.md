@@ -63,7 +63,7 @@ Plans:
 - [x] 02-04-PLAN.md — Entity profile + dataset server functions, AI summary generation, flag submission, /api/entity/:id/flag route
 - [x] 02-05-PLAN.md — Entity profile route (/entity/:id), EntityHeader, AISummary, ConfidenceBadge, ProfileTabs
 - [ ] 02-06-PLAN.md — Five data tables (Donations, Contracts, Grants, Lobbying, Connections) wired into ProfileTabs
-- [ ] 02-07-PLAN.md — FlagModal (shadcn Dialog), AI summary explanation dialog, wire into entity profile
+- [x] 02-07-PLAN.md — FlagModal (shadcn Dialog), AI summary explanation dialog, wire into entity profile
 
 ### Phase 3: Visualizations
 **Goal**: Users can see entity relationships and money flows as interactive visual graphs — the patterns hidden in tabular data become immediately apparent
