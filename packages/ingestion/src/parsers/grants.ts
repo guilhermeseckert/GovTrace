@@ -23,8 +23,8 @@ export interface GrantRecord {
 }
 
 const COLUMN_ALIASES: Record<string, string[]> = {
-  recipientName: ['recipient_name', 'legal_name_en', 'org_name_en', 'recipient'],
-  recipientLegalName: ['legal_name_en', 'recipient_legal_name', 'full_name_en'],
+  recipientName: ['recipient_operating_name', 'recipient_legal_name', 'recipient_name', 'legal_name_en', 'org_name_en', 'recipient'],
+  recipientLegalName: ['recipient_legal_name', 'legal_name_en', 'full_name_en'],
   department: ['department_name_en', 'owner_org_title', 'department_name', 'owner_org'],
   programName: ['prog_name_en', 'program_name', 'prog_title_en'],
   description: ['description_en', 'project_summary_en', 'description', 'project_title_en'],
@@ -32,9 +32,9 @@ const COLUMN_ALIASES: Record<string, string[]> = {
   agreementDate: ['agreement_start_date', 'agreement_date', 'start_date', 'date'],
   startDate: ['agreement_start_date', 'start_date'],
   endDate: ['agreement_end_date', 'end_date'],
-  province: ['recipient_province_en', 'province', 'recipient_province', 'prov_state_en'],
+  province: ['recipient_province', 'recipient_province_en', 'province', 'prov_state_en'],
   city: ['recipient_city', 'city', 'recipient_city_en'],
-  grantType: ['grant_type_en', 'type', 'grant_type', 'instrument_type_en'],
+  grantType: ['agreement_type', 'grant_type_en', 'type', 'grant_type', 'instrument_type_en'],
 }
 
 function buildColumnMapping(headers: string[]): Map<string, number> {
