@@ -77,6 +77,7 @@ export async function parseLobbyRegistrationsFile(
 
   for (const row of parsed.data) {
     const registrationNumber = resolveColumn(row, [
+      'reg_num_enr',
       'registration_number',
       'reg_number',
       'regnum',
@@ -87,12 +88,12 @@ export async function parseLobbyRegistrationsFile(
       continue
     }
 
-    const lobbyistName = resolveColumn(row, [
-      'registrant_name',
-      'lobbyist_name',
-      'firm_name',
-      'consultant_name',
-    ])
+    // Build lobbyist name from first + last columns, or fall back to firm name
+    const lobbyistLast = resolveColumn(row, ['rgstrnt_last_nm_dclrnt'])
+    const lobbyistFirst = resolveColumn(row, ['rgstrnt_1st_nm_prenom_dclrnt'])
+    const lobbyistName = lobbyistLast && lobbyistFirst
+      ? `${lobbyistFirst} ${lobbyistLast}`
+      : resolveColumn(row, ['en_firm_nm_firme_an', 'registrant_name', 'lobbyist_name', 'firm_name'])
 
     if (!lobbyistName) {
       skippedCount++
@@ -100,22 +101,17 @@ export async function parseLobbyRegistrationsFile(
     }
 
     const clientName = resolveColumn(row, [
+      'en_client_org_corp_nm_an',
       'client_name',
       'organization_name',
       'org_name',
       'client',
     ])
 
-    if (clientName === null) {
-      // Log a warning — absence may be valid (in-house registrations have no client)
-      // but it could also signal an unrecognized column name
-      console.warn(
-        `Lobby registrations: no client_name found for registration ${registrationNumber} — ` +
-          'may be an in-house registration or unrecognized column variant',
-      )
-    }
+    // clientName may be null for in-house registrations — this is valid
 
     const lobbyistType = resolveColumn(row, [
+      'reg_type_enr',
       'registrant_type',
       'lobbyist_type',
       'type',

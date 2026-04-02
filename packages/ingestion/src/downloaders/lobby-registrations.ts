@@ -57,7 +57,7 @@ export async function downloadLobbyRegistrations(destDir: string): Promise<Downl
   let csvPath = ''
   const directory = await unzipper.Open.file(zipPath)
   for (const entry of directory.files) {
-    if (entry.path.endsWith('.csv')) {
+    if (entry.path.includes('PrimaryExport') && entry.path.endsWith('.csv')) {
       const fileName = entry.path.split('/').pop() ?? entry.path
       csvPath = join(destDir, fileName)
       await pipeline(entry.stream(), createWriteStream(csvPath))

@@ -78,12 +78,14 @@ export async function parseLobbyCommunicationsFile(
   for (const row of parsed.data) {
     // REQUIRED fields — skip row if any are missing
     const registrationNumber = resolveColumn(row, [
+      'registrant_num_declarant',
       'registration_number',
       'reg_number',
       'regnum',
     ])
 
     const communicationDate = resolveColumn(row, [
+      'comm_date',
       'communication_date',
       'date_of_communication',
       'meeting_date',
@@ -95,37 +97,41 @@ export async function parseLobbyCommunicationsFile(
       continue
     }
 
-    const lobbyistName = resolveColumn(row, [
-      'registrant_name',
-      'lobbyist_name',
-      'consultant_name',
-      'firm_name',
-    ])
+    // Build lobbyist name from first + last name columns
+    const lobbyistLast = resolveColumn(row, ['rgstrnt_last_nm_dclrnt', 'lobbyist_last_name'])
+    const lobbyistFirst = resolveColumn(row, ['rgstrnt_1st_nm_prenom_dclrnt', 'lobbyist_first_name'])
+    const lobbyistName = lobbyistLast && lobbyistFirst
+      ? `${lobbyistFirst} ${lobbyistLast}`
+      : resolveColumn(row, ['registrant_name', 'lobbyist_name', 'consultant_name', 'firm_name'])
 
     if (!lobbyistName) {
       skippedCount++
       continue
     }
 
+    // DPOH names come from the separate DpohExport.csv — in PrimaryExport they're linked by COMLOG_ID
+    // For now use the client org name as the key entity; DPOH linking is a secondary step
     const publicOfficialName = resolveColumn(row, [
+      'dpoh_last_nm_tcpd',
       'public_office_holder',
       'poh_name',
       'dpoh_name',
       'official_name',
-      'dpoh',
-      'public_official',
     ])
 
-    if (!publicOfficialName) {
-      skippedCount++
-      continue
-    }
+    // PrimaryExport may not have DPOH name — it's in a separate file joined by COMLOG_ID
+    // Don't skip if missing — we still have the lobbyist and client data
+    const officialName = publicOfficialName ?? 'Unknown'
 
     // Deterministic ID — no stable government key for communications
     const regNum = registrationNumber ?? ''
-    const id = deriveSourceKey([regNum, communicationDate, lobbyistName, publicOfficialName])
+    const comlogId = resolveColumn(row, ['comlog_id'])
+    const id = comlogId
+      ? deriveSourceKey([comlogId])
+      : deriveSourceKey([regNum, communicationDate, lobbyistName, officialName])
 
     const clientName = resolveColumn(row, [
+      'en_client_org_corp_nm_an',
       'client_name',
       'organization_name',
       'org_name',
@@ -141,10 +147,10 @@ export async function parseLobbyCommunicationsFile(
     ])
 
     const department = resolveColumn(row, [
+      'institution',
       'department_en',
       'institution_en',
       'department_name',
-      'institution',
       'department',
     ])
 
@@ -167,7 +173,7 @@ export async function parseLobbyCommunicationsFile(
       communicationDate,
       lobbyistName,
       clientName,
-      publicOfficialName,
+      publicOfficialName: officialName,
       publicOfficialTitle,
       department,
       subjectMatter,
