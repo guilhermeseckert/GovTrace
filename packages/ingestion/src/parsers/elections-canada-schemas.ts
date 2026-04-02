@@ -47,12 +47,14 @@ export const COLUMN_ALIASES: Record<keyof ElectionsCanadaRow, string[]> = {
   ],
   donationDate: [
     'contribution_date',
+    'contribution_received_date',
     'donation_date',
     'date',
     'Date',
     'date_contribution',
     'transaction_date',
     'Date of Contribution',
+    'Contribution Received date',
   ],
   ridingCode: [
     'electoral_district_number',
@@ -85,9 +87,10 @@ export const COLUMN_ALIASES: Record<keyof ElectionsCanadaRow, string[]> = {
     'type_beneficiaire',
     'Recipient Type',
     'recipient_type_en',
+    'political_entity',
   ],
-  electionYear: ['election_year', 'fiscal_year', 'year', 'Year', 'annee'],
-  province: ['province', 'Province', 'province_en', 'prov_code', 'province_code'],
+  electionYear: ['election_year', 'fiscal_year', 'fiscal/election_date', 'year', 'Year', 'annee'],
+  province: ['province', 'Province', 'province_en', 'prov_code', 'province_code', 'contributor_province'],
 }
 
 /**

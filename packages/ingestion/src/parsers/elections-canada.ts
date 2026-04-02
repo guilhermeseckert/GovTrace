@@ -7,7 +7,7 @@ import { buildColumnMapping } from './elections-canada-schemas.ts'
 import type { ElectionsCanadaRow } from './elections-canada-schemas.ts'
 
 export interface DonationRecord {
-  id: string // deterministic hash key
+  id: string
   contributorName: string
   contributorType: string | null
   amount: string
@@ -22,10 +22,6 @@ export interface DonationRecord {
   rawData: Record<string, unknown>
 }
 
-/**
- * Detect file encoding by reading a sample (first 64KB).
- * Avoids loading the entire 2GB file into memory.
- */
 function detectFileEncoding(filePath: string): string {
   const sampleSize = 65536
   const buffer = Buffer.alloc(sampleSize)
@@ -39,8 +35,8 @@ function detectFileEncoding(filePath: string): string {
 }
 
 /**
- * Streams an Elections Canada CSV file (any era, any encoding) and calls onBatch
- * with chunks of parsed DonationRecords. Never loads entire file into memory.
+ * Streams Elections Canada CSV, calling onBatch with chunks of parsed records.
+ * PapaParse step callback is synchronous — we collect into batches and flush with pause/resume.
  */
 export async function streamElectionsCanadaFile(
   csvPath: string,
@@ -52,26 +48,40 @@ export async function streamElectionsCanadaFile(
   const encoding = detectFileEncoding(csvPath)
   console.log(`Elections Canada CSV: detected encoding ${encoding}`)
 
-  // Create a readable stream, transcoding from detected encoding to UTF-8
   const fileStream = createReadStream(csvPath)
-  const utf8Stream = encoding.toUpperCase() === 'UTF-8'
-    ? fileStream
-    : fileStream.pipe(iconv.decodeStream(encoding)).pipe(iconv.encodeStream('utf-8'))
+
+  // For UTF-8 with BOM, use stripBOM transform; for other encodings, transcode
+  let inputStream: NodeJS.ReadableStream
+  if (encoding.toUpperCase() === 'UTF-8') {
+    // Strip BOM if present by wrapping in iconv decode/encode roundtrip
+    inputStream = fileStream.pipe(iconv.decodeStream('utf-8')).pipe(iconv.encodeStream('utf-8'))
+  } else {
+    inputStream = fileStream.pipe(iconv.decodeStream(encoding)).pipe(iconv.encodeStream('utf-8'))
+  }
 
   let columnMapping: Map<keyof ElectionsCanadaRow, number> | null = null
   let isFirstRow = true
   let batch: DonationRecord[] = []
   let totalCount = 0
+  let pendingFlush: Promise<void> | null = null
 
   return new Promise<number>((resolve, reject) => {
-    Papa.parse(utf8Stream, {
+    Papa.parse(inputStream as NodeJS.ReadableStream, {
       skipEmptyLines: true,
       header: false,
-      step: async (result: Papa.ParseStepResult<string[]>, parser: Papa.Parser) => {
+      step: (result: Papa.ParseStepResult<string[]>, parser: Papa.Parser) => {
         const row = result.data
 
         if (isFirstRow) {
+          // Strip BOM from first header cell if present
+          if (row[0]) {
+            row[0] = row[0].replace(/^\uFEFF/, '')
+          }
           columnMapping = buildColumnMapping(row)
+          console.log(`Column mapping: ${columnMapping.size} fields matched from ${row.length} headers`)
+          if (columnMapping.size < 3) {
+            console.log(`  Headers: ${row.slice(0, 5).join(', ')}...`)
+          }
           isFirstRow = false
           return
         }
@@ -122,22 +132,29 @@ export async function streamElectionsCanadaFile(
         })
 
         if (batch.length >= batchSize) {
-          parser.pause()
-          totalCount += batch.length
-          await onBatch(batch)
-          if (onProgress) onProgress(totalCount)
+          const currentBatch = batch
           batch = []
-          parser.resume()
+          totalCount += currentBatch.length
+
+          parser.pause()
+          pendingFlush = onBatch(currentBatch).then(() => {
+            if (onProgress) onProgress(totalCount)
+            parser.resume()
+          }).catch(reject)
         }
       },
-      complete: async () => {
-        // Flush remaining batch
-        if (batch.length > 0) {
-          totalCount += batch.length
-          await onBatch(batch)
-          if (onProgress) onProgress(totalCount)
+      complete: () => {
+        // Wait for any pending flush, then flush remaining
+        const finish = async () => {
+          if (pendingFlush) await pendingFlush
+          if (batch.length > 0) {
+            totalCount += batch.length
+            await onBatch(batch)
+            if (onProgress) onProgress(totalCount)
+          }
+          resolve(totalCount)
         }
-        resolve(totalCount)
+        finish().catch(reject)
       },
       error: (error: Error) => {
         reject(error)
