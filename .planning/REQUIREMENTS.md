@@ -104,12 +104,12 @@
 
 ### Design
 
-- [ ] **DSGN-01**: Professional civic design with clean typography, data-dense but readable
-- [ ] **DSGN-02**: Dark mode support
-- [ ] **DSGN-03**: Mobile responsive (tables collapse to cards on small viewports)
-- [ ] **DSGN-04**: Bilingual-ready structure (i18n keys externalized, English-only content for v1)
-- [ ] **DSGN-05**: Landing page with prominent search bar, tagline, and platform statistics
-- [ ] **DSGN-06**: "Connections do not imply wrongdoing" disclaimer visible on all relationship views
+- [x] **DSGN-01**: Professional civic design with clean typography, data-dense but readable
+- [x] **DSGN-02**: Dark mode support
+- [x] **DSGN-03**: Mobile responsive (tables collapse to cards on small viewports)
+- [x] **DSGN-04**: Bilingual-ready structure (i18n keys externalized, English-only content for v1)
+- [x] **DSGN-05**: Landing page with prominent search bar, tagline, and platform statistics
+- [x] **DSGN-06**: "Connections do not imply wrongdoing" disclaimer visible on all relationship views
 
 ## v2 Requirements
 
@@ -217,12 +217,12 @@
 | INFRA-05 | Phase 1 | Complete |
 | INFRA-06 | Phase 1 | Complete |
 | INFRA-07 | Phase 1 | Complete |
-| DSGN-01 | Phase 2 | Pending |
-| DSGN-02 | Phase 2 | Pending |
-| DSGN-03 | Phase 2 | Pending |
-| DSGN-04 | Phase 2 | Pending |
-| DSGN-05 | Phase 2 | Pending |
-| DSGN-06 | Phase 2 | Pending |
+| DSGN-01 | Phase 2 | Complete |
+| DSGN-02 | Phase 2 | Complete |
+| DSGN-03 | Phase 2 | Complete |
+| DSGN-04 | Phase 2 | Complete |
+| DSGN-05 | Phase 2 | Complete |
+| DSGN-06 | Phase 2 | Complete |
 
 **Coverage:**
 - v1 requirements: 66 total

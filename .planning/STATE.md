@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-02-PLAN.md (search server functions)
-last_updated: "2026-04-02T00:59:00.247Z"
+stopped_at: Completed 02-search-and-entity-profiles-02-01-PLAN.md
+last_updated: "2026-04-02T01:03:08.425Z"
 last_activity: 2026-04-02
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 18
-  completed_plans: 12
+  completed_plans: 13
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-03-31)
 ## Current Position
 
 Phase: 02 (search-and-entity-profiles) — EXECUTING
-Plan: 2 of 7
+Plan: 3 of 7
 Status: Ready to execute
 Last activity: 2026-04-02
 
@@ -64,6 +64,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01-data-foundation P10 | 1 minute | 2 tasks | 9 files |
 | Phase 01-data-foundation P11 | 25min | 2 tasks | 9 files |
 | Phase 02-search-and-entity-profiles P02 | 5min | 2 tasks | 4 files |
+| Phase 02-search-and-entity-profiles P01 | 6min | 2 tasks | 18 files |
 
 ## Accumulated Context
 
@@ -106,6 +107,9 @@ Recent decisions affecting current work:
 - [Phase 01-data-foundation]: packages/web-deprecated renamed to @govtrace/web-deprecated package name to prevent pnpm --filter @govtrace/web conflict with apps/web
 - [Phase 02-search-and-entity-profiles]: lobbyRegistrations uses lobbyistEntityId and clientEntityId FKs (not entityId) — lobby count uses OR across both columns to capture entity in both lobbyist and client roles
 - [Phase 02-search-and-entity-profiles]: createAPIFileRoute routes do not appear in routeTree.gen.ts — correct TanStack Start v1.167 behavior; API routes handled separately from page routes by Vite plugin
+- [Phase 02-search-and-entity-profiles]: getCookie from @tanstack/react-start/server replaces getWebRequest — not exported in TanStack Start v1.167.16
+- [Phase 02-search-and-entity-profiles]: Vite resolve.alias required for @/* path resolution in addition to tsconfig.json paths — tsconfig paths alone insufficient for Rollup bundling
+- [Phase 02-search-and-entity-profiles]: shadcn CLI v4 uses oklch colors by default; overridden to HSL CSS variables for government blue #1a3a5c compatibility
 
 ### Pending Todos
 
@@ -118,6 +122,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-02T00:59:00.244Z
-Stopped at: Completed 02-02-PLAN.md (search server functions)
+Last session: 2026-04-02T01:03:08.422Z
+Stopped at: Completed 02-search-and-entity-profiles-02-01-PLAN.md
 Resume file: None
