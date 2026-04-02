@@ -1,4 +1,6 @@
 import PgBoss from 'pg-boss'
+import { getDb } from '@govtrace/db/client'
+import { aiSummaries } from '@govtrace/db/schema/entities'
 
 // Job names as const for type safety
 export const JOB_NAMES = {
@@ -8,6 +10,7 @@ export const JOB_NAMES = {
   INGEST_LOBBY_REGISTRATIONS: 'ingest:lobby-registrations',
   INGEST_LOBBY_COMMUNICATIONS: 'ingest:lobby-communications',
   BUILD_CONNECTIONS: 'build:entity-connections',
+  MARK_SUMMARIES_STALE: 'mark-summaries-stale',
 } as const
 
 /**
@@ -88,9 +91,22 @@ export async function registerIngestionJobs(databaseUrl: string): Promise<void> 
     tz: 'UTC',
   })
 
+  // Register mark-summaries-stale job handler (AI-03)
+  await boss.work(JOB_NAMES.MARK_SUMMARIES_STALE, async () => {
+    const db = getDb()
+    await db.update(aiSummaries).set({ isStale: true })
+  })
+
+  // Mark all ai_summaries as stale every Sunday night (22:00 UTC) — after build-connections
+  // This forces fresh generation on next profile view after weekly data ingestion (AI-03)
+  await boss.schedule(JOB_NAMES.MARK_SUMMARIES_STALE, '0 22 * * 0', {}, {
+    tz: 'UTC',
+  })
+
   console.log('Ingestion jobs scheduled:')
   console.log('  Weekly (Sunday 2am): elections-canada')
   console.log('  Weekly (Sunday 3-4am): lobby-registrations, lobby-communications')
   console.log('  Quarterly (first Sunday 5-6am): contracts, grants')
   console.log('  Weekly (Sunday 8am): build-connections')
+  console.log('  Weekly (Sunday 10pm): mark-summaries-stale')
 }
