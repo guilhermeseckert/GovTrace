@@ -1,8 +1,10 @@
-import { mkdir, writeFile } from 'node:fs/promises'
+import { mkdir } from 'node:fs/promises'
 import { createHash } from 'node:crypto'
+import { createWriteStream } from 'node:fs'
+import { stat } from 'node:fs/promises'
 import { join } from 'node:path'
+import { Readable } from 'node:stream'
 
-// Source: https://open.canada.ca/data/dataset/432527ab-7aac-45b5-81d6-7597107a7013
 const GRANTS_URL =
   'https://open.canada.ca/data/dataset/432527ab-7aac-45b5-81d6-7597107a7013/resource/1d15a62f-5656-49ad-8c88-f40ce689d831/download/grants.csv'
 
@@ -12,30 +14,38 @@ export interface DownloadResult {
   fileSizeBytes: number
 }
 
-/**
- * Downloads the federal grants CSV from open.canada.ca.
- * Returns the local file path, a SHA-256 hash of the file, and its size.
- * The hash is used for idempotency checking (DATA-07).
- */
 export async function downloadGrants(destDir: string): Promise<DownloadResult> {
   await mkdir(destDir, { recursive: true })
 
-  const response = await fetch(GRANTS_URL)
+  const response = await fetch(GRANTS_URL, { redirect: 'follow' })
   if (!response.ok) {
     throw new Error(
       `Failed to download grants CSV: ${response.status} ${response.statusText}`,
     )
   }
 
-  const buffer = Buffer.from(await response.arrayBuffer())
-  const fileHash = createHash('sha256').update(buffer).digest('hex')
-
   const localPath = join(destDir, 'grants.csv')
-  await writeFile(localPath, buffer)
+  const body = response.body
+  if (!body) throw new Error('No response body')
+
+  const hash = createHash('sha256')
+  const fileStream = createWriteStream(localPath)
+  const webStream = Readable.fromWeb(body as import('node:stream/web').ReadableStream)
+
+  await new Promise<void>((resolve, reject) => {
+    webStream.on('data', (chunk: Buffer) => hash.update(chunk))
+    webStream.pipe(fileStream)
+    fileStream.on('finish', resolve)
+    fileStream.on('error', reject)
+    webStream.on('error', reject)
+  })
+
+  const fileHash = hash.digest('hex')
+  const fileStat = await stat(localPath)
 
   return {
     localPath,
     fileHash,
-    fileSizeBytes: buffer.length,
+    fileSizeBytes: Number(fileStat.size),
   }
 }

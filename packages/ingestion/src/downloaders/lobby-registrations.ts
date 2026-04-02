@@ -1,16 +1,14 @@
+import { mkdir } from 'node:fs/promises'
 import { createHash } from 'node:crypto'
-import { writeFile } from 'node:fs/promises'
-import { tmpdir } from 'node:os'
+import { createWriteStream } from 'node:fs'
+import { stat } from 'node:fs/promises'
 import { join } from 'node:path'
-
-/**
- * Downloads the lobbyist registrations bulk CSV export from lobbycanada.gc.ca.
- * The endpoint follows 302 redirects (handled by fetch automatically).
- * Open data mirror: https://lobbycanada.gc.ca/en/open-data/
- */
+import { Readable } from 'node:stream'
+import { pipeline } from 'node:stream/promises'
+import unzipper from 'unzipper'
 
 const SOURCE_URL =
-  'https://lobbycanada.gc.ca/app/secure/ocl/lrs/do/clntSmmry?lang=eng&export=true'
+  'https://lobbycanada.gc.ca/media/zwcjycef/registrations_enregistrements_ocl_cal.zip'
 
 export interface DownloadResult {
   localPath: string
@@ -18,12 +16,15 @@ export interface DownloadResult {
   fileSizeBytes: number
 }
 
-export async function downloadLobbyRegistrations(): Promise<DownloadResult> {
+export async function downloadLobbyRegistrations(destDir: string): Promise<DownloadResult> {
+  await mkdir(destDir, { recursive: true })
+
+  console.log('Downloading lobby registrations ZIP...')
   const response = await fetch(SOURCE_URL, {
     headers: {
-      'User-Agent':
-        'GovTrace/1.0 (https://govtrace.ca; civic data research; contact@govtrace.ca)',
+      'User-Agent': 'GovTrace/1.0 (civic data research)',
     },
+    redirect: 'follow',
   })
 
   if (!response.ok) {
@@ -32,17 +33,44 @@ export async function downloadLobbyRegistrations(): Promise<DownloadResult> {
     )
   }
 
-  const arrayBuffer = await response.arrayBuffer()
-  const buffer = Buffer.from(arrayBuffer)
+  const zipPath = join(destDir, 'lobby-registrations.zip')
+  const body = response.body
+  if (!body) throw new Error('No response body')
 
-  const fileHash = createHash('sha256').update(buffer).digest('hex')
-  const localPath = join(tmpdir(), `lobby-registrations-${fileHash.slice(0, 8)}.csv`)
+  const hash = createHash('sha256')
+  const fileStream = createWriteStream(zipPath)
+  const webStream = Readable.fromWeb(body as import('node:stream/web').ReadableStream)
 
-  await writeFile(localPath, buffer)
+  await new Promise<void>((resolve, reject) => {
+    webStream.on('data', (chunk: Buffer) => hash.update(chunk))
+    webStream.pipe(fileStream)
+    fileStream.on('finish', resolve)
+    fileStream.on('error', reject)
+    webStream.on('error', reject)
+  })
+
+  const fileHash = hash.digest('hex')
+  const fileStat = await stat(zipPath)
+
+  // Extract CSV from ZIP
+  console.log('Extracting CSV from ZIP...')
+  let csvPath = ''
+  const directory = await unzipper.Open.file(zipPath)
+  for (const entry of directory.files) {
+    if (entry.path.endsWith('.csv')) {
+      const fileName = entry.path.split('/').pop() ?? entry.path
+      csvPath = join(destDir, fileName)
+      await pipeline(entry.stream(), createWriteStream(csvPath))
+      console.log(`Extracted: ${entry.path} → ${fileName}`)
+      break
+    }
+  }
+
+  if (!csvPath) throw new Error('No CSV file found in lobby registrations ZIP')
 
   return {
-    localPath,
+    localPath: csvPath,
     fileHash,
-    fileSizeBytes: buffer.length,
+    fileSizeBytes: Number(fileStat.size),
   }
 }

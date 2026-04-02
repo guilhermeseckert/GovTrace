@@ -110,6 +110,7 @@ function EntityProfilePage() {
 
       <FlagModal
         entityId={profile.id}
+        matchLogId={profile.matchLogId ?? undefined}
         open={flagModalOpen}
         onOpenChange={setFlagModalOpen}
       />

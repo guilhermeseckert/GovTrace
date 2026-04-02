@@ -1,3 +1,5 @@
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { sql } from 'drizzle-orm'
 import { getDb } from '@govtrace/db/client'
 import { ingestionRuns } from '@govtrace/db/schema/jobs'
@@ -31,7 +33,8 @@ export async function runLobbyRegistrationsIngestion(): Promise<void> {
   try {
     // Download
     console.log('[lobby_registrations] Downloading CSV...')
-    const { localPath, fileHash, fileSizeBytes } = await downloadLobbyRegistrations()
+    const destDir = join(tmpdir(), 'govtrace-ingestion', 'lobby-registrations')
+    const { localPath, fileHash, fileSizeBytes } = await downloadLobbyRegistrations(destDir)
     console.log(
       `[lobby_registrations] Downloaded ${(fileSizeBytes / 1024).toFixed(1)} KB (hash: ${fileHash.slice(0, 8)}...)`,
     )

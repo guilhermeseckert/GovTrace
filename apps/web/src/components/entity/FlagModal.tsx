@@ -15,11 +15,12 @@ import { en } from '@/i18n/en'
 
 type FlagModalProps = {
   entityId: string
+  matchLogId?: string
   open: boolean
   onOpenChange: (open: boolean) => void
 }
 
-export function FlagModal({ entityId, open, onOpenChange }: FlagModalProps) {
+export function FlagModal({ entityId, matchLogId, open, onOpenChange }: FlagModalProps) {
   const [description, setDescription] = useState('')
   const [email, setEmail] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -48,6 +49,7 @@ export function FlagModal({ entityId, open, onOpenChange }: FlagModalProps) {
       await submitFlag({
         data: {
           entityId,
+          matchLogId,
           description: description.trim(),
           reporterEmail: email.trim() || undefined,
         },
