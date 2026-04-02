@@ -1,24 +1,30 @@
 import { createFileRoute, notFound } from '@tanstack/react-router'
 import { useState } from 'react'
-import { getEntityProfile, getEntityStats } from '@/server-fns/entity'
+import { getEntityProfile, getEntityStats, getEntityProvenance } from '@/server-fns/entity'
 import { getOrGenerateSummary } from '@/server-fns/summary'
 import { EntityHeader } from '@/components/entity/EntityHeader'
 import { AISummary } from '@/components/entity/AISummary'
 import { ProfileTabs } from '@/components/entity/ProfileTabs'
 import { FlagModal } from '@/components/entity/FlagModal'
+import { DonationsTable } from '@/components/tables/DonationsTable'
+import { ContractsTable } from '@/components/tables/ContractsTable'
+import { GrantsTable } from '@/components/tables/GrantsTable'
+import { LobbyingTable } from '@/components/tables/LobbyingTable'
+import { ConnectionsTable } from '@/components/tables/ConnectionsTable'
 import { en } from '@/i18n/en'
 
 export const Route = createFileRoute('/entity/$id')({
   loader: async ({ params }) => {
-    const [profile, stats, summary] = await Promise.all([
+    const [profile, stats, summary, provenance] = await Promise.all([
       getEntityProfile({ data: { id: params.id } }),
       getEntityStats({ data: { id: params.id } }),
       getOrGenerateSummary({ data: { entityId: params.id } }).catch(() => null),
+      getEntityProvenance({ data: { id: params.id } }).catch(() => null),
     ])
 
     if (!profile) throw notFound()
 
-    return { profile, stats, summary }
+    return { profile, stats, summary, provenance }
   },
   notFoundComponent: () => (
     <main id="main-content" className="mx-auto max-w-[1200px] px-4 py-16 text-center">
@@ -45,14 +51,8 @@ export const Route = createFileRoute('/entity/$id')({
 })
 
 function EntityProfilePage() {
-  const { profile, stats, summary } = Route.useLoaderData()
+  const { profile, stats, summary, provenance } = Route.useLoaderData()
   const [flagModalOpen, setFlagModalOpen] = useState(false)
-
-  // Provenance timestamps: from entity updatedAt for now
-  // Plan 06 will add per-dataset ingestedAt queries
-  const provenanceDate = profile.updatedAt
-    ? new Date(profile.updatedAt).toISOString().slice(0, 10)
-    : 'Unknown'
 
   return (
     <main id="main-content">
@@ -62,16 +62,57 @@ function EntityProfilePage() {
         {/* AI Summary — first visible content below header per PROF-02 */}
         <AISummary entityId={profile.id} initialSummary={summary} />
 
-        {/* Tabbed data sections — Plan 06 injects DataTable components */}
-        <ProfileTabs counts={stats} entityId={profile.id} />
+        {/* Tabbed data sections with wired DataTable components (PROF-03, PROF-04) */}
+        <ProfileTabs
+          counts={stats}
+          entityId={profile.id}
+          donationsTable={<DonationsTable entityId={profile.id} />}
+          contractsTable={<ContractsTable entityId={profile.id} />}
+          grantsTable={<GrantsTable entityId={profile.id} />}
+          lobbyingTable={<LobbyingTable entityId={profile.id} />}
+          connectionsTable={<ConnectionsTable entityId={profile.id} />}
+        />
 
-        {/* Data provenance footer — PROF-06 */}
-        <footer className="border-t pt-4">
-          <p className="text-sm text-muted-foreground">Last updated: {provenanceDate}</p>
+        {/* Data provenance footer — per-dataset max(ingestedAt) (PROF-06) */}
+        <footer className="border-t pt-4 space-y-2">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-muted-foreground sm:grid-cols-4">
+            {provenance?.donations && (
+              <span>
+                Donations:{' '}
+                {new Date(provenance.donations).toISOString().slice(0, 10)}
+              </span>
+            )}
+            {provenance?.contracts && (
+              <span>
+                Contracts:{' '}
+                {new Date(provenance.contracts).toISOString().slice(0, 10)}
+              </span>
+            )}
+            {provenance?.grants && (
+              <span>
+                Grants:{' '}
+                {new Date(provenance.grants).toISOString().slice(0, 10)}
+              </span>
+            )}
+            {provenance?.lobbying && (
+              <span>
+                Lobbying:{' '}
+                {new Date(provenance.lobbying).toISOString().slice(0, 10)}
+              </span>
+            )}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            All data sourced from Elections Canada, open.canada.ca, and
+            lobbycanada.gc.ca under the Open Government Licence – Canada.
+          </p>
         </footer>
       </div>
 
-      <FlagModal entityId={profile.id} open={flagModalOpen} onOpenChange={setFlagModalOpen} />
+      <FlagModal
+        entityId={profile.id}
+        open={flagModalOpen}
+        onOpenChange={setFlagModalOpen}
+      />
     </main>
   )
 }

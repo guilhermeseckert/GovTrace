@@ -1,0 +1,327 @@
+import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { Link } from '@tanstack/react-router'
+import {
+  type ColumnDef,
+  type SortingState,
+  type PaginationState,
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+} from '@tanstack/react-table'
+import { ArrowUpDown, ExternalLink } from 'lucide-react'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { getConnections } from '@/server-fns/datasets'
+import { en } from '@/i18n/en'
+
+type ConnectionRow = {
+  id: string
+  connectedEntityId: string
+  connectionType: string
+  totalValue: string | null
+  transactionCount: number
+  firstSeen: string | null
+  lastSeen: string | null
+  sourceTable: string
+  connectedEntityName: string | null
+  connectedEntityType: string | null
+}
+
+function formatAmount(amount: string | null): string {
+  if (!amount) return '—'
+  const n = Number(amount)
+  if (Number.isNaN(n)) return amount
+  return new Intl.NumberFormat('en-CA', {
+    style: 'currency',
+    currency: 'CAD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(n)
+}
+
+function formatDateRange(
+  firstSeen: string | null,
+  lastSeen: string | null,
+): string {
+  if (!firstSeen) return '—'
+  const first = String(firstSeen).slice(0, 10)
+  if (!lastSeen) return first
+  const last = String(lastSeen).slice(0, 10)
+  return first === last ? first : `${first} – ${last}`
+}
+
+const columns: ColumnDef<ConnectionRow>[] = [
+  {
+    accessorKey: 'connectedEntityName',
+    header: 'Entity',
+    cell: ({ row }) => {
+      const name =
+        row.original.connectedEntityName ?? row.original.connectedEntityId
+      return (
+        <Link
+          to="/entity/$id"
+          params={{ id: row.original.connectedEntityId }}
+          className="font-medium hover:underline"
+        >
+          {name}
+        </Link>
+      )
+    },
+  },
+  {
+    accessorKey: 'connectionType',
+    header: 'Type',
+    cell: ({ row }) => (
+      <Badge variant="secondary" className="text-xs">
+        {row.original.connectionType}
+      </Badge>
+    ),
+  },
+  {
+    accessorKey: 'totalValue',
+    header: ({ column }) => (
+      <button
+        type="button"
+        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        className="flex items-center gap-1 font-medium"
+      >
+        Total Value
+        <ArrowUpDown className="h-3 w-3 text-muted-foreground" />
+      </button>
+    ),
+    cell: ({ row }) => (
+      <span className="block text-right tabular-nums">
+        {formatAmount(row.original.totalValue)}
+      </span>
+    ),
+  },
+  {
+    accessorKey: 'transactionCount',
+    header: 'Transactions',
+    cell: ({ row }) => (
+      <span className="tabular-nums">{row.original.transactionCount}</span>
+    ),
+  },
+  {
+    id: 'dateRange',
+    header: 'Period',
+    cell: ({ row }) => (
+      <span className="tabular-nums text-sm">
+        {formatDateRange(row.original.firstSeen, row.original.lastSeen)}
+      </span>
+    ),
+  },
+  {
+    id: 'viewEntity',
+    header: '',
+    cell: ({ row }) => (
+      <Link
+        to="/entity/$id"
+        params={{ id: row.original.connectedEntityId }}
+        className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+        aria-label={`View entity ${row.original.connectedEntityName ?? row.original.connectedEntityId}`}
+      >
+        <ExternalLink className="h-3 w-3" />
+      </Link>
+    ),
+  },
+]
+
+type ConnectionsTableProps = { entityId: string }
+
+export function ConnectionsTable({ entityId }: ConnectionsTableProps) {
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 25,
+  })
+  const [sorting, setSorting] = useState<SortingState>([])
+
+  const sortBy = sorting[0]?.id
+  const sortDir = sorting[0]?.desc ? ('desc' as const) : ('asc' as const)
+
+  const { data, isLoading } = useQuery({
+    queryKey: [
+      'connections',
+      entityId,
+      pagination.pageIndex,
+      pagination.pageSize,
+      sortBy,
+      sortDir,
+    ],
+    queryFn: () =>
+      getConnections({
+        data: {
+          entityId,
+          page: pagination.pageIndex + 1,
+          pageSize: pagination.pageSize,
+          sortBy,
+          sortDir,
+        },
+      }),
+    staleTime: 1000 * 60 * 5,
+  })
+
+  const table = useReactTable({
+    data: (data?.rows ?? []) as ConnectionRow[],
+    columns,
+    manualPagination: true,
+    manualSorting: true,
+    pageCount: data ? Math.ceil(data.total / pagination.pageSize) : 0,
+    state: { pagination, sorting },
+    onPaginationChange: setPagination,
+    onSortingChange: setSorting,
+    getCoreRowModel: getCoreRowModel(),
+  })
+
+  if (isLoading) {
+    return (
+      <div className="space-y-2">
+        {[1, 2, 3].map((i) => (
+          <Skeleton key={i} className="h-10 w-full" />
+        ))}
+      </div>
+    )
+  }
+
+  if (!data?.rows.length) {
+    return (
+      <p className="text-sm text-muted-foreground">
+        {en.table.empty.replace('{dataset}', 'connections')}
+      </p>
+    )
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Desktop table */}
+      <div className="hidden rounded-md border md:block">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((hg) => (
+              <TableRow key={hg.id}>
+                {hg.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows.map((row) => (
+              <TableRow key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Mobile card view (DSGN-03) */}
+      <div className="space-y-3 md:hidden">
+        {(data.rows as ConnectionRow[]).map((row) => (
+          <div
+            key={row.id}
+            className="space-y-1 rounded-md border bg-card p-3 text-sm"
+          >
+            <div className="flex items-start justify-between">
+              <Link
+                to="/entity/$id"
+                params={{ id: row.connectedEntityId }}
+                className="font-medium hover:underline"
+              >
+                {row.connectedEntityName ?? row.connectedEntityId}
+              </Link>
+              <Badge variant="secondary" className="ml-2 shrink-0 text-xs">
+                {row.connectionType}
+              </Badge>
+            </div>
+            <div className="text-muted-foreground">
+              <span className="tabular-nums">{formatAmount(row.totalValue)}</span>
+              {' '}&middot; {row.transactionCount} transaction{row.transactionCount !== 1 ? 's' : ''}
+            </div>
+            <div className="tabular-nums text-xs text-muted-foreground">
+              {formatDateRange(row.firstSeen, row.lastSeen)}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Pagination */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <span>{en.table.rowsPerPage}</span>
+          <Select
+            value={String(pagination.pageSize)}
+            onValueChange={(v) =>
+              setPagination((p) => ({
+                ...p,
+                pageSize: Number(v),
+                pageIndex: 0,
+              }))
+            }
+          >
+            <SelectTrigger className="h-8 w-16">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {[10, 25, 50].map((n) => (
+                <SelectItem key={n} value={String(n)}>
+                  {n}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex items-center gap-2 text-sm">
+          <span>
+            Page {table.getState().pagination.pageIndex + 1} {en.table.of}{' '}
+            {table.getPageCount()}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            Previous
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            Next
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}

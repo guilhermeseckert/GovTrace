@@ -1,8 +1,8 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
-import { count, desc, eq, or } from 'drizzle-orm'
+import { count, desc, eq, max, or } from 'drizzle-orm'
 import { getDb } from '@govtrace/db/client'
-import { contracts, donations, grants } from '@govtrace/db/schema/raw'
+import { contracts, donations, grants, lobbyCommunications, lobbyRegistrations } from '@govtrace/db/schema/raw'
 import { aiSummaries, entityAliases, entityMatchesLog, entities } from '@govtrace/db/schema/entities'
 
 const EntityIdSchema = z.object({ id: z.string().uuid() })
@@ -67,6 +67,80 @@ export const getEntityProfile = createServerFn({ method: 'GET' })
       ...entity,
       bestAlias: bestAliasRows[0] ?? null,
       matchLogId: matchLogRows[0]?.id ?? null,
+    }
+  })
+
+// Data provenance: per-dataset max(ingestedAt) timestamps (PROF-06)
+export type EntityProvenance = {
+  donations: string | null
+  contracts: string | null
+  grants: string | null
+  lobbying: string | null
+}
+
+export const getEntityProvenance = createServerFn({ method: 'GET' })
+  .validator((data: unknown) => EntityIdSchema.parse(data))
+  .handler(async ({ data }): Promise<EntityProvenance> => {
+    const db = getDb()
+
+    const [donResult, conResult, grResult, lobRegResult, lobCommResult] =
+      await Promise.all([
+        db
+          .select({ maxDate: max(donations.ingestedAt) })
+          .from(donations)
+          .where(eq(donations.entityId, data.id)),
+        db
+          .select({ maxDate: max(contracts.ingestedAt) })
+          .from(contracts)
+          .where(eq(contracts.entityId, data.id)),
+        db
+          .select({ maxDate: max(grants.ingestedAt) })
+          .from(grants)
+          .where(eq(grants.entityId, data.id)),
+        db
+          .select({ maxDate: max(lobbyRegistrations.ingestedAt) })
+          .from(lobbyRegistrations)
+          .where(
+            or(
+              eq(lobbyRegistrations.lobbyistEntityId, data.id),
+              eq(lobbyRegistrations.clientEntityId, data.id),
+            ),
+          ),
+        db
+          .select({ maxDate: max(lobbyCommunications.ingestedAt) })
+          .from(lobbyCommunications)
+          .where(
+            or(
+              eq(lobbyCommunications.lobbyistEntityId, data.id),
+              eq(lobbyCommunications.officialEntityId, data.id),
+            ),
+          ),
+      ])
+
+    // Pick the most recent lobbying timestamp between registrations and communications
+    const lobRegDate = lobRegResult[0]?.maxDate ?? null
+    const lobCommDate = lobCommResult[0]?.maxDate ?? null
+    let lobbyingDate: string | null = null
+    if (lobRegDate && lobCommDate) {
+      lobbyingDate =
+        new Date(lobRegDate) >= new Date(lobCommDate)
+          ? lobRegDate.toISOString()
+          : lobCommDate.toISOString()
+    } else if (lobRegDate) {
+      lobbyingDate = lobRegDate.toISOString()
+    } else if (lobCommDate) {
+      lobbyingDate = lobCommDate.toISOString()
+    }
+
+    const donDate = donResult[0]?.maxDate
+    const conDate = conResult[0]?.maxDate
+    const grDate = grResult[0]?.maxDate
+
+    return {
+      donations: donDate ? donDate.toISOString() : null,
+      contracts: conDate ? conDate.toISOString() : null,
+      grants: grDate ? grDate.toISOString() : null,
+      lobbying: lobbyingDate,
     }
   })
 
