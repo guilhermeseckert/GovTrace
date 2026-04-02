@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Skeleton } from '@/components/ui/skeleton'
 import { getOrGenerateSummary } from '@/server-fns/summary'
+import { AISummaryExplanation } from '@/components/entity/AISummaryExplanation'
 import { en } from '@/i18n/en'
 
 type AISummaryProps = {
@@ -9,6 +11,8 @@ type AISummaryProps = {
 }
 
 export function AISummary({ entityId, initialSummary }: AISummaryProps) {
+  const [explanationOpen, setExplanationOpen] = useState(false)
+
   const { data: summary, isLoading } = useQuery({
     queryKey: ['summary', entityId],
     queryFn: () => getOrGenerateSummary({ data: { entityId } }),
@@ -32,10 +36,12 @@ export function AISummary({ entityId, initialSummary }: AISummaryProps) {
             <p className="text-sm italic text-muted-foreground">{en.profile.disclaimer}</p>
             <button
               type="button"
+              onClick={() => setExplanationOpen(true)}
               className="text-sm text-muted-foreground underline hover:text-foreground"
             >
               {en.profile.summaryExplanation}
             </button>
+            <AISummaryExplanation open={explanationOpen} onOpenChange={setExplanationOpen} />
           </div>
         </div>
       )}
