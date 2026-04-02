@@ -60,12 +60,14 @@ export async function downloadElectionsCanada(destDir: string): Promise<Download
   const directory = await unzipper.Open.file(zipPath)
   for (const entry of directory.files) {
     if (entry.path.endsWith('.csv')) {
-      csvPath = join(destDir, entry.path)
+      // Flatten nested paths (e.g. PoliticalFinance/od_cntrbtn_audt_e.csv → od_cntrbtn_audt_e.csv)
+      const fileName = entry.path.split('/').pop() ?? entry.path
+      csvPath = join(destDir, fileName)
       await pipeline(
         entry.stream(),
         createWriteStream(csvPath),
       )
-      console.log(`Extracted: ${entry.path} (${entry.uncompressedSize} bytes)`)
+      console.log(`Extracted: ${entry.path} → ${fileName} (${entry.uncompressedSize} bytes)`)
       break
     }
   }
