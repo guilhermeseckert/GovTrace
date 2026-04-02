@@ -1,47 +1,56 @@
 # Known Issues — Phase 2 Cleanup
 
-## Data Sources Status
+## Data Sources ✓ ALL WORKING
 
-| Source | Download | Parse | Upsert | Records |
-|--------|----------|-------|--------|---------|
-| Elections Canada | ✓ streaming ZIP | ✓ multi-era headers | ✓ idempotent | 4.4M |
-| Contracts | ✓ streaming | ✗ untested with real data | ✗ untested | 0 |
-| Grants | ✓ streaming | ✗ untested with real data | ✗ untested | 0 |
-| Lobby Registrations | ✓ ZIP download works | ✗ wrong column names | ✗ untested | 0 |
-| Lobby Communications | ✓ ZIP download works | ✗ wrong column names | ✗ untested | 0 |
+| Source | Records | Status |
+|--------|---------|--------|
+| Elections Canada donations | 4,398,661 | ✓ |
+| Federal contracts | 499,819 | ✓ |
+| Federal grants | 1,215,421 | ✓ |
+| Lobby registrations | 168,645 | ✓ |
+| Lobby communications | 359,251 | ✓ |
+| **Entities** | **1,231,390** | ✓ |
+| **TOTAL** | **6,641,797** | ✓ |
 
-## Parser Column Mismatches
+## UI Bugs to Fix
 
-### Lobby Communications
-**Actual CSV headers:** `COMLOG_ID, DPOH_LAST_NM_TCPD, DPOH_FIRST_NM_PRENOM_TCPD, DPOH_TITLE_TITRE_TCPD, BRANCH_UNIT_DIRECTION_SERVICE, OTHER_INSTITUTION_AUTRE, INSTITUTION`
+### 1. Entity profile tabs — data not showing in tab content
+- Tabs render but data tables show empty or render in wrong position
+- Likely client-side hydration issue with `useQuery` in DataTable components
+- Server functions return correct data (verified via SQL)
+- **Debug:** Check browser console for errors when clicking tabs on `/entity/:id` page
 
-### Lobby Registrations
-**Actual CSV headers:** `REG_ID_ENR, BNF_TYPE, EN_BNF_NM_AN, FR_BNF_NM, STREET_RUE_1, STREET_RUE_2, CITY_VILLE, POST_CODE_POSTAL, PROV_STATE_PROV_ETAT, COUNTRY_PAYS`
+### 2. AI Summary not generating
+- Shows "Summary not available" even with ANTHROPIC_API_KEY set
+- `getOrGenerateSummary` server function may not be triggering
+- **Debug:** Check if the server function is called on profile load, check for API errors in terminal
 
-**Both need:** Parser column alias maps rewritten to match actual government CSV schemas.
+### 3. Entity stats counts show 0 for politicians on search results
+- `getEntityCounts` was fixed to check `recipient_name` for politicians
+- May need to verify the fix is working in the browser (was just deployed)
 
-### Contracts & Grants
-Downloads are slow (open.canada.ca). Parser column mappings likely also need verification against actual CSV headers once download completes.
+## Fixes Applied This Session
 
-## Web App Issues (Fixed)
+- [x] `.validator()` → `.inputValidator()` (TanStack Start v1.167 API)
+- [x] `db.execute()` returns RowList not `{ rows }` (postgres-js driver)
+- [x] Removed broken `createAPIFileRoute` files (not in TanStack Start v1.167)
+- [x] FlagModal matchLogId prop threading (COMM-03)
+- [x] QueryClient wired into router via `routerWithQueryClient`
+- [x] `.env` + `envDir` + dotenv for ingestion CLI
+- [x] Elections Canada: streaming ZIP extract + CSV parse for 2GB+ file
+- [x] Contracts/Grants: streaming parsers for large CSVs
+- [x] Lobby downloaders: correct ZIP URLs from lobbycanada.gc.ca
+- [x] Lobby parsers: actual column names (REG_NUM_ENR, COMLOG_ID, etc.)
+- [x] Extract PrimaryExport.csv from multi-file ZIPs
+- [x] Batch dedup in all upsert functions (ON CONFLICT duplicate key fix)
+- [x] Grants column aliases (recipient_operating_name, agreement_type)
+- [x] Politicians show donations received (by recipient_name, not entity_id)
+- [x] Bulk entity creation from all 5 sources via SQL
+- [x] Monorepo restructured: apps/web + packages/db + packages/ingestion + Turborepo
 
-- [x] `.validator()` → `.inputValidator()` (TanStack Start v1.167)
-- [x] `db.execute()` returns RowList not `{ rows }` (postgres-js)
-- [x] `createAPIFileRoute` doesn't exist — removed broken API route files
-- [x] FlagModal matchLogId threading
-- [x] QueryClient not wired into router
-- [x] DATABASE_URL / .env not loaded
-- [x] Vite envDir pointing to monorepo root
+## Next Steps
 
-## Entity Matching
-
-- Bulk SQL entity creation done (670K entities from donations)
-- Full matching pipeline (normalize → fuzzy → AI) too slow for row-by-row — needs batch optimization
-- Entity-to-donation linking UPDATE still running (4.4M rows)
-
-## Pending
-
-- Contracts/grants CSV headers need verification when download completes
-- Lobby parsers need complete rewrite for actual column names
-- API routes need proper pattern for TanStack Start v1.167 (server routes or middleware)
-- AI summaries need ANTHROPIC_API_KEY to generate
+1. Fix entity profile tab rendering (most impactful UI bug)
+2. Test AI summary generation with API key
+3. Phase 3: Visualizations (D3.js graphs, Sankey, timeline)
+4. Phase 4: Newsletter
