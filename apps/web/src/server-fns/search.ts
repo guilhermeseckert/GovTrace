@@ -32,12 +32,25 @@ async function getEntityCounts(
     { donations: number; contracts: number; grants: number; lobbying: number }
   > = {}
 
+  // Batch-fetch entity info to determine politician vs person/org
+  const entityInfo = await db.select({ id: entities.id, canonicalName: entities.canonicalName, entityType: entities.entityType })
+    .from(entities).where(sql`id = ANY(${entityIds}::uuid[])`)
+
+  const entityMap = new Map(entityInfo.map(e => [e.id, e]))
+
   for (const id of entityIds) {
+    const entity = entityMap.get(id)
+    const isPolitician = entity?.entityType === 'politician'
+
+    // Politicians: count donations received (by recipient_name), not made
+    const donationWhere = isPolitician && entity?.canonicalName
+      ? eq(donations.recipientName, entity.canonicalName)
+      : eq(donations.entityId, id)
+
     const [donCount, conCount, grCount, lobCount] = await Promise.all([
-      db.select({ c: count() }).from(donations).where(eq(donations.entityId, id)),
+      db.select({ c: count() }).from(donations).where(donationWhere),
       db.select({ c: count() }).from(contracts).where(eq(contracts.entityId, id)),
       db.select({ c: count() }).from(grants).where(eq(grants.entityId, id)),
-      // lobbyRegistrations uses lobbyistEntityId and clientEntityId — count both roles
       db
         .select({ c: count() })
         .from(lobbyRegistrations)

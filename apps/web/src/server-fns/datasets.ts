@@ -20,6 +20,16 @@ export const getDonations = createServerFn({ method: 'GET' })
     const db = getDb()
     const offset = (data.page - 1) * data.pageSize
 
+    // Check entity type — politicians receive donations (match by recipient_name),
+    // persons/organizations make donations (match by entity_id)
+    const entity = await db.select({ canonicalName: entities.canonicalName, entityType: entities.entityType })
+      .from(entities).where(eq(entities.id, data.entityId)).limit(1)
+
+    const isPolitician = entity[0]?.entityType === 'politician'
+    const whereClause = isPolitician
+      ? eq(donations.recipientName, entity[0]?.canonicalName ?? '')
+      : eq(donations.entityId, data.entityId)
+
     const [rows, totalRows] = await Promise.all([
       db.select({
         id: donations.id,
@@ -31,15 +41,15 @@ export const getDonations = createServerFn({ method: 'GET' })
         recipientType: donations.recipientType,
         province: donations.province,
         electionYear: donations.electionYear,
-        rawData: donations.rawData,  // PROF-05: contains source URL fields
+        rawData: donations.rawData,
       })
       .from(donations)
-      .where(eq(donations.entityId, data.entityId))
+      .where(whereClause)
       .orderBy(desc(donations.donationDate))
       .limit(data.pageSize)
       .offset(offset),
 
-      db.select({ c: count() }).from(donations).where(eq(donations.entityId, data.entityId)),
+      db.select({ c: count() }).from(donations).where(whereClause),
     ])
 
     return {
