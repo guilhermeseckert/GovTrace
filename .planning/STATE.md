@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-search-and-entity-profiles-02-01-PLAN.md
-last_updated: "2026-04-02T01:03:08.425Z"
+stopped_at: Completed 02-04-PLAN.md
+last_updated: "2026-04-02T01:03:50.382Z"
 last_activity: 2026-04-02
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 18
-  completed_plans: 13
+  completed_plans: 14
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-03-31)
 ## Current Position
 
 Phase: 02 (search-and-entity-profiles) — EXECUTING
-Plan: 3 of 7
+Plan: 4 of 7
 Status: Ready to execute
 Last activity: 2026-04-02
 
@@ -65,6 +65,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01-data-foundation P11 | 25min | 2 tasks | 9 files |
 | Phase 02-search-and-entity-profiles P02 | 5min | 2 tasks | 4 files |
 | Phase 02-search-and-entity-profiles P01 | 6min | 2 tasks | 18 files |
+| Phase 02-search-and-entity-profiles P04 | 6min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -110,6 +111,8 @@ Recent decisions affecting current work:
 - [Phase 02-search-and-entity-profiles]: getCookie from @tanstack/react-start/server replaces getWebRequest — not exported in TanStack Start v1.167.16
 - [Phase 02-search-and-entity-profiles]: Vite resolve.alias required for @/* path resolution in addition to tsconfig.json paths — tsconfig paths alone insufficient for Rollup bundling
 - [Phase 02-search-and-entity-profiles]: shadcn CLI v4 uses oklch colors by default; overridden to HSL CSS variables for government blue #1a3a5c compatibility
+- [Phase 02-search-and-entity-profiles]: getCookie from @tanstack/react-start/server replaces getWebRequest (removed in v1.167) for SSR cookie reads
+- [Phase 02-search-and-entity-profiles]: Lobby tables use dual-FK pattern (lobbyistEntityId OR clientEntityId) — no single entityId FK; queries must use OR
 
 ### Pending Todos
 
@@ -122,6 +125,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-02T01:03:08.422Z
-Stopped at: Completed 02-search-and-entity-profiles-02-01-PLAN.md
+Last session: 2026-04-02T01:03:50.379Z
+Stopped at: Completed 02-04-PLAN.md
 Resume file: None

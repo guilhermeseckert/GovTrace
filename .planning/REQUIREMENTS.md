@@ -35,26 +35,26 @@
 
 ### Entity Profiles
 
-- [ ] **PROF-01**: User can view an entity profile page with name, type, and AI match confidence badge
-- [ ] **PROF-02**: Profile shows plain-language AI-generated summary as the first thing visible
-- [ ] **PROF-03**: Profile has tabbed/sectioned views for Donations, Contracts, Grants, Lobbying, and Connections
-- [ ] **PROF-04**: Each data section shows a sortable, filterable table with pagination
-- [ ] **PROF-05**: Every record links back to the original government data source
-- [ ] **PROF-06**: Profile shows data provenance timestamps (when each dataset was last updated)
+- [x] **PROF-01**: User can view an entity profile page with name, type, and AI match confidence badge
+- [x] **PROF-02**: Profile shows plain-language AI-generated summary as the first thing visible
+- [x] **PROF-03**: Profile has tabbed/sectioned views for Donations, Contracts, Grants, Lobbying, and Connections
+- [x] **PROF-04**: Each data section shows a sortable, filterable table with pagination
+- [x] **PROF-05**: Every record links back to the original government data source
+- [x] **PROF-06**: Profile shows data provenance timestamps (when each dataset was last updated)
 
 ### AI Features
 
-- [ ] **AI-01**: System generates plain-language summaries using Claude API (simple words, rounded numbers, emoji icons)
-- [ ] **AI-02**: Summaries include "connections do not imply wrongdoing" caveat when showing relationships
-- [ ] **AI-03**: Summaries are cached and regenerated weekly on data refresh
+- [x] **AI-01**: System generates plain-language summaries using Claude API (simple words, rounded numbers, emoji icons)
+- [x] **AI-02**: Summaries include "connections do not imply wrongdoing" caveat when showing relationships
+- [x] **AI-03**: Summaries are cached and regenerated weekly on data refresh
 - [ ] **AI-04**: AI match transparency badge shows confidence score, match method, and expandable AI reasoning
 - [ ] **AI-05**: "How do we write this summary?" link explains AI generation from public data
 
 ### Community
 
-- [ ] **COMM-01**: User can flag an incorrect entity match via "Flag an error" button
-- [ ] **COMM-02**: Flags are stored with optional email for follow-up
-- [ ] **COMM-03**: Flagged matches are visible in entity_matches_log for review
+- [x] **COMM-01**: User can flag an incorrect entity match via "Flag an error" button
+- [x] **COMM-02**: Flags are stored with optional email for follow-up
+- [x] **COMM-03**: Flagged matches are visible in entity_matches_log for review
 
 ### Visualizations
 
@@ -79,17 +79,17 @@
 ### API
 
 - [x] **API-01**: GET /api/search with query, type filter, and pagination
-- [ ] **API-02**: GET /api/entity/:id returns full entity profile with all related data
-- [ ] **API-03**: GET /api/entity/:id/donations, /contracts, /lobbying, /grants with pagination
-- [ ] **API-04**: GET /api/entity/:id/connections returns related entities
-- [ ] **API-05**: GET /api/entity/:id/summary returns AI-generated plain-language summary
+- [x] **API-02**: GET /api/entity/:id returns full entity profile with all related data
+- [x] **API-03**: GET /api/entity/:id/donations, /contracts, /lobbying, /grants with pagination
+- [x] **API-04**: GET /api/entity/:id/connections returns related entities
+- [x] **API-05**: GET /api/entity/:id/summary returns AI-generated plain-language summary
 - [ ] **API-06**: GET /api/entity/:id/graph returns nodes and edges for D3 (depth parameter)
 - [ ] **API-07**: GET /api/entity/:id/money-flow returns Sankey diagram data
 - [ ] **API-08**: GET /api/entity/:id/timeline returns chronological events
 - [ ] **API-09**: GET /api/entity/:id/heatmap returns relationship intensity matrix
 - [ ] **API-10**: GET /api/entity/:id/spending-breakdown returns department spending data
 - [x] **API-11**: GET /api/stats returns platform-wide statistics
-- [ ] **API-12**: POST /api/entity/:id/flag submits an error flag
+- [x] **API-12**: POST /api/entity/:id/flag submits an error flag
 - [ ] **API-13**: Newsletter API endpoints (subscribe, confirm, unsubscribe, latest, archive)
 
 ### Infrastructure
@@ -169,20 +169,20 @@
 | SRCH-03 | Phase 2 | Complete |
 | SRCH-04 | Phase 2 | Complete |
 | SRCH-05 | Phase 2 | Complete |
-| PROF-01 | Phase 2 | Pending |
-| PROF-02 | Phase 2 | Pending |
-| PROF-03 | Phase 2 | Pending |
-| PROF-04 | Phase 2 | Pending |
-| PROF-05 | Phase 2 | Pending |
-| PROF-06 | Phase 2 | Pending |
-| AI-01 | Phase 2 | Pending |
-| AI-02 | Phase 2 | Pending |
-| AI-03 | Phase 2 | Pending |
+| PROF-01 | Phase 2 | Complete |
+| PROF-02 | Phase 2 | Complete |
+| PROF-03 | Phase 2 | Complete |
+| PROF-04 | Phase 2 | Complete |
+| PROF-05 | Phase 2 | Complete |
+| PROF-06 | Phase 2 | Complete |
+| AI-01 | Phase 2 | Complete |
+| AI-02 | Phase 2 | Complete |
+| AI-03 | Phase 2 | Complete |
 | AI-04 | Phase 2 | Pending |
 | AI-05 | Phase 2 | Pending |
-| COMM-01 | Phase 2 | Pending |
-| COMM-02 | Phase 2 | Pending |
-| COMM-03 | Phase 2 | Pending |
+| COMM-01 | Phase 2 | Complete |
+| COMM-02 | Phase 2 | Complete |
+| COMM-03 | Phase 2 | Complete |
 | VIZ-01 | Phase 3 | Pending |
 | VIZ-02 | Phase 3 | Pending |
 | VIZ-03 | Phase 3 | Pending |
@@ -198,17 +198,17 @@
 | NEWS-05 | Phase 4 | Pending |
 | NEWS-06 | Phase 4 | Pending |
 | API-01 | Phase 2 | Complete |
-| API-02 | Phase 2 | Pending |
-| API-03 | Phase 2 | Pending |
-| API-04 | Phase 2 | Pending |
-| API-05 | Phase 2 | Pending |
+| API-02 | Phase 2 | Complete |
+| API-03 | Phase 2 | Complete |
+| API-04 | Phase 2 | Complete |
+| API-05 | Phase 2 | Complete |
 | API-06 | Phase 3 | Pending |
 | API-07 | Phase 3 | Pending |
 | API-08 | Phase 3 | Pending |
 | API-09 | Phase 4 | Pending |
 | API-10 | Phase 4 | Pending |
 | API-11 | Phase 2 | Complete |
-| API-12 | Phase 2 | Pending |
+| API-12 | Phase 2 | Complete |
 | API-13 | Phase 4 | Pending |
 | INFRA-01 | Phase 1 | Complete |
 | INFRA-02 | Phase 1 | Complete |
