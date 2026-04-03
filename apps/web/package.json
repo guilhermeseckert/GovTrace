@@ -38,6 +38,7 @@
   "devDependencies": {
     "@tailwindcss/vite": "^4.0.0",
     "@types/d3": "7.4.3",
+    "@types/d3-sankey": "^0.12.5",
     "@types/node": "catalog:",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
