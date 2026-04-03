@@ -1,15 +1,69 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
-import { and, count, eq } from 'drizzle-orm'
+import { and, count, desc, eq, or } from 'drizzle-orm'
 import Anthropic from '@anthropic-ai/sdk'
 import { getDb } from '@govtrace/db/client'
 import { aiSummaries, entities } from '@govtrace/db/schema/entities'
-import { contracts, donations, grants } from '@govtrace/db/schema/raw'
+import { contracts, donations, grants, lobbyRegistrations } from '@govtrace/db/schema/raw'
+import { entityConnections } from '@govtrace/db/schema/connections'
+import { formatAmount } from '@/lib/connection-labels'
 
 // Current model as of March 2026 — claude-haiku-4-5, NOT haiku-3-5
 const SUMMARY_MODEL = 'claude-haiku-4-5-20251001'
 
+// Version marker appended to model field — old summaries without this are treated as stale
+const PROMPT_VERSION = '-v2'
+
 const SummaryInputSchema = z.object({ entityId: z.string().uuid() })
+
+type TopConnection = {
+  connectedEntityName: string
+  connectionType: string
+  totalValue: string | null
+  transactionCount: number
+}
+
+/** Query top connections by value, searching both directions of the entity_connections table. */
+async function getTopConnections(
+  db: ReturnType<typeof getDb>,
+  entityId: string,
+  limit = 20,
+): Promise<TopConnection[]> {
+  const entitiesAlias = entities
+
+  // Direction A: entity is entityAId, connected entity is entityBId
+  const rowsA = await db
+    .select({
+      connectedEntityName: entitiesAlias.canonicalName,
+      connectionType: entityConnections.connectionType,
+      totalValue: entityConnections.totalValue,
+      transactionCount: entityConnections.transactionCount,
+    })
+    .from(entityConnections)
+    .innerJoin(entitiesAlias, eq(entitiesAlias.id, entityConnections.entityBId))
+    .where(eq(entityConnections.entityAId, entityId))
+
+  // Direction B: entity is entityBId, connected entity is entityAId
+  const rowsB = await db
+    .select({
+      connectedEntityName: entitiesAlias.canonicalName,
+      connectionType: entityConnections.connectionType,
+      totalValue: entityConnections.totalValue,
+      transactionCount: entityConnections.transactionCount,
+    })
+    .from(entityConnections)
+    .innerJoin(entitiesAlias, eq(entitiesAlias.id, entityConnections.entityAId))
+    .where(eq(entityConnections.entityBId, entityId))
+
+  // Merge, sort by totalValue desc, take top N
+  const merged = [...rowsA, ...rowsB].sort((a, b) => {
+    const valA = Number(a.totalValue ?? 0)
+    const valB = Number(b.totalValue ?? 0)
+    return valB - valA
+  })
+
+  return merged.slice(0, limit)
+}
 
 function buildSummaryPrompt(params: {
   name: string
@@ -18,28 +72,44 @@ function buildSummaryPrompt(params: {
   contractCount: number
   grantCount: number
   lobbyCount: number
+  connections: TopConnection[]
 }): string {
+  const connectionLines = params.connections
+    .map((c) => {
+      const typeLabel = c.connectionType.replaceAll('_', ' ')
+      const value = formatAmount(c.totalValue)
+      return `- ${c.connectedEntityName} (${typeLabel}): ${value}, ${c.transactionCount} transactions`
+    })
+    .join('\n')
+
+  const connectionsSection =
+    params.connections.length > 0
+      ? `\nKnown connections (top by value):\n${connectionLines}\n`
+      : ''
+
   return `You are writing a plain-language summary for GovTrace, a Canadian civic transparency platform.
 
 Write a 2-3 sentence summary about "${params.name}" (a ${params.entityType}) based on these government records:
-- 💰 ${params.donationCount} political donation records
-- 📄 ${params.contractCount} federal contract records
-- 💵 ${params.grantCount} federal grant records
-- 🤝 ${params.lobbyCount} lobbying activity records
-
+- ${params.donationCount} political donation records
+- ${params.contractCount} federal contract records
+- ${params.grantCount} federal grant records
+- ${params.lobbyCount} lobbying activity records
+${connectionsSection}
 Rules:
-- Use simple words a 9-year-old could understand
+- Write in plain language a 9-year-old could follow
 - Use rounded numbers (e.g., "about 50" not "47")
-- Use the emoji icons shown above when referring to each dataset
+- Name specific people and companies from the connections data
+- Connect dots across datasets (e.g., "donated to X and also received contracts from Y")
+- Use dollar amounts when available
 - ALWAYS include this exact phrase at the end: "Connections shown do not imply wrongdoing."
 - Do NOT speculate about intent or imply wrongdoing
-- Maximum 60 words
+- Maximum 80 words
 
 Summary:`
 }
 
-// Cache-first pattern: check ai_summaries for fresh entry → return immediately.
-// On cache miss: generate via claude-haiku-4-5 → save to cache (AI-01, AI-02, AI-03).
+// Cache-first pattern: check ai_summaries for fresh entry -> return immediately.
+// On cache miss: generate via claude-haiku-4-5 -> save to cache (AI-01, AI-02, AI-03).
 // Per Pitfall 5: do NOT await generation in the profile page loader — let the component
 // trigger it client-side if missing. (PROF-02)
 export const getOrGenerateSummary = createServerFn({ method: 'GET' })
@@ -47,7 +117,7 @@ export const getOrGenerateSummary = createServerFn({ method: 'GET' })
   .handler(async ({ data }): Promise<string | null> => {
     const db = getDb()
 
-    // Cache-first check (AI-03)
+    // Cache-first check (AI-03) with version marker — old summaries regenerate
     const cached = await db
       .select()
       .from(aiSummaries)
@@ -59,12 +129,18 @@ export const getOrGenerateSummary = createServerFn({ method: 'GET' })
       )
       .limit(1)
 
-    if (cached.length > 0 && cached[0]) return cached[0].summaryText
+    if (cached.length > 0 && cached[0]) {
+      // Version check: if model field doesn't end with PROMPT_VERSION, treat as stale
+      if (cached[0].model.endsWith(PROMPT_VERSION)) {
+        return cached[0].summaryText
+      }
+    }
 
     // Fetch entity info first
     const entityRows = await db.select().from(entities).where(eq(entities.id, data.entityId)).limit(1)
     if (entityRows.length === 0) return null
     const entity = entityRows[0]
+    if (!entity) return null
 
     // Politicians receive donations (by name), others make them (by entity_id)
     const isPolitician = entity.entityType === 'politician'
@@ -72,10 +148,14 @@ export const getOrGenerateSummary = createServerFn({ method: 'GET' })
       ? eq(donations.recipientName, entity.canonicalName)
       : eq(donations.entityId, data.entityId)
 
-    const [donCount, conCount, grCount] = await Promise.all([
+    const [donCount, conCount, grCount, lobCount, connections] = await Promise.all([
       db.select({ c: count() }).from(donations).where(donWhere),
       db.select({ c: count() }).from(contracts).where(eq(contracts.entityId, data.entityId)),
       db.select({ c: count() }).from(grants).where(eq(grants.entityId, data.entityId)),
+      db.select({ c: count() }).from(lobbyRegistrations).where(
+        or(eq(lobbyRegistrations.lobbyistEntityId, data.entityId), eq(lobbyRegistrations.clientEntityId, data.entityId))
+      ),
+      getTopConnections(db, data.entityId),
     ])
 
     const apiKey = process.env['ANTHROPIC_API_KEY']
@@ -85,7 +165,7 @@ export const getOrGenerateSummary = createServerFn({ method: 'GET' })
 
     const response = await client.messages.create({
       model: SUMMARY_MODEL,
-      max_tokens: 300,
+      max_tokens: 500,
       messages: [{
         role: 'user',
         content: buildSummaryPrompt({
@@ -94,7 +174,8 @@ export const getOrGenerateSummary = createServerFn({ method: 'GET' })
           donationCount: Number(donCount[0]?.c ?? 0),
           contractCount: Number(conCount[0]?.c ?? 0),
           grantCount: Number(grCount[0]?.c ?? 0),
-          lobbyCount: 0,
+          lobbyCount: Number(lobCount[0]?.c ?? 0),
+          connections,
         }),
       }],
     })
@@ -103,16 +184,17 @@ export const getOrGenerateSummary = createServerFn({ method: 'GET' })
     if (!summaryText) return null
 
     // Cache the result — upsert on entityId unique constraint (AI-03)
+    // Append PROMPT_VERSION to model field for future version checks
     await db.insert(aiSummaries).values({
       entityId: data.entityId,
       summaryText,
-      model: SUMMARY_MODEL,
+      model: SUMMARY_MODEL + PROMPT_VERSION,
       isStale: false,
     }).onConflictDoUpdate({
       target: aiSummaries.entityId,
       set: {
         summaryText,
-        model: SUMMARY_MODEL,
+        model: SUMMARY_MODEL + PROMPT_VERSION,
         isStale: false,
         generatedAt: new Date(),
       },
