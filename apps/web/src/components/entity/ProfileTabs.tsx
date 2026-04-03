@@ -26,6 +26,15 @@ type TabDef = {
   disclaimer?: boolean
 }
 
+const TAB_DESCRIPTIONS: Record<TabKey, string> = {
+  donations: 'Political contributions reported to Elections Canada. Shows who donated money to this entity or, for politicians, who donated to their campaign.',
+  contracts: 'Federal government contracts awarded to this entity, sourced from the Proactive Disclosure portal on open.canada.ca.',
+  grants: 'Federal grants and contributions received by this entity, sourced from the Proactive Disclosure portal on open.canada.ca.',
+  lobbying: 'Lobbying registrations and communication reports involving this entity, sourced from the Office of the Commissioner of Lobbying.',
+  connections: 'Pre-computed relationships linking this entity to others across all five datasets — donations, contracts, grants, and lobbying.',
+  visualizations: 'Interactive charts showing money flow patterns, relationship networks, and activity over time across all government datasets.',
+}
+
 const TABS: TabDef[] = [
   { key: 'donations', label: 'Donations', count: 0 },
   { key: 'contracts', label: 'Contracts', count: 0 },
@@ -72,8 +81,11 @@ export function ProfileTabs({ counts, renderTab }: ProfileTabsProps) {
         ))}
       </div>
 
-      {/* Active tab content — ONLY the selected tab renders (lazy) */}
+      {/* Tab description + content */}
       <div className="pt-6">
+        <p className="mb-4 text-sm text-muted-foreground">
+          {TAB_DESCRIPTIONS[activeTab]}
+        </p>
         {activeDef?.disclaimer && (
           <div
             role="status"
