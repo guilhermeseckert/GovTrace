@@ -97,7 +97,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 04.1-01-PLAN.md — Install shadcn Accordion, create static /how-it-works page with all 5 sections (hero, data sources, walkthrough, AI transparency, FAQ)
+- [x] 04.1-01-PLAN.md — Install shadcn Accordion, create static /how-it-works page with all 5 sections (hero, data sources, walkthrough, AI transparency, FAQ)
 - [ ] 04.1-02-PLAN.md — Wire nav links in header/footer, visual verification checkpoint
 
 ### Phase 4.2: Entity Profile Storytelling *(INSERTED)*
