@@ -129,12 +129,17 @@ function EntityProfilePage() {
         <ProfileTabs
           counts={stats}
           entityId={profile.id}
-          donationsTable={<DonationsTable entityId={profile.id} />}
-          contractsTable={<ContractsTable entityId={profile.id} />}
-          grantsTable={<GrantsTable entityId={profile.id} />}
-          lobbyingTable={<LobbyingTable entityId={profile.id} />}
-          connectionsTable={<ConnectionsTable entityId={profile.id} />}
-          vizContent={<VisualizationsPanel entityId={profile.id} />}
+          renderTab={(tab) => {
+            switch (tab) {
+              case 'donations': return <DonationsTable entityId={profile.id} />
+              case 'contracts': return <ContractsTable entityId={profile.id} />
+              case 'grants': return <GrantsTable entityId={profile.id} />
+              case 'lobbying': return <LobbyingTable entityId={profile.id} />
+              case 'connections': return <ConnectionsTable entityId={profile.id} />
+              case 'visualizations': return <VisualizationsPanel entityId={profile.id} />
+              default: return null
+            }
+          }}
         />
 
         {/* Data provenance — per-dataset last updated dates (PROF-06) */}
