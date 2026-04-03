@@ -42,6 +42,40 @@ export const en = {
     tagline: 'Follow the money. Connect the dots. Hold power accountable.',
     statsLoading: 'Loading statistics\u2026',
   },
+  viz: {
+    graph: {
+      title: 'Relationship network',
+      ariaLabel: 'Entity relationship network graph',
+      loadingLabel: 'Loading network graph\u2026',
+      emptyLabel: 'No connections found for this entity.',
+      truncatedWarning: 'Graph limited to 150 nodes. Click a node to explore further.',
+      tooltipConnections: 'connections',
+      tooltipValue: 'Total value',
+      depthLabel: 'Depth',
+      filterTitle: 'Filter by type',
+      expandNode: 'Expand node connections',
+      zoomIn: 'Zoom in',
+      zoomOut: 'Zoom out',
+      resetZoom: 'Reset zoom',
+    },
+    sankey: {
+      title: 'Money flow',
+      ariaLabel: 'Money flow Sankey diagram',
+      loadingLabel: 'Loading money flow\u2026',
+      emptyLabel: 'Not enough data to show money flow for this entity.',
+    },
+    timeline: {
+      title: 'Activity timeline',
+      ariaLabel: 'Chronological activity timeline',
+      loadingLabel: 'Loading timeline\u2026',
+      emptyLabel: 'No activity found for this entity.',
+    },
+    tabs: {
+      network: 'Network',
+      moneyFlow: 'Money Flow',
+      timeline: 'Timeline',
+    },
+  },
 } as const
 
 export type TranslationKey = typeof en
