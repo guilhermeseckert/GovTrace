@@ -79,7 +79,7 @@ Plans:
 Plans:
 - [x] 03-01-PLAN.md — Install d3/d3-sankey, shared hooks (useChartColors, useResizeObserver), three server functions (getGraphData, getMoneyFlow, getTimeline)
 - [x] 03-02-PLAN.md — NetworkGraph component: D3 force simulation, zoom/pan, click-to-expand, hover tooltip, connection-type filter
-- [ ] 03-03-PLAN.md — MoneyFlowSankey and ActivityTimeline components
+- [x] 03-03-PLAN.md — MoneyFlowSankey and ActivityTimeline components
 - [ ] 03-04-PLAN.md — Wire all three charts into ProfileTabs Visualizations tab; human checkpoint
 
 ### Phase 4: Newsletter and Secondary Visualizations
@@ -103,5 +103,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Data Foundation | 11/11 | Complete   | 2026-04-01 |
 | 2. Search and Entity Profiles | 0/7 | Not started | - |
-| 3. Visualizations | 2/4 | In Progress|  |
+| 3. Visualizations | 3/4 | In Progress|  |
 | 4. Newsletter and Secondary Visualizations | 0/TBD | Not started | - |
