@@ -1,7 +1,7 @@
 import { createFileRoute, notFound } from '@tanstack/react-router'
 import { useState } from 'react'
 import { getEntityProfile, getEntityStats, getEntityProvenance } from '@/server-fns/entity'
-import { getOrGenerateSummary } from '@/server-fns/summary'
+// AI summary is fetched client-side by AISummary component, not in the loader
 import { EntityHeader } from '@/components/entity/EntityHeader'
 import { AISummary } from '@/components/entity/AISummary'
 import { ProfileTabs } from '@/components/entity/ProfileTabs'
@@ -18,16 +18,17 @@ import { en } from '@/i18n/en'
 
 export const Route = createFileRoute('/entity/$id')({
   loader: async ({ params }) => {
-    const [profile, stats, summary, provenance] = await Promise.all([
+    // Don't await AI summary in loader — it calls Claude API and blocks page load.
+    // The AISummary component fetches it client-side with a skeleton.
+    const [profile, stats, provenance] = await Promise.all([
       getEntityProfile({ data: { id: params.id } }),
       getEntityStats({ data: { id: params.id } }),
-      getOrGenerateSummary({ data: { entityId: params.id } }).catch(() => null),
       getEntityProvenance({ data: { id: params.id } }).catch(() => null),
     ])
 
     if (!profile) throw notFound()
 
-    return { profile, stats, summary, provenance }
+    return { profile, stats, provenance }
   },
   notFoundComponent: () => (
     <main id="main-content" className="mx-auto max-w-[1200px] px-4 py-16 text-center">
@@ -114,7 +115,7 @@ function VisualizationsPanel({ entityId }: { entityId: string }) {
 }
 
 function EntityProfilePage() {
-  const { profile, stats, summary, provenance } = Route.useLoaderData()
+  const { profile, stats, provenance } = Route.useLoaderData()
   const [flagModalOpen, setFlagModalOpen] = useState(false)
 
   return (
@@ -123,7 +124,7 @@ function EntityProfilePage() {
 
       <div className="mx-auto max-w-[1200px] space-y-8 px-4 py-8">
         {/* AI Summary — first visible content below header per PROF-02 */}
-        <AISummary entityId={profile.id} initialSummary={summary} />
+        <AISummary entityId={profile.id} initialSummary={null} />
 
         {/* Tabbed data sections with wired DataTable components (PROF-03, PROF-04) */}
         <ProfileTabs

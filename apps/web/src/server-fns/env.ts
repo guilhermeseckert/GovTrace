@@ -1,7 +1,16 @@
-import { config } from 'dotenv'
-import { resolve } from 'node:path'
+// Server-side env loader — call this at the start of any server function
+// that needs non-VITE_ env vars (like ANTHROPIC_API_KEY).
+let loaded = false
 
-// Load .env from monorepo root for server functions.
-// Vite only exposes VITE_*-prefixed vars to import.meta.env;
-// non-prefixed vars like ANTHROPIC_API_KEY need dotenv for process.env.
-config({ path: resolve(import.meta.dirname, '../../../../.env') })
+export async function ensureEnv() {
+  if (loaded) return
+  if (typeof process === 'undefined') return
+  try {
+    const { config } = await import('dotenv')
+    const { resolve } = await import('node:path')
+    config({ path: resolve(process.cwd(), '.env') })
+    loaded = true
+  } catch {
+    // Not available (client-side) — skip
+  }
+}
