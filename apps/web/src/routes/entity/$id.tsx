@@ -44,9 +44,38 @@ export const Route = createFileRoute('/entity/$id')({
   ),
   pendingComponent: () => (
     <main id="main-content">
-      <div className="h-32 animate-pulse bg-primary" />
-      <div className="mx-auto max-w-[1200px] px-4 py-8">
-        <p className="text-muted-foreground">{en.profile.loading}</p>
+      {/* Header skeleton */}
+      <div className="border-b bg-primary">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:py-10">
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <div className="h-7 w-7 rounded bg-primary-foreground/10" />
+              <div className="h-3 w-20 rounded bg-primary-foreground/10" />
+            </div>
+            <div className="h-9 w-64 rounded bg-primary-foreground/10" />
+          </div>
+        </div>
+      </div>
+      {/* Body skeleton */}
+      <div className="mx-auto max-w-7xl space-y-6 px-4 py-8">
+        {/* Summary skeleton */}
+        <div className="space-y-3 rounded-lg border-l-4 border-primary bg-card p-5">
+          <div className="h-4 w-full rounded bg-muted" />
+          <div className="h-4 w-5/6 rounded bg-muted" />
+          <div className="h-4 w-3/5 rounded bg-muted" />
+        </div>
+        {/* Tabs skeleton */}
+        <div className="flex gap-4 border-b pb-2">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="h-8 w-24 rounded bg-muted" />
+          ))}
+        </div>
+        {/* Table skeleton */}
+        <div className="space-y-2">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="h-12 w-full rounded bg-muted" />
+          ))}
+        </div>
       </div>
     </main>
   ),
