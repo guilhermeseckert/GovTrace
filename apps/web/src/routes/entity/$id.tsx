@@ -6,6 +6,8 @@ import { EntityHeader } from '@/components/entity/EntityHeader'
 import { AISummary } from '@/components/entity/AISummary'
 import { ProfileTabs } from '@/components/entity/ProfileTabs'
 import { FlagModal } from '@/components/entity/FlagModal'
+import { ConnectionCards } from '@/components/entity/ConnectionCards'
+import { PatternCallouts } from '@/components/entity/PatternCallouts'
 import { DonationsTable } from '@/components/tables/DonationsTable'
 import { ContractsTable } from '@/components/tables/ContractsTable'
 import { GrantsTable } from '@/components/tables/GrantsTable'
@@ -14,6 +16,7 @@ import { ConnectionsTable } from '@/components/tables/ConnectionsTable'
 import { NetworkGraph } from '@/components/visualizations/NetworkGraph'
 import { MoneyFlowSankey } from '@/components/visualizations/MoneyFlowSankey'
 import { ActivityTimeline } from '@/components/visualizations/ActivityTimeline'
+import { ChevronDown } from 'lucide-react'
 import { en } from '@/i18n/en'
 
 export const Route = createFileRoute('/entity/$id')({
@@ -57,7 +60,7 @@ export const Route = createFileRoute('/entity/$id')({
           </div>
         </div>
       </div>
-      {/* Body skeleton */}
+      {/* Body skeleton — story-first layout */}
       <div className="mx-auto max-w-7xl space-y-6 px-4 py-8">
         {/* Summary skeleton */}
         <div className="space-y-3 rounded-lg border-l-4 border-primary bg-card p-5">
@@ -65,17 +68,15 @@ export const Route = createFileRoute('/entity/$id')({
           <div className="h-4 w-5/6 rounded bg-muted" />
           <div className="h-4 w-3/5 rounded bg-muted" />
         </div>
-        {/* Tabs skeleton */}
-        <div className="flex gap-4 border-b pb-2">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-8 w-24 rounded bg-muted" />
-          ))}
+        {/* Card skeletons */}
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="h-24 rounded-lg border bg-card" />
+          <div className="h-24 rounded-lg border bg-card" />
         </div>
-        {/* Table skeleton */}
-        <div className="space-y-2">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-12 w-full rounded bg-muted" />
-          ))}
+        {/* Graph skeleton */}
+        <div className="rounded-lg border bg-card p-4">
+          <div className="h-4 w-40 rounded bg-muted" />
+          <div className="mt-3 h-64 w-full rounded bg-muted/50" />
         </div>
       </div>
     </main>
@@ -117,31 +118,57 @@ function VisualizationsPanel({ entityId }: { entityId: string }) {
 function EntityProfilePage() {
   const { profile, stats, provenance } = Route.useLoaderData()
   const [flagModalOpen, setFlagModalOpen] = useState(false)
+  const [showDetailedRecords, setShowDetailedRecords] = useState(false)
 
   return (
     <main id="main-content">
       <EntityHeader entity={profile} onFlagClick={() => setFlagModalOpen(true)} />
 
       <div className="mx-auto max-w-[1200px] space-y-8 px-4 py-8">
-        {/* AI Summary — first visible content below header per PROF-02 */}
+        {/* AI Summary — first visible content below header (PROF-02, STORY-01) */}
         <AISummary entityId={profile.id} initialSummary={null} />
 
-        {/* Tabbed data sections with wired DataTable components (PROF-03, PROF-04) */}
-        <ProfileTabs
-          counts={stats}
-          entityId={profile.id}
-          renderTab={(tab) => {
-            switch (tab) {
-              case 'donations': return <DonationsTable entityId={profile.id} />
-              case 'contracts': return <ContractsTable entityId={profile.id} />
-              case 'grants': return <GrantsTable entityId={profile.id} />
-              case 'lobbying': return <LobbyingTable entityId={profile.id} />
-              case 'connections': return <ConnectionsTable entityId={profile.id} />
-              case 'visualizations': return <VisualizationsPanel entityId={profile.id} />
-              default: return null
-            }
-          }}
-        />
+        {/* Pattern callouts — "Did you know?" cards (STORY-03) */}
+        <PatternCallouts entityId={profile.id} />
+
+        {/* Plain English connection cards (STORY-02) */}
+        <ConnectionCards entityId={profile.id} />
+
+        {/* Inline network graph — promoted from tab to story mode (STORY-04, D-16) */}
+        <div className="rounded-lg border bg-card p-4">
+          <h3 className="mb-3 text-sm font-medium text-muted-foreground">Relationship Network</h3>
+          <NetworkGraph entityId={profile.id} />
+        </div>
+
+        {/* Toggle to reveal raw data tables (STORY-04, D-17, D-18) */}
+        <button
+          type="button"
+          onClick={() => setShowDetailedRecords((v) => !v)}
+          className="flex w-full items-center justify-center gap-2 rounded-lg border bg-muted/50 px-4 py-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          aria-expanded={showDetailedRecords}
+        >
+          {showDetailedRecords ? en.profile.hideDetailedRecords : en.profile.showDetailedRecords}
+          <ChevronDown className={`h-4 w-4 transition-transform ${showDetailedRecords ? 'rotate-180' : ''}`} />
+        </button>
+
+        {/* Full data tables — conditional rendering, not CSS hidden (D-17) */}
+        {showDetailedRecords && (
+          <ProfileTabs
+            counts={stats}
+            entityId={profile.id}
+            renderTab={(tab) => {
+              switch (tab) {
+                case 'donations': return <DonationsTable entityId={profile.id} />
+                case 'contracts': return <ContractsTable entityId={profile.id} />
+                case 'grants': return <GrantsTable entityId={profile.id} />
+                case 'lobbying': return <LobbyingTable entityId={profile.id} />
+                case 'connections': return <ConnectionsTable entityId={profile.id} />
+                case 'visualizations': return <VisualizationsPanel entityId={profile.id} />
+                default: return null
+              }
+            }}
+          />
+        )}
 
         {/* Data provenance — per-dataset last updated dates (PROF-06) */}
         {provenance && (
