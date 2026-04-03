@@ -74,8 +74,13 @@ Plans:
   2. User can see a Sankey diagram showing the flow from donors through parties to contracts and grants
   3. User can see a chronological timeline of all events (donations, contracts, lobbying) for an entity, color-coded by dataset source
   4. Graph filtering by relationship type and date range is available and updates the visualization without a page reload
-**Plans**: TBD
-**UI hint**: yes
+**Plans**: 4 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — Install d3/d3-sankey, shared hooks (useChartColors, useResizeObserver), three server functions (getGraphData, getMoneyFlow, getTimeline)
+- [ ] 03-02-PLAN.md — NetworkGraph component: D3 force simulation, zoom/pan, click-to-expand, hover tooltip, connection-type filter
+- [ ] 03-03-PLAN.md — MoneyFlowSankey and ActivityTimeline components
+- [ ] 03-04-PLAN.md — Wire all three charts into ProfileTabs Visualizations tab; human checkpoint
 
 ### Phase 4: Newsletter and Secondary Visualizations
 **Goal**: Users can subscribe to a weekly digest of new government connections, and power users can explore department-level spending and donation trend analytics
@@ -98,5 +103,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Data Foundation | 11/11 | Complete   | 2026-04-01 |
 | 2. Search and Entity Profiles | 0/7 | Not started | - |
-| 3. Visualizations | 0/TBD | Not started | - |
+| 3. Visualizations | 0/4 | Not started | - |
 | 4. Newsletter and Secondary Visualizations | 0/TBD | Not started | - |
