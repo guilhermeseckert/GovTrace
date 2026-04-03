@@ -83,9 +83,9 @@
 - [x] **API-03**: GET /api/entity/:id/donations, /contracts, /lobbying, /grants with pagination
 - [x] **API-04**: GET /api/entity/:id/connections returns related entities
 - [x] **API-05**: GET /api/entity/:id/summary returns AI-generated plain-language summary
-- [ ] **API-06**: GET /api/entity/:id/graph returns nodes and edges for D3 (depth parameter)
-- [ ] **API-07**: GET /api/entity/:id/money-flow returns Sankey diagram data
-- [ ] **API-08**: GET /api/entity/:id/timeline returns chronological events
+- [x] **API-06**: GET /api/entity/:id/graph returns nodes and edges for D3 (depth parameter)
+- [x] **API-07**: GET /api/entity/:id/money-flow returns Sankey diagram data
+- [x] **API-08**: GET /api/entity/:id/timeline returns chronological events
 - [ ] **API-09**: GET /api/entity/:id/heatmap returns relationship intensity matrix
 - [ ] **API-10**: GET /api/entity/:id/spending-breakdown returns department spending data
 - [x] **API-11**: GET /api/stats returns platform-wide statistics
@@ -202,9 +202,9 @@
 | API-03 | Phase 2 | Complete |
 | API-04 | Phase 2 | Complete |
 | API-05 | Phase 2 | Complete |
-| API-06 | Phase 3 | Pending |
-| API-07 | Phase 3 | Pending |
-| API-08 | Phase 3 | Pending |
+| API-06 | Phase 3 | Complete |
+| API-07 | Phase 3 | Complete |
+| API-08 | Phase 3 | Complete |
 | API-09 | Phase 4 | Pending |
 | API-10 | Phase 4 | Pending |
 | API-11 | Phase 2 | Complete |

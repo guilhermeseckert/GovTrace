@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: verifying
-stopped_at: Completed 02-06-PLAN.md
-last_updated: "2026-04-02T02:33:53.418Z"
-last_activity: 2026-04-02
+status: executing
+stopped_at: Completed 03-01-PLAN.md
+last_updated: "2026-04-03T01:53:43.583Z"
+last_activity: 2026-04-03
 progress:
   total_phases: 4
   completed_phases: 2
-  total_plans: 18
-  completed_plans: 18
+  total_plans: 22
+  completed_plans: 19
   percent: 0
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-31)
 
 **Core value:** Anyone can search a name and instantly trace the flow of money and influence across all public government datasets — with clarity a 9-year-old could follow.
-**Current focus:** Phase 02 — search-and-entity-profiles
+**Current focus:** Phase 03 — visualizations
 
 ## Current Position
 
-Phase: 3
-Plan: Not started
-Status: Phase complete — ready for verification
-Last activity: 2026-04-02
+Phase: 03 (visualizations) — EXECUTING
+Plan: 2 of 4
+Status: Ready to execute
+Last activity: 2026-04-03
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -70,6 +70,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 02-search-and-entity-profiles P03 | 3min | 2 tasks | 7 files |
 | Phase 02-search-and-entity-profiles P07 | 6min | 2 tasks | 4 files |
 | Phase 02-search-and-entity-profiles P06 | 4min | 2 tasks | 7 files |
+| Phase 03-visualizations P01 | 4min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -126,6 +127,9 @@ Recent decisions affecting current work:
 - [Phase 02-search-and-entity-profiles]: LobbyingTable merges getLobbying nested {registrations, communications} response into flat LobbyRow[] before useReactTable — avoids dual-table pagination complexity
 - [Phase 02-search-and-entity-profiles]: getEntityProvenance uses Drizzle max() aggregation in parallel Promise.all across 5 tables — called in route loader not lazily on client
 - [Phase 02-search-and-entity-profiles]: ContractsTable constructs buyandsell.gc.ca fallback URL from contractId when rawData.source_url absent
+- [Phase 03-visualizations]: Array.from(db.execute()) not .rows — postgres RowList<T[]> extends T[] directly, no .rows property; use Array.from() to iterate
+- [Phase 03-visualizations]: db.execute(sql WITH RECURSIVE ... CYCLE) for graph traversal — Drizzle has no WITH RECURSIVE support (issue #209 unresolved)
+- [Phase 03-visualizations]: getMoneyFlow queries donations + contracts tables directly, not entity_connections — Pitfall 7: no direct donor->contract link exists in entity_connections
 
 ### Pending Todos
 
@@ -138,6 +142,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-02T01:17:08.561Z
-Stopped at: Completed 02-06-PLAN.md
+Last session: 2026-04-03T01:53:43.579Z
+Stopped at: Completed 03-01-PLAN.md
 Resume file: None
