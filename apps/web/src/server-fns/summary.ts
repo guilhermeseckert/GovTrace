@@ -1,5 +1,4 @@
 import { createServerFn } from '@tanstack/react-start'
-import { ensureEnv } from './env'
 import { z } from 'zod'
 import { and, count, eq } from 'drizzle-orm'
 import Anthropic from '@anthropic-ai/sdk'
@@ -46,7 +45,6 @@ Summary:`
 export const getOrGenerateSummary = createServerFn({ method: 'GET' })
   .inputValidator(SummaryInputSchema)
   .handler(async ({ data }): Promise<string | null> => {
-    await ensureEnv()
     const db = getDb()
 
     // Cache-first check (AI-03)
