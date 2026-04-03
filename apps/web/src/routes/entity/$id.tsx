@@ -106,15 +106,9 @@ function VisualizationsPanel({ entityId }: { entityId: string }) {
         ))}
       </div>
 
-      <div hidden={activeViz !== 'network'}>
-        <NetworkGraph entityId={entityId} />
-      </div>
-      <div hidden={activeViz !== 'moneyFlow'}>
-        <MoneyFlowSankey entityId={entityId} />
-      </div>
-      <div hidden={activeViz !== 'timeline'}>
-        <ActivityTimeline entityId={entityId} />
-      </div>
+      {activeViz === 'network' && <NetworkGraph entityId={entityId} />}
+      {activeViz === 'moneyFlow' && <MoneyFlowSankey entityId={entityId} />}
+      {activeViz === 'timeline' && <ActivityTimeline entityId={entityId} />}
     </div>
   )
 }
