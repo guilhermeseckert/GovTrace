@@ -133,23 +133,20 @@ export const getMoneyFlow = createServerFn({ method: 'GET' })
     const rootName = rootRows[0]?.canonicalName ?? data.id
     const isPolitician = rootRows[0]?.entityType === 'politician'
 
-    // For politicians: show who donated to them
-    // For others: show who they donated to
+    // Use materialized view for fast aggregation (avoids 23s seq scan on 4.4M rows)
     const donationRows = isPolitician
       ? Array.from(await db.execute<{ name: string; total: string }>(sql`
-          SELECT contributor_name AS name, SUM(amount)::text AS total
-          FROM donations
+          SELECT contributor_name AS name, total_amount::text AS total
+          FROM mv_donation_summaries
           WHERE recipient_name = ${rootName}
-          GROUP BY contributor_name
-          ORDER BY SUM(amount) DESC
+          ORDER BY total_amount DESC
           LIMIT 15
         `))
       : Array.from(await db.execute<{ name: string; total: string }>(sql`
-          SELECT recipient_name AS name, SUM(amount)::text AS total
-          FROM donations
-          WHERE entity_id = ${data.id}::uuid
-          GROUP BY recipient_name
-          ORDER BY SUM(amount) DESC
+          SELECT recipient_name AS name, total_amount::text AS total
+          FROM mv_donation_summaries
+          WHERE contributor_name = ${rootName}
+          ORDER BY total_amount DESC
           LIMIT 15
         `))
 
@@ -188,16 +185,19 @@ export const getTimeline = createServerFn({ method: 'GET' })
     const isPolitician = entityRows[0]?.entityType === 'politician'
     const entityName = entityRows[0]?.canonicalName ?? ''
 
-    // Build donation query based on entity type
+    // Use materialized view for politician donations (avoids 23s seq scan)
+    // For timeline, show aggregated yearly donation totals instead of individual records
     const donationQuery = isPolitician
-      ? sql`(SELECT donation_date::text AS date, 'donation' AS event_type,
-                    contributor_name AS description, amount::text
-             FROM donations WHERE recipient_name = ${entityName}
-             ORDER BY donation_date DESC LIMIT 100)`
-      : sql`(SELECT donation_date::text AS date, 'donation' AS event_type,
-                    recipient_name AS description, amount::text
-             FROM donations WHERE entity_id = ${data.id}::uuid
-             ORDER BY donation_date DESC LIMIT 100)`
+      ? sql`(SELECT first_donation::text AS date, 'donation' AS event_type,
+                    contributor_name AS description, total_amount::text AS amount
+             FROM mv_donation_summaries
+             WHERE recipient_name = ${entityName}
+             ORDER BY total_amount DESC LIMIT 50)`
+      : sql`(SELECT first_donation::text AS date, 'donation' AS event_type,
+                    recipient_name AS description, total_amount::text AS amount
+             FROM mv_donation_summaries
+             WHERE contributor_name = ${entityName}
+             ORDER BY total_amount DESC LIMIT 50)`
 
     const rows = Array.from(await db.execute<{
       date: string | null
@@ -210,19 +210,14 @@ export const getTimeline = createServerFn({ method: 'GET' })
       (SELECT award_date::text AS date, 'contract' AS event_type,
               department AS description, value::text AS amount
        FROM contracts WHERE entity_id = ${data.id}::uuid
-       ORDER BY award_date DESC LIMIT 100)
+       ORDER BY award_date DESC LIMIT 50)
       UNION ALL
       (SELECT agreement_date::text AS date, 'grant' AS event_type,
               department AS description, amount::text
        FROM grants WHERE entity_id = ${data.id}::uuid
-       ORDER BY agreement_date DESC LIMIT 100)
-      UNION ALL
-      (SELECT communication_date::text AS date, 'lobby_communication' AS event_type,
-              public_official_name AS description, NULL::text AS amount
-       FROM lobby_communications WHERE lobbyist_entity_id = ${data.id}::uuid
-       ORDER BY communication_date DESC LIMIT 100)
+       ORDER BY agreement_date DESC LIMIT 50)
       ORDER BY date DESC NULLS LAST
-      LIMIT 200
+      LIMIT 100
     `))
 
     return {

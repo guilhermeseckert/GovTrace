@@ -1,6 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
-import { count, desc, eq, or } from 'drizzle-orm'
+import { count, desc, eq, or, sql } from 'drizzle-orm'
 import { getDb } from '@govtrace/db/client'
 import { contracts, donations, grants, lobbyCommunications, lobbyRegistrations } from '@govtrace/db/schema/raw'
 import { entityConnections } from '@govtrace/db/schema/connections'
@@ -26,11 +26,24 @@ export const getDonations = createServerFn({ method: 'GET' })
       .from(entities).where(eq(entities.id, data.entityId)).limit(1)
 
     const isPolitician = entity[0]?.entityType === 'politician'
+    const entityName = entity[0]?.canonicalName ?? ''
+
+    // For politicians: use materialized view for fast count, raw table for paginated rows
+    // Raw table query uses the idx_donations_recipient_name index with LIMIT
     const whereClause = isPolitician
-      ? eq(donations.recipientName, entity[0]?.canonicalName ?? '')
+      ? eq(donations.recipientName, entityName)
       : eq(donations.entityId, data.entityId)
 
-    const [rows, totalRows] = await Promise.all([
+    // Fast count from materialized view for politicians (avoids 23s seq scan)
+    const totalCountPromise = isPolitician
+      ? db.execute<{ c: string }>(sql`
+          SELECT SUM(donation_count)::text AS c FROM mv_donation_summaries
+          WHERE recipient_name = ${entityName}
+        `).then(r => Number(Array.from(r)[0]?.c ?? 0))
+      : db.select({ c: count() }).from(donations).where(whereClause)
+          .then(r => Number(r[0]?.c ?? 0))
+
+    const [rows, totalCount] = await Promise.all([
       db.select({
         id: donations.id,
         contributorName: donations.contributorName,
@@ -49,12 +62,12 @@ export const getDonations = createServerFn({ method: 'GET' })
       .limit(data.pageSize)
       .offset(offset),
 
-      db.select({ c: count() }).from(donations).where(whereClause),
+      totalCountPromise,
     ])
 
     return {
       rows,
-      total: Number(totalRows[0]?.c ?? 0),
+      total: totalCount,
       page: data.page,
       pageSize: data.pageSize,
     }

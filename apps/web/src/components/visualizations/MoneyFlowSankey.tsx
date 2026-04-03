@@ -49,10 +49,12 @@ export function MoneyFlowSankey({ entityId, className }: MoneyFlowSankeyProps) {
 
     getMoneyFlow({ data: { id: entityId } })
       .then((response) => {
+        console.log('[MoneyFlow] Got data:', response.nodes.length, 'nodes,', response.links.length, 'links')
         setRawNodes(response.nodes)
         setRawLinks(response.links)
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error('[MoneyFlow] Error:', err)
         setError(en.common.error)
       })
       .finally(() => {
