@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Data Foundation** - Ingestion pipeline, entity matching, and pre-computed graph table for all 5 federal data sources (completed 2026-04-01)
 - [ ] **Phase 2: Search and Entity Profiles** - Full product loop: search → autocomplete → entity profile with tabbed data, AI summaries, and community flagging
 - [ ] **Phase 3: Visualizations** - Force-directed relationship graph, Sankey money-flow diagram, activity timeline, and supporting API endpoints
-- [ ] **Phase 4.1: How It Works** *(INSERTED)* - Static explainer page: visual walkthrough of the platform, data sources with logos, step-by-step example, AI transparency, FAQ
+- [x] **Phase 4.1: How It Works** *(INSERTED)* - Static explainer page: visual walkthrough of the platform, data sources with logos, step-by-step example, AI transparency, FAQ (completed 2026-04-03)
 - [ ] **Phase 4.2: Entity Profile Storytelling** *(INSERTED)* - AI summary upgrade with cross-referenced connections, plain English connection cards, simplified default view, "Show raw data" toggle
 - [ ] **Phase 4: Newsletter and Secondary Visualizations** - GovTrace Weekly AI newsletter, subscriber management, network heatmap, spending treemap, and donations trend chart
 
@@ -98,7 +98,7 @@ Plans:
 
 Plans:
 - [x] 04.1-01-PLAN.md — Install shadcn Accordion, create static /how-it-works page with all 5 sections (hero, data sources, walkthrough, AI transparency, FAQ)
-- [ ] 04.1-02-PLAN.md — Wire nav links in header/footer, visual verification checkpoint
+- [x] 04.1-02-PLAN.md — Wire nav links in header/footer, visual verification checkpoint
 
 ### Phase 4.2: Entity Profile Storytelling *(INSERTED)*
 **Goal**: A normal person (not a journalist or researcher) can search any name and immediately understand their government connections through plain English stories — no data literacy required
@@ -136,6 +136,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4.1 → 4.2 → 4
 | 1. Data Foundation | 11/11 | Complete | 2026-04-01 |
 | 2. Search and Entity Profiles | 7/7 | Complete | 2026-04-02 |
 | 3. Visualizations | 4/4 | Verifying | - |
-| 4.1 How It Works | 0/2 | Planning | - |
+| 4.1 How It Works | 2/2 | Complete   | 2026-04-03 |
 | 4.2 Entity Profile Storytelling | 0/TBD | Not started | - |
 | 4. Newsletter and Secondary Visualizations | 0/TBD | Not started | - |
