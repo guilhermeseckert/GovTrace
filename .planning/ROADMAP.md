@@ -15,6 +15,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Data Foundation** - Ingestion pipeline, entity matching, and pre-computed graph table for all 5 federal data sources (completed 2026-04-01)
 - [ ] **Phase 2: Search and Entity Profiles** - Full product loop: search → autocomplete → entity profile with tabbed data, AI summaries, and community flagging
 - [ ] **Phase 3: Visualizations** - Force-directed relationship graph, Sankey money-flow diagram, activity timeline, and supporting API endpoints
+- [ ] **Phase 4.1: How It Works** *(INSERTED)* - Static explainer page: visual walkthrough of the platform, data sources with logos, step-by-step example, AI transparency, FAQ
+- [ ] **Phase 4.2: Entity Profile Storytelling** *(INSERTED)* - AI summary upgrade with cross-referenced connections, plain English connection cards, simplified default view, "Show raw data" toggle
 - [ ] **Phase 4: Newsletter and Secondary Visualizations** - GovTrace Weekly AI newsletter, subscriber management, network heatmap, spending treemap, and donations trend chart
 
 ## Phase Details
@@ -82,6 +84,33 @@ Plans:
 - [x] 03-03-PLAN.md — MoneyFlowSankey and ActivityTimeline components
 - [x] 03-04-PLAN.md — Wire all three charts into ProfileTabs Visualizations tab; human checkpoint
 
+### Phase 4.1: How It Works *(INSERTED)*
+**Goal**: Anyone landing on GovTrace for the first time understands what it does, where the data comes from, and how to use it — in under 60 seconds
+**Depends on**: Phase 3
+**Requirements**: ONBOARD-01, ONBOARD-02, ONBOARD-03, ONBOARD-04, ONBOARD-05
+**Success Criteria** (what must be TRUE):
+  1. User clicks "How it works" from the header/footer and lands on a page that explains GovTrace in plain language
+  2. Page shows where each dataset comes from (Elections Canada, open.canada.ca, lobbycanada.gc.ca) with official logos and links
+  3. A step-by-step visual walkthrough shows: search a name → see their connections → understand the money trail
+  4. AI transparency section explains what Claude does (matching, summaries) and what it doesn't do (no accusations), with confidence score explanation
+  5. FAQ answers "Is this legal?", "Can I trust the AI?", "What does a connection mean?", "Who built this?"
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 4.2: Entity Profile Storytelling *(INSERTED)*
+**Goal**: A normal person (not a journalist or researcher) can search any name and immediately understand their government connections through plain English stories — no data literacy required
+**Depends on**: Phase 4.1
+**Requirements**: STORY-01, STORY-02, STORY-03, STORY-04, STORY-05, STORY-06
+**Success Criteria** (what must be TRUE):
+  1. AI summary cross-references connections: "Jane Fulton donated $500 to Mark Carney. Jane Fulton's employer received a $2.1M contract from Public Works."
+  2. Connection cards display as plain English sentences with color-coded badges (e.g. "Donated to", "Got a contract from") instead of a data table
+  3. AI-generated pattern callouts surface notable observations as questions: "Did you know? 3 donors to this politician work at the same company"
+  4. Default entity profile view shows: AI story → connection cards → one visualization. Raw data tables are behind a "Show detailed records" toggle
+  5. The simplified view loads and is readable on a phone screen without horizontal scrolling
+  6. Pattern callouts include "Why this matters" one-liner and link to the source records
+**Plans**: TBD
+**UI hint**: yes
+
 ### Phase 4: Newsletter and Secondary Visualizations
 **Goal**: Users can subscribe to a weekly digest of new government connections, and power users can explore department-level spending and donation trend analytics
 **Depends on**: Phase 3
@@ -97,11 +126,13 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4
+Phases execute in numeric order: 1 → 2 → 3 → 4.1 → 4.2 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Data Foundation | 11/11 | Complete   | 2026-04-01 |
-| 2. Search and Entity Profiles | 0/7 | Not started | - |
-| 3. Visualizations | 3/4 | In Progress|  |
+| 1. Data Foundation | 11/11 | Complete | 2026-04-01 |
+| 2. Search and Entity Profiles | 7/7 | Complete | 2026-04-02 |
+| 3. Visualizations | 4/4 | Verifying | - |
+| 4.1 How It Works | 0/TBD | Not started | - |
+| 4.2 Entity Profile Storytelling | 0/TBD | Not started | - |
 | 4. Newsletter and Secondary Visualizations | 0/TBD | Not started | - |
