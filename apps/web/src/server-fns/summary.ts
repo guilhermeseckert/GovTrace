@@ -7,7 +7,7 @@ import { aiSummaries, entities } from '@govtrace/db/schema/entities'
 import { contracts, donations, grants } from '@govtrace/db/schema/raw'
 
 // Current model as of March 2026 — claude-haiku-4-5, NOT haiku-3-5
-const SUMMARY_MODEL = 'claude-haiku-4-5-20241022'
+const SUMMARY_MODEL = 'claude-haiku-4-5-20251001'
 
 const SummaryInputSchema = z.object({ entityId: z.string().uuid() })
 
