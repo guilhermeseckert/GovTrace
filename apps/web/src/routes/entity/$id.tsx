@@ -143,39 +143,16 @@ function EntityProfilePage() {
           vizContent={<VisualizationsPanel entityId={profile.id} />}
         />
 
-        {/* Data provenance footer — per-dataset max(ingestedAt) (PROF-06) */}
-        <footer className="border-t pt-4 space-y-2">
-          <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-muted-foreground sm:grid-cols-4">
-            {provenance?.donations && (
-              <span>
-                Donations:{' '}
-                {new Date(provenance.donations).toISOString().slice(0, 10)}
-              </span>
-            )}
-            {provenance?.contracts && (
-              <span>
-                Contracts:{' '}
-                {new Date(provenance.contracts).toISOString().slice(0, 10)}
-              </span>
-            )}
-            {provenance?.grants && (
-              <span>
-                Grants:{' '}
-                {new Date(provenance.grants).toISOString().slice(0, 10)}
-              </span>
-            )}
-            {provenance?.lobbying && (
-              <span>
-                Lobbying:{' '}
-                {new Date(provenance.lobbying).toISOString().slice(0, 10)}
-              </span>
-            )}
+        {/* Data provenance — per-dataset last updated dates (PROF-06) */}
+        {provenance && (
+          <div className="flex flex-wrap gap-x-4 gap-y-1 border-t pt-4 text-xs text-muted-foreground">
+            <span className="font-medium">Last updated:</span>
+            {provenance.donations && <span>Donations {new Date(provenance.donations).toISOString().slice(0, 10)}</span>}
+            {provenance.contracts && <span>Contracts {new Date(provenance.contracts).toISOString().slice(0, 10)}</span>}
+            {provenance.grants && <span>Grants {new Date(provenance.grants).toISOString().slice(0, 10)}</span>}
+            {provenance.lobbying && <span>Lobbying {new Date(provenance.lobbying).toISOString().slice(0, 10)}</span>}
           </div>
-          <p className="text-xs text-muted-foreground">
-            All data sourced from Elections Canada, open.canada.ca, and
-            lobbycanada.gc.ca under the Open Government Licence – Canada.
-          </p>
-        </footer>
+        )}
       </div>
 
       <FlagModal

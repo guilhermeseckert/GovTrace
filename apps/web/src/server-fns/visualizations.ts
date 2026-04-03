@@ -135,16 +135,23 @@ export const getMoneyFlow = createServerFn({ method: 'GET' })
 
     // For politicians: show who donated to them
     // For others: show who they donated to
-    const donationRows = Array.from(await db.execute<{ name: string; total: string }>(sql`
-      SELECT
-        ${isPolitician ? sql`contributor_name` : sql`recipient_name`} AS name,
-        SUM(amount::numeric)::text AS total
-      FROM donations
-      WHERE ${isPolitician ? sql`recipient_name = ${rootName}` : sql`entity_id = ${data.id}::uuid`}
-      GROUP BY 1
-      ORDER BY SUM(amount::numeric) DESC
-      LIMIT 15
-    `))
+    const donationRows = isPolitician
+      ? Array.from(await db.execute<{ name: string; total: string }>(sql`
+          SELECT contributor_name AS name, SUM(amount)::text AS total
+          FROM donations
+          WHERE recipient_name = ${rootName}
+          GROUP BY contributor_name
+          ORDER BY SUM(amount) DESC
+          LIMIT 15
+        `))
+      : Array.from(await db.execute<{ name: string; total: string }>(sql`
+          SELECT recipient_name AS name, SUM(amount)::text AS total
+          FROM donations
+          WHERE entity_id = ${data.id}::uuid
+          GROUP BY recipient_name
+          ORDER BY SUM(amount) DESC
+          LIMIT 15
+        `))
 
     if (donationRows.length === 0) return { nodes: [], links: [] }
 
@@ -181,9 +188,16 @@ export const getTimeline = createServerFn({ method: 'GET' })
     const isPolitician = entityRows[0]?.entityType === 'politician'
     const entityName = entityRows[0]?.canonicalName ?? ''
 
-    const donationWhere = isPolitician
-      ? sql`recipient_name = ${entityName}`
-      : sql`entity_id = ${data.id}::uuid`
+    // Build donation query based on entity type
+    const donationQuery = isPolitician
+      ? sql`(SELECT donation_date::text AS date, 'donation' AS event_type,
+                    contributor_name AS description, amount::text
+             FROM donations WHERE recipient_name = ${entityName}
+             ORDER BY donation_date DESC LIMIT 100)`
+      : sql`(SELECT donation_date::text AS date, 'donation' AS event_type,
+                    recipient_name AS description, amount::text
+             FROM donations WHERE entity_id = ${data.id}::uuid
+             ORDER BY donation_date DESC LIMIT 100)`
 
     const rows = Array.from(await db.execute<{
       date: string | null
@@ -191,33 +205,22 @@ export const getTimeline = createServerFn({ method: 'GET' })
       description: string | null
       amount: string | null
     }>(sql`
-      (SELECT donation_date::text AS date, 'donation' AS event_type,
-              ${isPolitician ? sql`contributor_name` : sql`recipient_name`} AS description,
-              amount::text
-       FROM donations WHERE ${donationWhere}
-       ORDER BY donation_date DESC LIMIT 100)
-
+      ${donationQuery}
       UNION ALL
-
       (SELECT award_date::text AS date, 'contract' AS event_type,
               department AS description, value::text AS amount
        FROM contracts WHERE entity_id = ${data.id}::uuid
        ORDER BY award_date DESC LIMIT 100)
-
       UNION ALL
-
       (SELECT agreement_date::text AS date, 'grant' AS event_type,
               department AS description, amount::text
        FROM grants WHERE entity_id = ${data.id}::uuid
        ORDER BY agreement_date DESC LIMIT 100)
-
       UNION ALL
-
       (SELECT communication_date::text AS date, 'lobby_communication' AS event_type,
               public_official_name AS description, NULL::text AS amount
        FROM lobby_communications WHERE lobbyist_entity_id = ${data.id}::uuid
        ORDER BY communication_date DESC LIMIT 100)
-
       ORDER BY date DESC NULLS LAST
       LIMIT 200
     `))

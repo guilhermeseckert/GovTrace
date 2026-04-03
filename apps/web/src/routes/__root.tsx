@@ -91,7 +91,9 @@ function RootComponent() {
         <SkipToContent />
         <ThemeProvider theme={theme}>
           <SiteHeader />
-          <Outlet />
+          <div className="flex-1">
+            <Outlet />
+          </div>
           <SiteFooter />
         </ThemeProvider>
         <ScrollRestoration />
