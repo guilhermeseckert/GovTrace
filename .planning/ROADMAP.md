@@ -94,8 +94,11 @@ Plans:
   3. A step-by-step visual walkthrough shows: search a name → see their connections → understand the money trail
   4. AI transparency section explains what Claude does (matching, summaries) and what it doesn't do (no accusations), with confidence score explanation
   5. FAQ answers "Is this legal?", "Can I trust the AI?", "What does a connection mean?", "Who built this?"
-**Plans**: TBD
-**UI hint**: yes
+**Plans**: 2 plans
+
+Plans:
+- [ ] 04.1-01-PLAN.md — Install shadcn Accordion, create static /how-it-works page with all 5 sections (hero, data sources, walkthrough, AI transparency, FAQ)
+- [ ] 04.1-02-PLAN.md — Wire nav links in header/footer, visual verification checkpoint
 
 ### Phase 4.2: Entity Profile Storytelling *(INSERTED)*
 **Goal**: A normal person (not a journalist or researcher) can search any name and immediately understand their government connections through plain English stories — no data literacy required
@@ -133,6 +136,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4.1 → 4.2 → 4
 | 1. Data Foundation | 11/11 | Complete | 2026-04-01 |
 | 2. Search and Entity Profiles | 7/7 | Complete | 2026-04-02 |
 | 3. Visualizations | 4/4 | Verifying | - |
-| 4.1 How It Works | 0/TBD | Not started | - |
+| 4.1 How It Works | 0/2 | Planning | - |
 | 4.2 Entity Profile Storytelling | 0/TBD | Not started | - |
 | 4. Newsletter and Secondary Visualizations | 0/TBD | Not started | - |
