@@ -1,6 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { Badge } from '@/components/ui/badge'
-import { Card } from '@/components/ui/card'
+import { ArrowRight, DollarSign, FileText, Gift, Users, Landmark, Building2, User } from 'lucide-react'
 import { en } from '@/i18n/en'
 
 type EntityResult = {
@@ -16,93 +15,103 @@ type SearchResultsProps = { results: EntityResult[] }
 function groupByType(results: EntityResult[]) {
   const groups: Record<string, EntityResult[]> = {
     politician: [],
-    company: [],
     organization: [],
     person: [],
-    other: [],
   }
   for (const r of results) {
-    const key =
-      r.entityType === 'department'
-        ? 'other'
-        : groups[r.entityType]
-          ? r.entityType
-          : 'other'
-    groups[key].push(r)
+    if (r.entityType === 'politician') groups.politician.push(r)
+    else if (r.entityType === 'organization' || r.entityType === 'company' || r.entityType === 'department') groups.organization.push(r)
+    else groups.person.push(r)
   }
   return groups
 }
 
-const GROUP_LABELS: Record<string, string> = {
-  politician: 'Politicians',
-  company: 'Companies / Organizations',
-  organization: 'Companies / Organizations',
-  person: 'People',
-  other: 'Other',
+const GROUP_CONFIG = [
+  { key: 'politician', label: 'Politicians & Public Officials', icon: Landmark },
+  { key: 'organization', label: 'Companies & Organizations', icon: Building2 },
+  { key: 'person', label: 'Individuals', icon: User },
+] as const
+
+function formatCount(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`
+  if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K`
+  return n.toString()
 }
 
 export function SearchResults({ results }: SearchResultsProps) {
   if (results.length === 0) {
     return (
-      <div className="space-y-2 py-12 text-center">
-        <h2 className="text-xl font-semibold">{en.search.emptyHeading}</h2>
+      <div className="space-y-3 py-16 text-center">
+        <h2 className="font-serif text-2xl">{en.search.emptyHeading}</h2>
         <p className="text-muted-foreground">{en.search.emptyBody}</p>
-        <p className="text-sm text-muted-foreground">{en.search.emptyHint}</p>
+        <p className="text-sm text-muted-foreground/70">{en.search.emptyHint}</p>
       </div>
     )
   }
 
   const groups = groupByType(results)
-  const orderedKeys = ['politician', 'company', 'person', 'other']
-  const seenLabels = new Set<string>()
 
   return (
     <div className="space-y-8">
-      {orderedKeys.map((key) => {
+      {GROUP_CONFIG.map(({ key, label, icon: Icon }) => {
         const group = groups[key]
         if (!group || group.length === 0) return null
-        const label = GROUP_LABELS[key]
-        if (seenLabels.has(label)) return null
-        seenLabels.add(label)
 
         return (
           <section key={key}>
-            <div className="mb-3 flex items-center gap-2">
-              <h2 className="text-xl font-semibold">{label}</h2>
-              <Badge variant="secondary">{group.length}</Badge>
+            <div className="mb-3 flex items-center gap-2 border-b pb-2">
+              <Icon className="h-4 w-4 text-muted-foreground" />
+              <h2 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
+                {label}
+              </h2>
+              <span className="tabular-nums ml-auto text-xs text-muted-foreground">{group.length} results</span>
             </div>
-            <div className="space-y-2">
+            <div className="divide-y">
               {group.map((entity) => (
-                <Card key={entity.id} className="p-4">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="space-y-1">
-                      <Link
-                        to="/entity/$id"
-                        params={{ id: entity.id }}
-                        className="font-semibold text-base hover:text-primary transition-colors"
-                      >
+                <Link
+                  key={entity.id}
+                  to="/entity/$id"
+                  params={{ id: entity.id }}
+                  className="group flex items-center gap-4 py-3 transition-colors hover:bg-muted/50 -mx-2 px-2 rounded"
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-baseline gap-2">
+                      <span className="font-medium text-foreground group-hover:text-primary transition-colors truncate">
                         {entity.canonicalName}
-                      </Link>
-                      <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
-                        {entity.counts.donations > 0 && (
-                          <span>💰 {entity.counts.donations} donations</span>
-                        )}
-                        {entity.counts.contracts > 0 && (
-                          <span>📄 {entity.counts.contracts} contracts</span>
-                        )}
-                        {entity.counts.lobbying > 0 && (
-                          <span>🤝 {entity.counts.lobbying} lobbying</span>
-                        )}
-                        {entity.counts.grants > 0 && (
-                          <span>💵 {entity.counts.grants} grants</span>
-                        )}
-                      </div>
+                      </span>
+                      {entity.province && (
+                        <span className="text-xs text-muted-foreground shrink-0">{entity.province}</span>
+                      )}
                     </div>
-                    <Badge variant="outline" className="shrink-0 capitalize">
-                      {entity.entityType}
-                    </Badge>
+                    <div className="mt-1 flex flex-wrap gap-3 text-xs text-muted-foreground">
+                      {entity.counts.donations > 0 && (
+                        <span className="flex items-center gap-1">
+                          <DollarSign className="h-3 w-3" />
+                          {formatCount(entity.counts.donations)}
+                        </span>
+                      )}
+                      {entity.counts.contracts > 0 && (
+                        <span className="flex items-center gap-1">
+                          <FileText className="h-3 w-3" />
+                          {formatCount(entity.counts.contracts)}
+                        </span>
+                      )}
+                      {entity.counts.grants > 0 && (
+                        <span className="flex items-center gap-1">
+                          <Gift className="h-3 w-3" />
+                          {formatCount(entity.counts.grants)}
+                        </span>
+                      )}
+                      {entity.counts.lobbying > 0 && (
+                        <span className="flex items-center gap-1">
+                          <Users className="h-3 w-3" />
+                          {formatCount(entity.counts.lobbying)}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                </Card>
+                  <ArrowRight className="h-4 w-4 text-muted-foreground/50 transition-transform group-hover:translate-x-0.5 group-hover:text-primary shrink-0" />
+                </Link>
               ))}
             </div>
           </section>

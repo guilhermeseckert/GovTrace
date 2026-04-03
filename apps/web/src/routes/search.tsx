@@ -51,25 +51,38 @@ function SearchPage() {
     navigate({ search: (prev) => ({ ...prev, [key]: value, page: 1 }) })
 
   return (
-    <main id="main-content" className="mx-auto max-w-7xl px-4 py-8">
-      <div className="mb-8">
+    <main id="main-content" className="mx-auto max-w-7xl px-4 py-6">
+      {/* Search bar at top */}
+      <div className="mb-6">
         <SearchBar
           initialValue={q}
           onSearch={(newQ) => navigate({ search: (prev) => ({ ...prev, q: newQ, page: 1 }) })}
         />
       </div>
-      <div className="flex flex-col gap-8 md:flex-row">
-        <SearchFilters
-          currentType={type ?? 'all'}
-          currentProvince={province}
-          currentDateFrom={dateFrom}
-          currentDateTo={dateTo}
-          onTypeChange={(t) => updateFilter('type', t)}
-          onProvinceChange={(p) => updateFilter('province', p)}
-          onDateFromChange={(d) => updateFilter('dateFrom', d)}
-          onDateToChange={(d) => updateFilter('dateTo', d)}
-        />
-        <div className="flex-1">
+
+      {q && (
+        <p className="mb-6 text-sm text-muted-foreground">
+          Showing results for <span className="font-medium text-foreground">"{q}"</span>
+        </p>
+      )}
+
+      <div className="flex flex-col gap-8 lg:flex-row">
+        {/* Sidebar filters */}
+        <aside className="w-full shrink-0 lg:w-56">
+          <SearchFilters
+            currentType={type ?? 'all'}
+            currentProvince={province}
+            currentDateFrom={dateFrom}
+            currentDateTo={dateTo}
+            onTypeChange={(t) => updateFilter('type', t)}
+            onProvinceChange={(p) => updateFilter('province', p)}
+            onDateFromChange={(d) => updateFilter('dateFrom', d)}
+            onDateToChange={(d) => updateFilter('dateTo', d)}
+          />
+        </aside>
+
+        {/* Results */}
+        <div className="flex-1 min-w-0">
           <SearchResults results={results} />
         </div>
       </div>
