@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: verifying
-stopped_at: Completed 04.2-01-PLAN.md
-last_updated: "2026-04-03T23:02:58.507Z"
+stopped_at: Completed 04.2-02-PLAN.md
+last_updated: "2026-04-03T23:07:54.338Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 27
-  completed_plans: 25
+  completed_plans: 26
   percent: 0
 ---
 
@@ -77,6 +77,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 04.1-how-it-works P01 | 3min | 1 tasks | 2 files |
 | Phase 04.1-how-it-works P02 | 2min | 2 tasks | 1 files |
 | Phase 04.2-entity-profile-storytelling P01 | 4min | 2 tasks | 4 files |
+| Phase 04.2-entity-profile-storytelling P02 | 3min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -148,6 +149,9 @@ Recent decisions affecting current work:
 - [Phase 04.2-entity-profile-storytelling]: PROMPT_VERSION suffix on model field (-v2) invalidates old cached summaries without DB migration
 - [Phase 04.2-entity-profile-storytelling]: getTopConnections queries both entityAId and entityBId directions, merges and sorts by totalValue desc
 - [Phase 04.2-entity-profile-storytelling]: Shared connection-labels.ts is single source of truth for CONNECTION_LABELS and formatAmount
+- [Phase 04.2-entity-profile-storytelling]: BORDER_COLORS separate from CONNECTION_LABELS — border-l-* classes differ from badge bg/text classes
+- [Phase 04.2-entity-profile-storytelling]: HIGH_VALUE_THRESHOLD=500K as top-1% proxy; TEMPORAL_CLUSTER_DAYS=90 for lobbying-near-contract pattern
+- [Phase 04.2-entity-profile-storytelling]: db.execute raw SQL for temporal clustering self-join — Drizzle ORM lacks support for this query shape
 
 ### Pending Todos
 
@@ -160,6 +164,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-03T23:02:58.503Z
-Stopped at: Completed 04.2-01-PLAN.md
+Last session: 2026-04-03T23:07:54.334Z
+Stopped at: Completed 04.2-02-PLAN.md
 Resume file: None
