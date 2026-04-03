@@ -111,8 +111,12 @@ Plans:
   4. Default entity profile view shows: AI story → connection cards → one visualization. Raw data tables are behind a "Show detailed records" toggle
   5. The simplified view loads and is readable on a phone screen without horizontal scrolling
   6. Pattern callouts include "Why this matters" one-liner and link to the source records
-**Plans**: TBD
-**UI hint**: yes
+**Plans**: 3 plans
+
+Plans:
+- [ ] 04.2-01-PLAN.md — Extract shared connection-labels lib, fix getEntityStats connections count, upgrade AI summary prompt with enriched connection data
+- [ ] 04.2-02-PLAN.md — ConnectionCards component (plain English sentences with badges) and PatternCallouts component with getPatternCallouts server function
+- [ ] 04.2-03-PLAN.md — Restructure entity profile page to story-first layout with toggle to raw data tables; visual verification checkpoint
 
 ### Phase 4: Newsletter and Secondary Visualizations
 **Goal**: Users can subscribe to a weekly digest of new government connections, and power users can explore department-level spending and donation trend analytics
@@ -137,5 +141,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4.1 → 4.2 → 4
 | 2. Search and Entity Profiles | 7/7 | Complete | 2026-04-02 |
 | 3. Visualizations | 4/4 | Verifying | - |
 | 4.1 How It Works | 2/2 | Complete   | 2026-04-03 |
-| 4.2 Entity Profile Storytelling | 0/TBD | Not started | - |
+| 4.2 Entity Profile Storytelling | 0/3 | Planning | - |
 | 4. Newsletter and Secondary Visualizations | 0/TBD | Not started | - |
