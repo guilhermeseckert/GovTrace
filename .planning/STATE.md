@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: verifying
-stopped_at: Completed 04.1-02-PLAN.md
-last_updated: "2026-04-03T21:01:26.421Z"
+stopped_at: Completed 04.2-01-PLAN.md
+last_updated: "2026-04-03T23:02:58.507Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 6
   completed_phases: 4
-  total_plans: 24
-  completed_plans: 24
+  total_plans: 27
+  completed_plans: 25
   percent: 0
 ---
 
@@ -76,6 +76,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 03-visualizations P04 | 3min | 1 tasks | 2 files |
 | Phase 04.1-how-it-works P01 | 3min | 1 tasks | 2 files |
 | Phase 04.1-how-it-works P02 | 2min | 2 tasks | 1 files |
+| Phase 04.2-entity-profile-storytelling P01 | 4min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -144,6 +145,9 @@ Recent decisions affecting current work:
 - [Phase 03-visualizations]: vizContent slot prop pattern in ProfileTabs follows existing donationsTable/connectionsTable pattern for decoupled wiring
 - [Phase 04.1-how-it-works]: Static const arrays with as const for page content — no server functions needed for purely static explainer pages
 - [Phase 04.1-how-it-works]: BookOpen icon for How it works NavLink — conveys learn semantics matching the explainer page purpose
+- [Phase 04.2-entity-profile-storytelling]: PROMPT_VERSION suffix on model field (-v2) invalidates old cached summaries without DB migration
+- [Phase 04.2-entity-profile-storytelling]: getTopConnections queries both entityAId and entityBId directions, merges and sorts by totalValue desc
+- [Phase 04.2-entity-profile-storytelling]: Shared connection-labels.ts is single source of truth for CONNECTION_LABELS and formatAmount
 
 ### Pending Todos
 
@@ -156,6 +160,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-03T21:01:26.417Z
-Stopped at: Completed 04.1-02-PLAN.md
+Last session: 2026-04-03T23:02:58.503Z
+Stopped at: Completed 04.2-01-PLAN.md
 Resume file: None

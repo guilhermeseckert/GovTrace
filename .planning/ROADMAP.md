@@ -114,7 +114,7 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 04.2-01-PLAN.md — Extract shared connection-labels lib, fix getEntityStats connections count, upgrade AI summary prompt with enriched connection data
+- [x] 04.2-01-PLAN.md — Extract shared connection-labels lib, fix getEntityStats connections count, upgrade AI summary prompt with enriched connection data
 - [ ] 04.2-02-PLAN.md — ConnectionCards component (plain English sentences with badges) and PatternCallouts component with getPatternCallouts server function
 - [ ] 04.2-03-PLAN.md — Restructure entity profile page to story-first layout with toggle to raw data tables; visual verification checkpoint
 
