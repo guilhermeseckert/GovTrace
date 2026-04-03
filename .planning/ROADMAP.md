@@ -80,7 +80,7 @@ Plans:
 - [x] 03-01-PLAN.md — Install d3/d3-sankey, shared hooks (useChartColors, useResizeObserver), three server functions (getGraphData, getMoneyFlow, getTimeline)
 - [x] 03-02-PLAN.md — NetworkGraph component: D3 force simulation, zoom/pan, click-to-expand, hover tooltip, connection-type filter
 - [x] 03-03-PLAN.md — MoneyFlowSankey and ActivityTimeline components
-- [ ] 03-04-PLAN.md — Wire all three charts into ProfileTabs Visualizations tab; human checkpoint
+- [x] 03-04-PLAN.md — Wire all three charts into ProfileTabs Visualizations tab; human checkpoint
 
 ### Phase 4: Newsletter and Secondary Visualizations
 **Goal**: Users can subscribe to a weekly digest of new government connections, and power users can explore department-level spending and donation trend analytics
