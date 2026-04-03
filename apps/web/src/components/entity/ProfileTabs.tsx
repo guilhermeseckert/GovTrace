@@ -75,7 +75,7 @@ export function ProfileTabs({
   ]
 
   return (
-    <Tabs defaultValue={0} className="w-full">
+    <Tabs defaultValue={0} className="flex w-full flex-col">
       <TabsList variant="line" className="w-full justify-start border-b">
         {tabs.map((tab, i) => (
           <TabsTrigger
