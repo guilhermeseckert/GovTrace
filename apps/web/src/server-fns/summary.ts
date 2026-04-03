@@ -1,3 +1,4 @@
+import './env' // load .env for ANTHROPIC_API_KEY
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { and, count, eq } from 'drizzle-orm'
@@ -7,7 +8,7 @@ import { aiSummaries, entities } from '@govtrace/db/schema/entities'
 import { contracts, donations, grants } from '@govtrace/db/schema/raw'
 
 // Current model as of March 2026 — claude-haiku-4-5, NOT haiku-3-5
-const SUMMARY_MODEL = 'claude-haiku-4-5'
+const SUMMARY_MODEL = 'claude-haiku-4-5-20241022'
 
 const SummaryInputSchema = z.object({ entityId: z.string().uuid() })
 
@@ -61,16 +62,22 @@ export const getOrGenerateSummary = createServerFn({ method: 'GET' })
 
     if (cached.length > 0 && cached[0]) return cached[0].summaryText
 
-    // Fetch entity and counts for prompt construction
-    const [entityRows, donCount, conCount, grCount] = await Promise.all([
-      db.select().from(entities).where(eq(entities.id, data.entityId)).limit(1),
-      db.select({ c: count() }).from(donations).where(eq(donations.entityId, data.entityId)),
+    // Fetch entity info first
+    const entityRows = await db.select().from(entities).where(eq(entities.id, data.entityId)).limit(1)
+    if (entityRows.length === 0) return null
+    const entity = entityRows[0]
+
+    // Politicians receive donations (by name), others make them (by entity_id)
+    const isPolitician = entity.entityType === 'politician'
+    const donWhere = isPolitician
+      ? eq(donations.recipientName, entity.canonicalName)
+      : eq(donations.entityId, data.entityId)
+
+    const [donCount, conCount, grCount] = await Promise.all([
+      db.select({ c: count() }).from(donations).where(donWhere),
       db.select({ c: count() }).from(contracts).where(eq(contracts.entityId, data.entityId)),
       db.select({ c: count() }).from(grants).where(eq(grants.entityId, data.entityId)),
     ])
-
-    if (entityRows.length === 0) return null
-    const entity = entityRows[0]
 
     const apiKey = process.env['ANTHROPIC_API_KEY']
     if (!apiKey) throw new Error('ANTHROPIC_API_KEY environment variable is required')
