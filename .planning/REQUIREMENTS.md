@@ -58,9 +58,9 @@
 
 ### Visualizations
 
-- [ ] **VIZ-01**: Relationship network graph (D3.js force-directed) with color-coded node types and edge styles
-- [ ] **VIZ-02**: Graph supports click-to-expand (drill into a node's connections), hover tooltips, zoom/pan
-- [ ] **VIZ-03**: Graph supports filtering by relationship type and date range
+- [x] **VIZ-01**: Relationship network graph (D3.js force-directed) with color-coded node types and edge styles
+- [x] **VIZ-02**: Graph supports click-to-expand (drill into a node's connections), hover tooltips, zoom/pan
+- [x] **VIZ-03**: Graph supports filtering by relationship type and date range
 - [ ] **VIZ-04**: Money flow Sankey diagram showing donor → party → contract/grant flows
 - [ ] **VIZ-05**: Activity timeline showing all events chronologically across datasets with type-coded markers
 - [ ] **VIZ-06**: Network heatmap showing politician/department vs company relationship density
@@ -183,9 +183,9 @@
 | COMM-01 | Phase 2 | Complete |
 | COMM-02 | Phase 2 | Complete |
 | COMM-03 | Phase 2 | Complete |
-| VIZ-01 | Phase 3 | Pending |
-| VIZ-02 | Phase 3 | Pending |
-| VIZ-03 | Phase 3 | Pending |
+| VIZ-01 | Phase 3 | Complete |
+| VIZ-02 | Phase 3 | Complete |
+| VIZ-03 | Phase 3 | Complete |
 | VIZ-04 | Phase 3 | Pending |
 | VIZ-05 | Phase 3 | Pending |
 | VIZ-06 | Phase 4 | Pending |
