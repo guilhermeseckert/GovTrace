@@ -12,17 +12,23 @@ export const schema = {
   ...jobsSchema,
 }
 
-// Lazy singleton — never instantiate at module load time (anti-pattern 2 from ARCHITECTURE.md)
-// Both packages/ingestion and packages/web call this function; each gets the same singleton
-let _db: ReturnType<typeof drizzle> | null = null
+// Use globalThis to persist the singleton across Vite module reloads in dev.
+// Without this, every HMR triggers a new postgres connection, exhausting the pool.
+const globalDb = globalThis as unknown as {
+  __govtrace_db?: ReturnType<typeof drizzle>
+  __govtrace_sql?: ReturnType<typeof postgres>
+}
 
 export function getDb() {
-  if (_db !== null) return _db
+  if (globalDb.__govtrace_db) return globalDb.__govtrace_db
+
   const url = process.env['DATABASE_URL']
   if (!url) throw new Error('DATABASE_URL environment variable is required')
-  const client = postgres(url)
-  _db = drizzle(client, { schema })
-  return _db
+
+  const client = postgres(url, { max: 10 })
+  globalDb.__govtrace_sql = client
+  globalDb.__govtrace_db = drizzle(client, { schema })
+  return globalDb.__govtrace_db
 }
 
 export type Db = ReturnType<typeof getDb>
