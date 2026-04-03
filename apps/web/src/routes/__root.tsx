@@ -1,6 +1,7 @@
-import { createRootRoute, HeadContent, Link, Outlet, Scripts } from '@tanstack/react-router'
-import { Sun, Moon, MapPin } from 'lucide-react'
+import { createRootRoute, HeadContent, Link, Outlet, Scripts, useMatches } from '@tanstack/react-router'
+import { Sun, Moon, MapPin, Search, ExternalLink, BookOpen } from 'lucide-react'
 import { ThemeProvider, useTheme } from '@/components/layout/ThemeProvider'
+import { TooltipProvider } from '@/components/ui/tooltip'
 import { SkipToContent } from '@/components/layout/SkipToContent'
 import { getThemeFn } from '@/server-fns/theme'
 import '../app.css'
@@ -24,11 +25,29 @@ function ThemeToggle() {
     <button
       type="button"
       onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-      className="flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+      className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
       aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
     >
       {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
     </button>
+  )
+}
+
+function NavLink({ to, children }: { to: string; children: React.ReactNode }) {
+  const matches = useMatches()
+  const isActive = matches.some((m) => m.fullPath === to)
+
+  return (
+    <Link
+      to={to}
+      className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+        isActive
+          ? 'bg-primary/10 text-primary'
+          : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
+      }`}
+    >
+      {children}
+    </Link>
   )
 }
 
@@ -37,22 +56,24 @@ function SiteHeader() {
     <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-md">
       <nav className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
         <Link to="/" className="flex items-center gap-2.5 transition-opacity hover:opacity-80">
-          <div className="flex h-8 w-8 items-center justify-center rounded bg-primary">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary shadow-sm">
             <MapPin className="h-4 w-4 text-primary-foreground" />
           </div>
-          <div className="flex flex-col leading-none">
+          <div className="flex items-baseline gap-1">
             <span className="font-serif text-lg font-normal tracking-tight">GovTrace</span>
-            <span className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground">.ca</span>
+            <span className="text-xs font-medium text-muted-foreground">.ca</span>
           </div>
         </Link>
 
         <div className="flex items-center gap-1">
-          <Link
-            to="/"
-            className="rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-          >
+          <NavLink to="/how-it-works">
+            <BookOpen className="h-3.5 w-3.5" />
+            How it works
+          </NavLink>
+          <NavLink to="/search">
+            <Search className="h-3.5 w-3.5" />
             Search
-          </Link>
+          </NavLink>
           <ThemeToggle />
         </div>
       </nav>
@@ -62,17 +83,39 @@ function SiteHeader() {
 
 function SiteFooter() {
   return (
-    <footer className="mt-auto border-t">
+    <footer className="mt-auto border-t bg-muted/30">
       <div className="mx-auto max-w-7xl px-4 py-8">
-        <div className="flex flex-col items-center gap-4 text-center text-xs text-muted-foreground sm:flex-row sm:justify-between sm:text-left">
-          <div>
-            <span className="font-serif text-sm text-foreground">GovTrace</span>
-            <span className="ml-1.5">— Open-source civic transparency for Canada</span>
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <div className="flex h-6 w-6 items-center justify-center rounded bg-primary">
+                <MapPin className="h-3 w-3 text-primary-foreground" />
+              </div>
+              <span className="font-serif text-sm text-foreground">GovTrace.ca</span>
+            </div>
+            <p className="max-w-xs text-xs leading-relaxed text-muted-foreground">
+              Open-source civic transparency for Canada. Follow the money across
+              donations, contracts, lobbying, and grants.
+            </p>
           </div>
-          <div className="flex gap-4">
-            <span>All data under Open Government Licence – Canada</span>
-            <span>·</span>
-            <span>Connections shown do not imply wrongdoing</span>
+          <div className="space-y-2 text-xs text-muted-foreground">
+            <p>All data under Open Government Licence — Canada</p>
+            <p>Connections shown do not imply wrongdoing</p>
+            <Link
+              to="/how-it-works"
+              className="inline-flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground"
+            >
+              How it works
+            </Link>
+            <a
+              href="https://github.com/govtrace"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground"
+            >
+              <ExternalLink className="h-3.5 w-3.5" />
+              Open source on GitHub
+            </a>
           </div>
         </div>
       </div>
@@ -90,11 +133,13 @@ function RootComponent() {
       <body className="flex min-h-screen flex-col">
         <SkipToContent />
         <ThemeProvider theme={theme}>
-          <SiteHeader />
-          <div className="flex-1">
-            <Outlet />
-          </div>
-          <SiteFooter />
+          <TooltipProvider>
+            <SiteHeader />
+            <div className="flex-1">
+              <Outlet />
+            </div>
+            <SiteFooter />
+          </TooltipProvider>
         </ThemeProvider>
         <Scripts />
       </body>
