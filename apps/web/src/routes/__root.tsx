@@ -1,4 +1,4 @@
-import { createRootRoute, HeadContent, Link, Outlet, Scripts, ScrollRestoration } from '@tanstack/react-router'
+import { createRootRoute, HeadContent, Link, Outlet, Scripts } from '@tanstack/react-router'
 import { Sun, Moon, MapPin } from 'lucide-react'
 import { ThemeProvider, useTheme } from '@/components/layout/ThemeProvider'
 import { SkipToContent } from '@/components/layout/SkipToContent'
@@ -96,7 +96,6 @@ function RootComponent() {
           </div>
           <SiteFooter />
         </ThemeProvider>
-        <ScrollRestoration />
         <Scripts />
       </body>
     </html>
