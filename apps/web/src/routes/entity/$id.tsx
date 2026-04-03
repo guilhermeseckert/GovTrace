@@ -11,6 +11,9 @@ import { ContractsTable } from '@/components/tables/ContractsTable'
 import { GrantsTable } from '@/components/tables/GrantsTable'
 import { LobbyingTable } from '@/components/tables/LobbyingTable'
 import { ConnectionsTable } from '@/components/tables/ConnectionsTable'
+import { NetworkGraph } from '@/components/visualizations/NetworkGraph'
+import { MoneyFlowSankey } from '@/components/visualizations/MoneyFlowSankey'
+import { ActivityTimeline } from '@/components/visualizations/ActivityTimeline'
 import { en } from '@/i18n/en'
 
 export const Route = createFileRoute('/entity/$id')({
@@ -50,6 +53,43 @@ export const Route = createFileRoute('/entity/$id')({
   component: EntityProfilePage,
 })
 
+function VisualizationsPanel({ entityId }: { entityId: string }) {
+  const [activeViz, setActiveViz] = useState<'network' | 'moneyFlow' | 'timeline'>('network')
+
+  return (
+    <div className="space-y-4">
+      <div role="tablist" className="flex gap-2 border-b pb-2">
+        {(['network', 'moneyFlow', 'timeline'] as const).map((vizKey) => (
+          <button
+            key={vizKey}
+            type="button"
+            role="tab"
+            aria-selected={activeViz === vizKey}
+            onClick={() => setActiveViz(vizKey)}
+            className={`rounded px-3 py-1.5 text-sm font-medium transition-colors ${
+              activeViz === vizKey
+                ? 'bg-primary text-primary-foreground'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            {en.viz.tabs[vizKey]}
+          </button>
+        ))}
+      </div>
+
+      <div hidden={activeViz !== 'network'}>
+        <NetworkGraph entityId={entityId} />
+      </div>
+      <div hidden={activeViz !== 'moneyFlow'}>
+        <MoneyFlowSankey entityId={entityId} />
+      </div>
+      <div hidden={activeViz !== 'timeline'}>
+        <ActivityTimeline entityId={entityId} />
+      </div>
+    </div>
+  )
+}
+
 function EntityProfilePage() {
   const { profile, stats, summary, provenance } = Route.useLoaderData()
   const [flagModalOpen, setFlagModalOpen] = useState(false)
@@ -71,6 +111,7 @@ function EntityProfilePage() {
           grantsTable={<GrantsTable entityId={profile.id} />}
           lobbyingTable={<LobbyingTable entityId={profile.id} />}
           connectionsTable={<ConnectionsTable entityId={profile.id} />}
+          vizContent={<VisualizationsPanel entityId={profile.id} />}
         />
 
         {/* Data provenance footer — per-dataset max(ingestedAt) (PROF-06) */}

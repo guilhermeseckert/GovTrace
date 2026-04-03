@@ -27,6 +27,7 @@ type ProfileTabsProps = {
   grantsTable?: ReactNode
   lobbyingTable?: ReactNode
   connectionsTable?: ReactNode
+  vizContent?: ReactNode
 }
 
 export function ProfileTabs({
@@ -36,6 +37,7 @@ export function ProfileTabs({
   grantsTable,
   lobbyingTable,
   connectionsTable,
+  vizContent,
 }: ProfileTabsProps) {
   const tabs: TabConfig[] = [
     {
@@ -62,6 +64,12 @@ export function ProfileTabs({
       label: 'Connections',
       count: counts.connections,
       content: connectionsTable,
+      disclaimer: true,
+    },
+    {
+      label: 'Visualizations',
+      count: 0,
+      content: vizContent,
       disclaimer: true,
     },
   ]
