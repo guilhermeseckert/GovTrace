@@ -4,7 +4,8 @@ import { join, extname } from 'node:path'
 
 // Dynamic import to avoid bundling issues with TanStack Start's SSR output
 // This wraps the handler exported by TanStack Start (GitHub issue #5476)
-const { default: handler } = await import('./dist/server/server.js')
+const serverModule = await import('./dist/server/server.js')
+const handler = serverModule.default?.fetch ?? serverModule.fetch ?? serverModule.default
 
 const MIME_TYPES: Record<string, string> = {
   '.js': 'application/javascript',
