@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
+milestone: v2.0
 milestone_name: milestone
-status: verifying
-stopped_at: Completed 04.2-02-PLAN.md
-last_updated: "2026-04-03T23:07:54.338Z"
-last_activity: 2026-04-03
+status: executing
+stopped_at: Completed 04.2-03-PLAN.md
+last_updated: "2026-04-04T23:59:01.235Z"
+last_activity: 2026-04-04
 progress:
-  total_phases: 6
+  total_phases: 10
   completed_phases: 5
   total_plans: 27
-  completed_plans: 26
+  completed_plans: 27
   percent: 0
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-31)
 
 **Core value:** Anyone can search a name and instantly trace the flow of money and influence across all public government datasets — with clarity a 9-year-old could follow.
-**Current focus:** Phase 04.1 — how-it-works
+**Current focus:** Phase 04.2 — entity-profile-storytelling
 
 ## Current Position
 
-Phase: 04.1 (how-it-works) — EXECUTING
-Plan: 2 of 2
-Status: Phase complete — ready for verification
-Last activity: 2026-04-03
+Phase: 999.1
+Plan: Not started
+Status: Ready to execute
+Last activity: 2026-04-04
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -78,6 +78,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 04.1-how-it-works P02 | 2min | 2 tasks | 1 files |
 | Phase 04.2-entity-profile-storytelling P01 | 4min | 2 tasks | 4 files |
 | Phase 04.2-entity-profile-storytelling P02 | 3min | 2 tasks | 3 files |
+| Phase 04.2-entity-profile-storytelling P03 | 1min | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -152,6 +153,7 @@ Recent decisions affecting current work:
 - [Phase 04.2-entity-profile-storytelling]: BORDER_COLORS separate from CONNECTION_LABELS — border-l-* classes differ from badge bg/text classes
 - [Phase 04.2-entity-profile-storytelling]: HIGH_VALUE_THRESHOLD=500K as top-1% proxy; TEMPORAL_CLUSTER_DAYS=90 for lobbying-near-contract pattern
 - [Phase 04.2-entity-profile-storytelling]: db.execute raw SQL for temporal clustering self-join — Drizzle ORM lacks support for this query shape
+- [Phase 04.2-entity-profile-storytelling]: Story-first layout promotes NetworkGraph from viz sub-tab to inline story mode; ProfileTabs conditionally rendered (not CSS hidden) behind toggle
 
 ### Pending Todos
 
@@ -164,6 +166,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-03T23:07:54.334Z
-Stopped at: Completed 04.2-02-PLAN.md
+Last session: 2026-04-04T23:39:43.942Z
+Stopped at: Completed 04.2-03-PLAN.md
 Resume file: None
