@@ -13,8 +13,6 @@ export const en = {
     summaryExplanation: 'How do we write this summary?',
     disclaimer: 'Connections shown do not imply wrongdoing.',
     connections_disclaimer: 'Connections shown do not imply wrongdoing.',
-    showDetailedRecords: 'Show detailed records',
-    hideDetailedRecords: 'Hide detailed records',
   },
   badge: {
     high: 'High confidence',

@@ -5,10 +5,9 @@ import { getPatternCallouts } from '@/server-fns/patterns'
 
 type PatternCalloutsProps = {
   entityId: string
-  onViewDetails?: () => void
 }
 
-export function PatternCallouts({ entityId, onViewDetails }: PatternCalloutsProps) {
+export function PatternCallouts({ entityId }: PatternCalloutsProps) {
   const { data: callouts, isLoading, isError } = useQuery({
     queryKey: ['pattern-callouts', entityId],
     queryFn: () => getPatternCallouts({ data: { entityId } }),
@@ -44,13 +43,6 @@ export function PatternCallouts({ entityId, onViewDetails }: PatternCalloutsProp
           </div>
           <p className="text-sm font-semibold text-foreground">{callout.question}</p>
           <p className="mt-1 text-xs text-muted-foreground">{callout.whyItMatters}</p>
-          <button
-            type="button"
-            onClick={onViewDetails}
-            className="mt-2 cursor-pointer text-xs font-medium text-amber-700 underline-offset-4 hover:underline dark:text-amber-400"
-          >
-            View details
-          </button>
         </div>
       ))}
     </div>
