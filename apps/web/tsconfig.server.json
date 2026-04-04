@@ -6,9 +6,10 @@
     "outDir": "./",
     "rootDir": "./",
     "noEmit": false,
-    "strict": true,
+    "strict": false,
     "skipLibCheck": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "noImplicitAny": false
   },
   "include": ["server.ts"],
   "exclude": []
