@@ -6,7 +6,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: ghcr.io/guilhermeseckert/govtrace
 
 jobs:
   build-and-push:
@@ -21,7 +21,7 @@ jobs:
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
@@ -32,8 +32,8 @@ jobs:
           file: apps/web/Dockerfile
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/web:latest
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/web:${{ github.sha }}
+            ${{ env.IMAGE_NAME }}/web:latest
+            ${{ env.IMAGE_NAME }}/web:${{ github.sha }}
 
       - name: Trigger Coolify deployment
         run: curl -sf "${{ secrets.COOLIFY_WEBHOOK_URL }}" || echo "Webhook triggered"
