@@ -28,9 +28,7 @@ COPY pnpm-workspace.yaml pnpm-lock.yaml package.json tsconfig.base.json ./
 COPY packages/db/package.json ./packages/db/
 COPY apps/web/package.json ./apps/web/
 COPY apps/ingestion/package.json ./apps/ingestion/
-RUN pnpm install --frozen-lockfile --prod
-# tsx needed at runtime for server.ts
-RUN pnpm add -w tsx srvx
+RUN pnpm install --frozen-lockfile
 
 COPY --from=builder /app/apps/web/dist ./apps/web/dist
 COPY apps/web/server.ts ./apps/web/server.ts
