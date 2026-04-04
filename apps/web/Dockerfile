@@ -4,7 +4,7 @@ RUN npm install -g pnpm@9
 # Install dependencies
 FROM base AS deps
 WORKDIR /app
-COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
+COPY pnpm-workspace.yaml pnpm-lock.yaml package.json tsconfig.base.json ./
 COPY packages/db/package.json ./packages/db/
 COPY apps/web/package.json ./apps/web/
 COPY apps/ingestion/package.json ./apps/ingestion/
@@ -13,6 +13,7 @@ RUN pnpm install --frozen-lockfile
 # Build the application
 FROM deps AS builder
 WORKDIR /app
+COPY tsconfig.base.json ./
 COPY packages/db ./packages/db
 COPY apps/web ./apps/web
 ENV DATABASE_URL=placeholder
