@@ -1,14 +1,14 @@
 import { useQuery } from '@tanstack/react-query'
-import { Link } from '@tanstack/react-router'
 import { Lightbulb } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { getPatternCallouts } from '@/server-fns/patterns'
 
 type PatternCalloutsProps = {
   entityId: string
+  onViewDetails?: () => void
 }
 
-export function PatternCallouts({ entityId }: PatternCalloutsProps) {
+export function PatternCallouts({ entityId, onViewDetails }: PatternCalloutsProps) {
   const { data: callouts, isLoading, isError } = useQuery({
     queryKey: ['pattern-callouts', entityId],
     queryFn: () => getPatternCallouts({ data: { entityId } }),
@@ -44,13 +44,13 @@ export function PatternCallouts({ entityId }: PatternCalloutsProps) {
           </div>
           <p className="text-sm font-semibold text-foreground">{callout.question}</p>
           <p className="mt-1 text-xs text-muted-foreground">{callout.whyItMatters}</p>
-          <Link
-            to="/entity/$id"
-            params={{ id: callout.sourceEntityId }}
-            className="mt-2 inline-block text-xs font-medium text-amber-700 underline-offset-4 hover:underline dark:text-amber-400"
+          <button
+            type="button"
+            onClick={onViewDetails}
+            className="mt-2 cursor-pointer text-xs font-medium text-amber-700 underline-offset-4 hover:underline dark:text-amber-400"
           >
             View details
-          </Link>
+          </button>
         </div>
       ))}
     </div>

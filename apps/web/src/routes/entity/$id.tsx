@@ -1,5 +1,5 @@
 import { createFileRoute, notFound } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { getEntityProfile, getEntityStats, getEntityProvenance } from '@/server-fns/entity'
 // AI summary is fetched client-side by AISummary component, not in the loader
 import { EntityHeader } from '@/components/entity/EntityHeader'
@@ -119,6 +119,12 @@ function EntityProfilePage() {
   const { profile, stats, provenance } = Route.useLoaderData()
   const [flagModalOpen, setFlagModalOpen] = useState(false)
   const [showDetailedRecords, setShowDetailedRecords] = useState(false)
+  const detailsRef = useRef<HTMLButtonElement>(null)
+
+  const handleViewDetails = () => {
+    setShowDetailedRecords(true)
+    setTimeout(() => detailsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100)
+  }
 
   return (
     <main id="main-content">
@@ -129,7 +135,7 @@ function EntityProfilePage() {
         <AISummary entityId={profile.id} initialSummary={null} />
 
         {/* Pattern callouts — "Did you know?" cards (STORY-03) */}
-        <PatternCallouts entityId={profile.id} />
+        <PatternCallouts entityId={profile.id} onViewDetails={handleViewDetails} />
 
         {/* Plain English connection cards (STORY-02) */}
         <ConnectionCards entityId={profile.id} />
@@ -142,6 +148,7 @@ function EntityProfilePage() {
 
         {/* Toggle to reveal raw data tables (STORY-04, D-17, D-18) */}
         <button
+          ref={detailsRef}
           type="button"
           onClick={() => setShowDetailedRecords((v) => !v)}
           className="flex w-full items-center justify-center gap-2 rounded-lg border bg-muted/50 px-4 py-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"

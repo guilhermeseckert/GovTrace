@@ -60,6 +60,67 @@ importers:
         specifier: ^2.5.0
         version: 2.9.3
 
+  apps/ingestion:
+    dependencies:
+      '@anthropic-ai/sdk':
+        specifier: 'catalog:'
+        version: 0.80.0(zod@3.25.76)
+      '@govtrace/db':
+        specifier: workspace:*
+        version: link:../../packages/db
+      adm-zip:
+        specifier: 'catalog:'
+        version: 0.5.16
+      chardet:
+        specifier: 'catalog:'
+        version: 2.1.1
+      dotenv:
+        specifier: ^17.4.0
+        version: 17.4.0
+      drizzle-orm:
+        specifier: 'catalog:'
+        version: 0.45.2(gel@2.2.0)(pg@8.20.0)(postgres@3.4.8)
+      iconv-lite:
+        specifier: 'catalog:'
+        version: 0.6.3
+      papaparse:
+        specifier: 'catalog:'
+        version: 5.5.3
+      pg-boss:
+        specifier: 'catalog:'
+        version: 9.0.3
+      postgres:
+        specifier: 'catalog:'
+        version: 3.4.8
+      unzipper:
+        specifier: ^0.12.3
+        version: 0.12.3
+      zod:
+        specifier: 'catalog:'
+        version: 3.25.76
+    devDependencies:
+      '@types/adm-zip':
+        specifier: 'catalog:'
+        version: 0.5.8
+      '@types/node':
+        specifier: 'catalog:'
+        version: 22.19.15
+      '@types/papaparse':
+        specifier: 'catalog:'
+        version: 5.5.2
+      '@types/unzipper':
+        specifier: ^0.10.11
+        version: 0.10.11
+      tsx:
+        specifier: ^4.19.0
+        version: 4.21.0
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+      vitest:
+        specifier: 'catalog:'
+        version: 2.1.9(@types/node@22.19.15)(lightningcss@1.32.0)(msw@2.12.14(@types/node@22.19.15)(typescript@5.9.3))
+
   apps/web:
     dependencies:
       '@anthropic-ai/sdk':
@@ -181,122 +242,6 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
-
-  packages/ingestion:
-    dependencies:
-      '@anthropic-ai/sdk':
-        specifier: 'catalog:'
-        version: 0.80.0(zod@3.25.76)
-      '@govtrace/db':
-        specifier: workspace:*
-        version: link:../db
-      adm-zip:
-        specifier: 'catalog:'
-        version: 0.5.16
-      chardet:
-        specifier: 'catalog:'
-        version: 2.1.1
-      dotenv:
-        specifier: ^17.4.0
-        version: 17.4.0
-      drizzle-orm:
-        specifier: 'catalog:'
-        version: 0.45.2(gel@2.2.0)(pg@8.20.0)(postgres@3.4.8)
-      iconv-lite:
-        specifier: 'catalog:'
-        version: 0.6.3
-      papaparse:
-        specifier: 'catalog:'
-        version: 5.5.3
-      pg-boss:
-        specifier: 'catalog:'
-        version: 9.0.3
-      postgres:
-        specifier: 'catalog:'
-        version: 3.4.8
-      unzipper:
-        specifier: ^0.12.3
-        version: 0.12.3
-      zod:
-        specifier: 'catalog:'
-        version: 3.25.76
-    devDependencies:
-      '@types/adm-zip':
-        specifier: 'catalog:'
-        version: 0.5.8
-      '@types/node':
-        specifier: 'catalog:'
-        version: 22.19.15
-      '@types/papaparse':
-        specifier: 'catalog:'
-        version: 5.5.2
-      '@types/unzipper':
-        specifier: ^0.10.11
-        version: 0.10.11
-      tsx:
-        specifier: ^4.19.0
-        version: 4.21.0
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
-      vitest:
-        specifier: 'catalog:'
-        version: 2.1.9(@types/node@22.19.15)(lightningcss@1.32.0)(msw@2.12.14(@types/node@22.19.15)(typescript@5.9.3))
-
-  packages/web-deprecated:
-    dependencies:
-      '@govtrace/db':
-        specifier: workspace:*
-        version: link:../db
-      '@tanstack/react-query':
-        specifier: ^5.0.0
-        version: 5.96.0(react@19.2.4)
-      '@tanstack/react-router':
-        specifier: ^1.167.0
-        version: 1.168.10(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      '@tanstack/react-start':
-        specifier: ^1.167.0
-        version: 1.167.16(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(vite@7.3.1(@types/node@22.19.15)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0))
-      drizzle-orm:
-        specifier: 'catalog:'
-        version: 0.45.2(gel@2.2.0)(pg@8.20.0)(postgres@3.4.8)
-      postgres:
-        specifier: 'catalog:'
-        version: 3.4.8
-      react:
-        specifier: ^19.0.0
-        version: 19.2.4
-      react-dom:
-        specifier: ^19.0.0
-        version: 19.2.4(react@19.2.4)
-      srvx:
-        specifier: ^0.6.0
-        version: 0.6.0
-      zod:
-        specifier: 'catalog:'
-        version: 3.25.76
-    devDependencies:
-      '@tailwindcss/vite':
-        specifier: ^4.0.0
-        version: 4.2.2(vite@7.3.1(@types/node@22.19.15)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0))
-      '@types/node':
-        specifier: 'catalog:'
-        version: 22.19.15
-      '@types/react':
-        specifier: ^19.0.0
-        version: 19.2.14
-      '@types/react-dom':
-        specifier: ^19.0.0
-        version: 19.2.3(@types/react@19.2.14)
-      tailwindcss:
-        specifier: ^4.0.0
-        version: 4.2.2
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
-      vite:
-        specifier: ^7.0.0
-        version: 7.3.1(@types/node@22.19.15)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0)
 
 packages:
 
