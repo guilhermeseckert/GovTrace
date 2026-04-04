@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Data Foundation** - Ingestion pipeline, entity matching, and pre-computed graph table for all 5 federal data sources (completed 2026-04-01)
 - [ ] **Phase 2: Search and Entity Profiles** - Full product loop: search → autocomplete → entity profile with tabbed data, AI summaries, and community flagging
-- [ ] **Phase 3: Visualizations** - Force-directed relationship graph, Sankey money-flow diagram, activity timeline, and supporting API endpoints
+- [x] **Phase 3: Visualizations** - Force-directed relationship graph, Sankey money-flow diagram, activity timeline, and supporting API endpoints (completed 2026-04-04)
 - [x] **Phase 4.1: How It Works** *(INSERTED)* - Static explainer page: visual walkthrough of the platform, data sources with logos, step-by-step example, AI transparency, FAQ (completed 2026-04-03)
 - [ ] **Phase 4.2: Entity Profile Storytelling** *(INSERTED)* - AI summary upgrade with cross-referenced connections, plain English connection cards, simplified default view, "Show raw data" toggle
 - [ ] **Phase 4: Newsletter and Secondary Visualizations** - GovTrace Weekly AI newsletter, subscriber management, network heatmap, spending treemap, and donations trend chart
@@ -139,7 +139,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4.1 → 4.2 → 4
 |-------|----------------|--------|-----------|
 | 1. Data Foundation | 11/11 | Complete | 2026-04-01 |
 | 2. Search and Entity Profiles | 7/7 | Complete | 2026-04-02 |
-| 3. Visualizations | 4/4 | Verifying | - |
+| 3. Visualizations | 4/4 | Complete | 2026-04-04 |
 | 4.1 How It Works | 2/2 | Complete   | 2026-04-03 |
 | 4.2 Entity Profile Storytelling | 0/3 | Planning | - |
 | 4. Newsletter and Secondary Visualizations | 0/TBD | Not started | - |
