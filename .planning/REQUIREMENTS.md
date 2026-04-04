@@ -255,6 +255,7 @@
 - [ ] **PARL-03**: Politicians' entity profiles show a "Votes" tab with every bill they voted on, sortable by date and filterable by topic
 - [ ] **PARL-04**: AI summary for politicians cross-references voting patterns with donor and lobbying data
 - [ ] **PARL-05**: Bills are searchable as their own entity type — "Bill C-69" shows all votes, sponsors, and related lobbying activity
+- [ ] **PARL-06**: Each bill has an AI-generated plain-language summary explaining what the bill does in simple words — "This bill would allow oil companies to skip environmental reviews for pipelines shorter than 50km"
 
 ## v2 Traceability
 
@@ -274,6 +275,7 @@
 | PARL-03 | Phase 7 | Not started |
 | PARL-04 | Phase 7 | Not started |
 | PARL-05 | Phase 7 | Not started |
+| PARL-06 | Phase 7 | Not started |
 
 ---
 *Requirements defined: 2026-03-31*

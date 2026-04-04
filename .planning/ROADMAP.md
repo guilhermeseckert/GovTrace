@@ -197,6 +197,7 @@ Expand GovTrace beyond domestic government data to track Canada's international 
   3. Bills are searchable — search "Bill C-69" and see all MPs who voted, grouped by party and position
   4. AI summary for politicians includes voting pattern insights: "Voted in favour of 3 bills related to energy — received $12K from oil & gas donors"
   5. Cross-reference visualization: lobbying registrations mentioning a bill's subject matter vs how the lobbied politician voted
+  6. Every bill has an AI-generated plain-language summary explaining what it actually does — no legalese, grandpa-readable
 **Plans**: TBD
 **UI hint**: yes
 
