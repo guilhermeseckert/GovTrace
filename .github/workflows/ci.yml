@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: govtrace
+          POSTGRES_PASSWORD: govtrace
+          POSTGRES_DB: govtrace
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U govtrace -d govtrace"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Enable pg_trgm extension
+        run: |
+          PGPASSWORD=govtrace psql -h localhost -U govtrace -d govtrace -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
+
+      - name: Type check (web)
+        run: pnpm --filter @govtrace/web exec tsc --noEmit
+        continue-on-error: true
+
+      - name: Build (web)
+        run: pnpm --filter @govtrace/web exec vite build
+
+      - name: Build Docker image (web)
+        run: docker build -f apps/web/Dockerfile -t govtrace-web:ci .
+
+      - name: Build Docker image (ingestion)
+        run: docker build -f apps/ingestion/Dockerfile -t govtrace-ingestion:ci .
