@@ -230,5 +230,38 @@
 - Unmapped: 0 ✓
 
 ---
+
+## v2 Requirements
+
+### International Aid Ingestion
+
+- [ ] **INTL-01**: System downloads and parses IATI Activity Files (XML/CSV) from Global Affairs Canada via open.canada.ca
+- [ ] **INTL-02**: Each aid record stores: project name, recipient country, amount, funding department, authorization, start/end dates, and IATI identifier
+- [ ] **INTL-03**: Aid recipient organizations are entity-matched against existing domestic entities using the same normalization + fuzzy + AI pipeline
+- [ ] **INTL-04**: Entity profiles show international aid alongside domestic data (donations, contracts, grants, lobbying)
+- [ ] **INTL-05**: Cross-dataset patterns surface: "Company X received overseas aid AND donated to political parties AND has registered lobbyists"
+
+### Debt vs Spending Dashboard
+
+- [ ] **DEBT-01**: Dashboard shows current national debt sourced from Statistics Canada / Dept of Finance Fiscal Monitor
+- [ ] **DEBT-02**: Timeline visualization compares annual overseas aid spending against national debt growth, with federal election year markers
+- [ ] **DEBT-03**: Department-level breakdown shows which departments authorize the most international spending
+- [ ] **DEBT-04**: All figures link to original government data sources (Statistics Canada, Global Affairs, Dept of Finance)
+
+## v2 Traceability
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| INTL-01 | Phase 5 | Not started |
+| INTL-02 | Phase 5 | Not started |
+| INTL-03 | Phase 5 | Not started |
+| INTL-04 | Phase 5 | Not started |
+| INTL-05 | Phase 5 | Not started |
+| DEBT-01 | Phase 6 | Not started |
+| DEBT-02 | Phase 6 | Not started |
+| DEBT-03 | Phase 6 | Not started |
+| DEBT-04 | Phase 6 | Not started |
+
+---
 *Requirements defined: 2026-03-31*
-*Last updated: 2026-03-31 after roadmap creation*
+*Last updated: 2026-04-04 — added v2 milestone (international aid + debt tracking)*

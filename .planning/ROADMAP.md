@@ -143,3 +143,49 @@ Phases execute in numeric order: 1 → 2 → 3 → 4.1 → 4.2 → 4
 | 4.1 How It Works | 2/2 | Complete   | 2026-04-03 |
 | 4.2 Entity Profile Storytelling | 0/3 | Planning | - |
 | 4. Newsletter and Secondary Visualizations | 0/TBD | Not started | - |
+
+---
+
+# Milestone v2.0 — International Money Tracking
+
+## Overview
+
+Expand GovTrace beyond domestic government data to track Canada's international aid spending and compare it against national debt. Cross-reference overseas aid contracts with domestic lobbying, donations, and contracts to reveal who influences where Canadian tax dollars go globally.
+
+## Phases
+
+- [ ] **Phase 5: International Aid Ingestion** - Ingest IATI Activity Files from Global Affairs Canada (overseas aid projects, recipient countries, amounts, funding departments), entity-match aid recipients against existing domestic entities
+- [ ] **Phase 6: Debt vs Spending Dashboard** - Real-time national debt tracker alongside overseas aid spending, timeline visualization comparing aid commitments against debt growth, department-level spending breakdown
+
+## Phase Details
+
+### Phase 5: International Aid Ingestion
+**Goal**: All international aid spending data from Global Affairs Canada is ingested, entity-matched, and cross-referenced with domestic datasets — revealing which companies/organizations receive both domestic contracts and overseas aid
+**Depends on**: v1.0 complete
+**Requirements**: INTL-01, INTL-02, INTL-03, INTL-04, INTL-05
+**Success Criteria** (what must be TRUE):
+  1. IATI Activity Files (XML/CSV) from open.canada.ca are parsed and stored with project name, recipient country, amount, funding department, and authorization
+  2. Aid recipient organizations are entity-matched against existing domestic entities (companies, lobbyists, contractors)
+  3. Entity profile pages show international aid alongside domestic data ("This company received $X in overseas aid contracts AND donated $Y to political parties")
+  4. Search results include international aid data in entity counts
+  5. The "How it Works" page is updated to explain the 6th dataset
+**Plans**: TBD
+
+### Phase 6: Debt vs Spending Dashboard
+**Goal**: Citizens can see at a glance how much Canada sends overseas relative to the national debt, with timeline context showing trends over election cycles
+**Depends on**: Phase 5
+**Requirements**: DEBT-01, DEBT-02, DEBT-03, DEBT-04
+**Success Criteria** (what must be TRUE):
+  1. Dashboard page shows current national debt (from Fiscal Monitor / Statistics Canada) alongside total overseas aid spending
+  2. Timeline visualization compares annual aid commitments against debt growth, with federal election year markers
+  3. Department-level breakdown shows which departments authorize the most international spending
+  4. All numbers link to source data (Statistics Canada, Global Affairs, Dept of Finance)
+**Plans**: TBD
+**UI hint**: yes
+
+## Progress
+
+| Phase | Plans Complete | Status | Completed |
+|-------|----------------|--------|-----------|
+| 5. International Aid Ingestion | 0/TBD | Not started | - |
+| 6. Debt vs Spending Dashboard | 0/TBD | Not started | - |
