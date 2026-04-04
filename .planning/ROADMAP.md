@@ -208,3 +208,17 @@ Expand GovTrace beyond domestic government data to track Canada's international 
 | 5. International Aid Ingestion | 0/TBD | Not started | - |
 | 6. Debt vs Spending Dashboard | 0/TBD | Not started | - |
 | 7. Parliamentary Voting Records | 0/TBD | Not started | - |
+
+---
+
+## Backlog
+
+Ideas captured for future planning. Not sequenced, not prioritized. Promote with `/gsd:review-backlog` when ready.
+
+### Phase 999.1: Ingestion Hash-Check Optimization (BACKLOG)
+**Goal**: Skip re-parsing CSV files when the source file hash matches the previous `ingestion_runs.source_file_hash` — the table already tracks hashes, just needs a check before parsing. Saves ~1 hour of weekly CPU when government data hasn't changed.
+**Requirements**: TBD
+**Plans**: 0 plans
+
+Plans:
+- [ ] TBD (promote with /gsd:review-backlog when ready)
