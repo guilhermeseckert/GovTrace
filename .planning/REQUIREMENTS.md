@@ -248,6 +248,14 @@
 - [ ] **DEBT-03**: Department-level breakdown shows which departments authorize the most international spending
 - [ ] **DEBT-04**: All figures link to original government data sources (Statistics Canada, Global Affairs, Dept of Finance)
 
+### Parliamentary Voting Records
+
+- [ ] **PARL-01**: System ingests House of Commons voting records (XML/JSON) from ourcommons.ca Open Data for all parliaments since 2001
+- [ ] **PARL-02**: Each vote record stores: bill number, bill title, MP name, party, vote (Yea/Nay/Paired/Absent), session, date
+- [ ] **PARL-03**: Politicians' entity profiles show a "Votes" tab with every bill they voted on, sortable by date and filterable by topic
+- [ ] **PARL-04**: AI summary for politicians cross-references voting patterns with donor and lobbying data
+- [ ] **PARL-05**: Bills are searchable as their own entity type — "Bill C-69" shows all votes, sponsors, and related lobbying activity
+
 ## v2 Traceability
 
 | Requirement | Phase | Status |
@@ -261,6 +269,11 @@
 | DEBT-02 | Phase 6 | Not started |
 | DEBT-03 | Phase 6 | Not started |
 | DEBT-04 | Phase 6 | Not started |
+| PARL-01 | Phase 7 | Not started |
+| PARL-02 | Phase 7 | Not started |
+| PARL-03 | Phase 7 | Not started |
+| PARL-04 | Phase 7 | Not started |
+| PARL-05 | Phase 7 | Not started |
 
 ---
 *Requirements defined: 2026-03-31*

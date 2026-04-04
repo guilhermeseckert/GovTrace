@@ -183,9 +183,27 @@ Expand GovTrace beyond domestic government data to track Canada's international 
 **Plans**: TBD
 **UI hint**: yes
 
+- [ ] **Phase 7: Parliamentary Voting Records** - Ingest House of Commons voting records and bill positions, show how each politician voted on every bill, cross-reference voting patterns with their donors and lobbyists
+
+## Phase Details (continued)
+
+### Phase 7: Parliamentary Voting Records
+**Goal**: Search a politician and instantly see how they voted on every bill — then cross-reference those votes with who donated to them and who lobbied them on that topic
+**Depends on**: Phase 5
+**Requirements**: PARL-01, PARL-02, PARL-03, PARL-04, PARL-05
+**Success Criteria** (what must be TRUE):
+  1. Voting records from House of Commons Open Data (XML/JSON) are ingested for all parliaments since 2001
+  2. Politician entity profiles show a "Votes" tab listing every bill they voted on (Yea/Nay/Absent) with bill title and date
+  3. Bills are searchable — search "Bill C-69" and see all MPs who voted, grouped by party and position
+  4. AI summary for politicians includes voting pattern insights: "Voted in favour of 3 bills related to energy — received $12K from oil & gas donors"
+  5. Cross-reference visualization: lobbying registrations mentioning a bill's subject matter vs how the lobbied politician voted
+**Plans**: TBD
+**UI hint**: yes
+
 ## Progress
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 5. International Aid Ingestion | 0/TBD | Not started | - |
 | 6. Debt vs Spending Dashboard | 0/TBD | Not started | - |
+| 7. Parliamentary Voting Records | 0/TBD | Not started | - |
