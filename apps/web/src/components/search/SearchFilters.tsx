@@ -1,3 +1,8 @@
+import { format, parseISO } from 'date-fns'
+import { CalendarIcon, X } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Calendar } from '@/components/ui/calendar'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 // Canadian provinces and territories — all 13
@@ -28,6 +33,67 @@ type SearchFiltersProps = {
   onDateToChange: (date: string | undefined) => void
 }
 
+function DatePicker({
+  value,
+  onChange,
+  label,
+}: {
+  value: string | undefined
+  onChange: (date: string | undefined) => void
+  label: string
+}) {
+  const selected = value ? parseISO(value) : undefined
+
+  return (
+    <div className="space-y-1.5">
+      <span className="text-xs font-medium text-muted-foreground">{label}</span>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            className={`w-full cursor-pointer justify-start text-left text-sm font-normal ${
+              !selected ? 'text-muted-foreground' : ''
+            }`}
+          >
+            <CalendarIcon className="mr-2 h-3.5 w-3.5 text-muted-foreground" />
+            {selected ? format(selected, 'MMM d, yyyy') : 'Pick a date'}
+            {selected && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onChange(undefined)
+                }}
+                className="ml-auto cursor-pointer rounded-sm p-0.5 text-muted-foreground hover:text-foreground"
+                aria-label={`Clear ${label.toLowerCase()} date`}
+              >
+                <X className="h-3 w-3" />
+              </button>
+            )}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start" side="bottom">
+          <Calendar
+            mode="single"
+            selected={selected}
+            onSelect={(date) => {
+              if (date) {
+                const yyyy = date.getFullYear()
+                const mm = String(date.getMonth() + 1).padStart(2, '0')
+                const dd = String(date.getDate()).padStart(2, '0')
+                onChange(`${yyyy}-${mm}-${dd}`)
+              } else {
+                onChange(undefined)
+              }
+            }}
+            defaultMonth={selected}
+          />
+        </PopoverContent>
+      </Popover>
+    </div>
+  )
+}
+
 export function SearchFilters({
   currentType,
   currentProvince,
@@ -39,17 +105,25 @@ export function SearchFilters({
   onDateToChange,
 }: SearchFiltersProps) {
   return (
-    <aside className="w-full md:w-60 shrink-0 space-y-4">
-      <div className="space-y-2">
-        <h2 className="text-sm font-semibold">Entity Type</h2>
-        <div className="space-y-2">
+    <aside className="w-full shrink-0 space-y-1 md:w-60">
+      {/* Entity Type */}
+      <div className="rounded-xl border bg-card p-4 shadow-sm">
+        <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Entity Type</h2>
+        <div className="space-y-1">
           {[
             { value: 'all', label: 'All types' },
             { value: 'politician', label: 'Politicians' },
             { value: 'company', label: 'Companies' },
             { value: 'person', label: 'People' },
           ].map((opt) => (
-            <label key={opt.value} className="flex cursor-pointer items-center gap-2 text-sm">
+            <label
+              key={opt.value}
+              className={`flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors ${
+                currentType === opt.value
+                  ? 'bg-primary/10 font-medium text-primary'
+                  : 'text-foreground hover:bg-muted/50'
+              }`}
+            >
               <input
                 type="radio"
                 name="entity-type"
@@ -64,8 +138,9 @@ export function SearchFilters({
         </div>
       </div>
 
-      <div className="space-y-2">
-        <label htmlFor="province-select" className="text-sm font-semibold">
+      {/* Province */}
+      <div className="rounded-xl border bg-card p-4 shadow-sm">
+        <label htmlFor="province-select" className="mb-3 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           Province
         </label>
         <Select
@@ -86,30 +161,19 @@ export function SearchFilters({
         </Select>
       </div>
 
-      <div className="space-y-2">
-        <h2 className="text-sm font-semibold">Date Range</h2>
-        <div className="space-y-1">
-          <label htmlFor="date-from" className="text-xs text-muted-foreground">
-            From
-          </label>
-          <input
-            id="date-from"
-            type="date"
-            value={currentDateFrom ?? ''}
-            onChange={(e) => onDateFromChange(e.target.value || undefined)}
-            className="w-full rounded-md border border-input bg-background px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+      {/* Date Range */}
+      <div className="rounded-xl border bg-card p-4 shadow-sm">
+        <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Date Range</h2>
+        <div className="space-y-3">
+          <DatePicker
+            value={currentDateFrom}
+            onChange={onDateFromChange}
+            label="From"
           />
-        </div>
-        <div className="space-y-1">
-          <label htmlFor="date-to" className="text-xs text-muted-foreground">
-            To
-          </label>
-          <input
-            id="date-to"
-            type="date"
-            value={currentDateTo ?? ''}
-            onChange={(e) => onDateToChange(e.target.value || undefined)}
-            className="w-full rounded-md border border-input bg-background px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+          <DatePicker
+            value={currentDateTo}
+            onChange={onDateToChange}
+            label="To"
           />
         </div>
       </div>
