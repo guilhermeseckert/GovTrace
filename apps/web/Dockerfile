@@ -18,29 +18,29 @@ COPY packages/db ./packages/db
 COPY apps/web ./apps/web
 ENV DATABASE_URL=placeholder
 RUN pnpm --filter @govtrace/web build
-WORKDIR /app/apps/web
-RUN pnpm build:server
-WORKDIR /app
 
 # Production image
 FROM node:20-alpine AS runner
 RUN npm install -g pnpm@9
 WORKDIR /app
 
-COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
+COPY pnpm-workspace.yaml pnpm-lock.yaml package.json tsconfig.base.json ./
 COPY packages/db/package.json ./packages/db/
 COPY apps/web/package.json ./apps/web/
 COPY apps/ingestion/package.json ./apps/ingestion/
 RUN pnpm install --frozen-lockfile --prod
+# tsx needed at runtime for server.ts
+RUN pnpm add -w tsx srvx
 
 COPY --from=builder /app/apps/web/dist ./apps/web/dist
-COPY --from=builder /app/apps/web/server.js ./apps/web/server.js
-COPY apps/web/tsconfig.json ./apps/web/
+COPY apps/web/server.ts ./apps/web/server.ts
+COPY apps/web/tsconfig.json ./apps/web/tsconfig.json
+COPY apps/web/tsconfig.server.json ./apps/web/tsconfig.server.json
 
 WORKDIR /app/apps/web
 EXPOSE 3000
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-  CMD wget -qO- http://localhost:3000/health || exit 1
+  CMD wget -qO- http://localhost:3000/ || exit 1
 
-CMD ["node", "server.js"]
+CMD ["node", "--import", "tsx/esm", "server.ts"]
