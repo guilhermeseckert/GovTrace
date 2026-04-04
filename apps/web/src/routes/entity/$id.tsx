@@ -1,5 +1,5 @@
 import { createFileRoute, notFound } from '@tanstack/react-router'
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { getEntityProfile, getEntityStats, getEntityProvenance } from '@/server-fns/entity'
 // AI summary is fetched client-side by AISummary component, not in the loader
 import { EntityHeader } from '@/components/entity/EntityHeader'
@@ -16,7 +16,6 @@ import { ConnectionsTable } from '@/components/tables/ConnectionsTable'
 import { NetworkGraph } from '@/components/visualizations/NetworkGraph'
 import { MoneyFlowSankey } from '@/components/visualizations/MoneyFlowSankey'
 import { ActivityTimeline } from '@/components/visualizations/ActivityTimeline'
-import { ChevronDown } from 'lucide-react'
 import { en } from '@/i18n/en'
 
 export const Route = createFileRoute('/entity/$id')({
@@ -73,11 +72,8 @@ export const Route = createFileRoute('/entity/$id')({
           <div className="h-24 rounded-lg border bg-card" />
           <div className="h-24 rounded-lg border bg-card" />
         </div>
-        {/* Graph skeleton */}
-        <div className="rounded-lg border bg-card p-4">
-          <div className="h-4 w-40 rounded bg-muted" />
-          <div className="mt-3 h-64 w-full rounded bg-muted/50" />
-        </div>
+        {/* Tabs skeleton */}
+        <div className="h-10 w-full rounded bg-muted/50" />
       </div>
     </main>
   ),
@@ -118,13 +114,6 @@ function VisualizationsPanel({ entityId }: { entityId: string }) {
 function EntityProfilePage() {
   const { profile, stats, provenance } = Route.useLoaderData()
   const [flagModalOpen, setFlagModalOpen] = useState(false)
-  const [showDetailedRecords, setShowDetailedRecords] = useState(false)
-  const detailsRef = useRef<HTMLButtonElement>(null)
-
-  const handleViewDetails = () => {
-    setShowDetailedRecords(true)
-    setTimeout(() => detailsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100)
-  }
 
   return (
     <main id="main-content">
@@ -135,47 +124,27 @@ function EntityProfilePage() {
         <AISummary entityId={profile.id} initialSummary={null} />
 
         {/* Pattern callouts — "Did you know?" cards (STORY-03) */}
-        <PatternCallouts entityId={profile.id} onViewDetails={handleViewDetails} />
+        <PatternCallouts entityId={profile.id} />
 
         {/* Plain English connection cards (STORY-02) */}
         <ConnectionCards entityId={profile.id} />
 
-        {/* Inline network graph — promoted from tab to story mode (STORY-04, D-16) */}
-        <div className="rounded-lg border bg-card p-4">
-          <h3 className="mb-3 text-sm font-medium text-muted-foreground">Relationship Network</h3>
-          <NetworkGraph entityId={profile.id} />
-        </div>
-
-        {/* Toggle to reveal raw data tables (STORY-04, D-17, D-18) */}
-        <button
-          ref={detailsRef}
-          type="button"
-          onClick={() => setShowDetailedRecords((v) => !v)}
-          className="flex w-full items-center justify-center gap-2 rounded-lg border bg-muted/50 px-4 py-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          aria-expanded={showDetailedRecords}
-        >
-          {showDetailedRecords ? en.profile.hideDetailedRecords : en.profile.showDetailedRecords}
-          <ChevronDown className={`h-4 w-4 transition-transform ${showDetailedRecords ? 'rotate-180' : ''}`} />
-        </button>
-
-        {/* Full data tables — conditional rendering, not CSS hidden (D-17) */}
-        {showDetailedRecords && (
-          <ProfileTabs
-            counts={stats}
-            entityId={profile.id}
-            renderTab={(tab) => {
-              switch (tab) {
-                case 'donations': return <DonationsTable entityId={profile.id} />
-                case 'contracts': return <ContractsTable entityId={profile.id} />
-                case 'grants': return <GrantsTable entityId={profile.id} />
-                case 'lobbying': return <LobbyingTable entityId={profile.id} />
-                case 'connections': return <ConnectionsTable entityId={profile.id} />
-                case 'visualizations': return <VisualizationsPanel entityId={profile.id} />
-                default: return null
-              }
-            }}
-          />
-        )}
+        {/* Data tables and visualizations — always visible */}
+        <ProfileTabs
+          counts={stats}
+          entityId={profile.id}
+          renderTab={(tab) => {
+            switch (tab) {
+              case 'donations': return <DonationsTable entityId={profile.id} />
+              case 'contracts': return <ContractsTable entityId={profile.id} />
+              case 'grants': return <GrantsTable entityId={profile.id} />
+              case 'lobbying': return <LobbyingTable entityId={profile.id} />
+              case 'connections': return <ConnectionsTable entityId={profile.id} />
+              case 'visualizations': return <VisualizationsPanel entityId={profile.id} />
+              default: return null
+            }
+          }}
+        />
 
         {/* Data provenance — per-dataset last updated dates (PROF-06) */}
         {provenance && (
