@@ -18,7 +18,9 @@ COPY packages/db ./packages/db
 COPY apps/web ./apps/web
 ENV DATABASE_URL=placeholder
 RUN pnpm --filter @govtrace/web build
-RUN pnpm --filter @govtrace/web build:server
+WORKDIR /app/apps/web
+RUN pnpm build:server
+WORKDIR /app
 
 # Production image
 FROM node:20-alpine AS runner
