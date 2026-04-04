@@ -87,6 +87,17 @@ switch (command) {
     break
   }
 
+  case 'merge-entities': {
+    const { runCrossDatasetMerge } = await import('./matcher/cross-dataset-merge.ts')
+    console.log('Running cross-dataset entity merge...')
+    const mergeStats = await runCrossDatasetMerge()
+    console.log(`Merge complete:`)
+    console.log(`  Duplicate groups found: ${mergeStats.duplicateGroups.toLocaleString()}`)
+    console.log(`  Entities merged: ${mergeStats.entitiesMerged.toLocaleString()}`)
+    console.log(`  References updated: ${mergeStats.refsUpdated.toLocaleString()}`)
+    break
+  }
+
   case 'scheduler': {
     const databaseUrl = process.env['DATABASE_URL']
     if (!databaseUrl) throw new Error('DATABASE_URL required for scheduler')
@@ -109,6 +120,7 @@ switch (command) {
     console.log('Commands:')
     console.log('  ingest <source>       Ingest data from a source')
     console.log('  build-connections     Rebuild entity_connections table from all sources')
+    console.log('  merge-entities        Merge duplicate entities across datasets (same normalized name, different type)')
     console.log('  scheduler             Start the pg-boss scheduled job runner')
     console.log('')
     console.log('Ingest sources:')

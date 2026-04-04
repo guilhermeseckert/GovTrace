@@ -9,6 +9,8 @@ export const JOB_NAMES = {
   INGEST_GRANTS: 'ingest:grants',
   INGEST_LOBBY_REGISTRATIONS: 'ingest:lobby-registrations',
   INGEST_LOBBY_COMMUNICATIONS: 'ingest:lobby-communications',
+  MATCH_ENTITIES: 'match:entities',
+  MERGE_ENTITIES: 'merge:cross-dataset',
   BUILD_CONNECTIONS: 'build:entity-connections',
   MARK_SUMMARIES_STALE: 'mark-summaries-stale',
 } as const
@@ -59,6 +61,16 @@ export async function registerIngestionJobs(databaseUrl: string): Promise<void> 
     await runLobbyCommunicationsIngestion()
   })
 
+  await boss.work(JOB_NAMES.MATCH_ENTITIES, async () => {
+    const { runMatchingPipeline } = await import('../matcher/run-matching.ts')
+    await runMatchingPipeline()
+  })
+
+  await boss.work(JOB_NAMES.MERGE_ENTITIES, async () => {
+    const { runCrossDatasetMerge } = await import('../matcher/cross-dataset-merge.ts')
+    await runCrossDatasetMerge()
+  })
+
   await boss.work(JOB_NAMES.BUILD_CONNECTIONS, async () => {
     const { buildEntityConnections } = await import('../graph/build-connections.ts')
     await buildEntityConnections()
@@ -86,7 +98,17 @@ export async function registerIngestionJobs(databaseUrl: string): Promise<void> 
     tz: 'UTC',
   })
 
-  // Build connections: weekly after all Sunday ingestion runs (Sunday 8am UTC)
+  // Match entities: weekly after all ingestion runs (Sunday 6am UTC)
+  await boss.schedule(JOB_NAMES.MATCH_ENTITIES, '0 6 * * 0', {}, {
+    tz: 'UTC',
+  })
+
+  // Merge cross-dataset duplicates: weekly after matching (Sunday 7am UTC)
+  await boss.schedule(JOB_NAMES.MERGE_ENTITIES, '0 7 * * 0', {}, {
+    tz: 'UTC',
+  })
+
+  // Build connections: weekly after merge (Sunday 8am UTC)
   await boss.schedule(JOB_NAMES.BUILD_CONNECTIONS, '0 8 * * 0', {}, {
     tz: 'UTC',
   })
@@ -106,7 +128,9 @@ export async function registerIngestionJobs(databaseUrl: string): Promise<void> 
   console.log('Ingestion jobs scheduled:')
   console.log('  Weekly (Sunday 2am): elections-canada')
   console.log('  Weekly (Sunday 3-4am): lobby-registrations, lobby-communications')
-  console.log('  Quarterly (first Sunday 5-6am): contracts, grants')
+  console.log('  Quarterly (first Sunday 5am): contracts, grants')
+  console.log('  Weekly (Sunday 6am): match-entities')
+  console.log('  Weekly (Sunday 7am): merge-cross-dataset')
   console.log('  Weekly (Sunday 8am): build-connections')
   console.log('  Weekly (Sunday 10pm): mark-summaries-stale')
 }

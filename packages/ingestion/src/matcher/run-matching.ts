@@ -4,6 +4,7 @@ import { entityMatchesLog } from '@govtrace/db/schema/entities'
 import { normalizeName } from '../normalizer/normalize.ts'
 import { findDeterministicMatch, createNewEntity } from './deterministic.ts'
 import { findFuzzyMatches, storeHighConfidenceMatch } from './fuzzy.ts'
+import { runCrossDatasetMerge } from './cross-dataset-merge.ts'
 
 export interface MatchingStats {
   total: number
@@ -126,6 +127,11 @@ export async function runMatchingPipeline(): Promise<MatchingStats> {
       }
     }
   }
+
+  // Stage 4: Cross-dataset merge — unify entities with same normalized_name but different entity_type
+  console.log('\nRunning cross-dataset entity merge...')
+  const mergeStats = await runCrossDatasetMerge()
+  console.log(`Merge: ${mergeStats.duplicateGroups} groups, ${mergeStats.entitiesMerged} merged, ${mergeStats.refsUpdated} refs updated`)
 
   return stats
 }
