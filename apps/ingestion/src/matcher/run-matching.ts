@@ -33,10 +33,16 @@ const SOURCE_CONFIGS: SourceConfig[] = [
 ]
 
 /**
- * Runs the two-stage matching pipeline (deterministic → fuzzy) across all 5 source tables.
- * Stage 3 (Claude AI) handled separately in Plan 07.
+ * Runs the two-stage matching pipeline (deterministic → fuzzy) across all source tables.
+ * Stage 3 (Claude AI) handled separately.
  * Updates normalized_name and entity_id columns on source records after matching.
  * D-05: global pass after all sources are ingested.
+ *
+ * NOTE: Parliamentary MP matching is NOT handled here.
+ * MPs use PersonId-anchored mp_profiles instead of this generic SOURCE_CONFIGS pipeline.
+ * PersonId is the stable government identifier per person across all sessions —
+ * without it, same-name MPs from different eras (e.g., two "Paul Martin"s) would be merged.
+ * MP matching runs in runners/parliament.ts Phase C: deterministic → fuzzy → AI → new_entity.
  */
 export async function runMatchingPipeline(): Promise<MatchingStats> {
   const stats: MatchingStats = {

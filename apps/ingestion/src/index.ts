@@ -45,6 +45,11 @@ switch (command) {
         await runInternationalAidIngestion()
         break
       }
+      case 'parliament': {
+        const { runParliamentIngestion } = await import('./runners/parliament.ts')
+        await runParliamentIngestion()
+        break
+      }
       case 'all': {
         const { runElectionsCanadaIngestion } = await import('./runners/elections-canada.ts')
         const { runContractsIngestion } = await import('./runners/contracts.ts')
@@ -64,7 +69,7 @@ switch (command) {
       default: {
         console.error(`Unknown source: ${source ?? '(none)'}`)
         console.log(
-          'Available: elections-canada, contracts, grants, lobby-registrations, lobby-communications, international-aid, all',
+          'Available: elections-canada, contracts, grants, lobby-registrations, lobby-communications, international-aid, parliament, all',
         )
         process.exit(1)
       }
