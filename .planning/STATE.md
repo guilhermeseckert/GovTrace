@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: International Money Tracking
-status: executing
-stopped_at: Completed 07-01-PLAN.md
-last_updated: "2026-04-05T05:31:48.777Z"
+status: verifying
+stopped_at: Completed 07-02-PLAN.md
+last_updated: "2026-04-05T05:44:55.719Z"
 last_activity: 2026-04-05
 progress:
   total_phases: 5
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 6
-  completed_plans: 5
+  completed_plans: 6
   percent: 0
 ---
 
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-03-31)
 
 Phase: 07 (parliamentary-voting-records) — EXECUTING
 Plan: 2 of 2
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-04-05
 
 Progress: [░░░░░░░░░░] 0%
@@ -83,6 +83,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 05 P02 | 4 minutes | 2 tasks | 7 files |
 | Phase 06-debt-vs-spending-dashboard P01 | 8 minutes | 2 tasks | 8 files |
 | Phase 07-parliamentary-voting-records P01 | 642s | 3 tasks | 19 files |
+| Phase 07-parliamentary-voting-records P02 | 626s | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -166,6 +167,8 @@ Recent decisions affecting current work:
 - [Phase 06-debt-vs-spending-dashboard]: SHA256(series+refDate) as fiscal_snapshots PK for idempotent re-ingestion; SCALAR_FACTOR normalised to millions in parser; annual debt uses latest-month-per-year subquery (avoids partial-year dip); FEDERAL_ELECTION_DATES hardcoded as const
 - [Phase 07-parliamentary-voting-records]: PersonId-anchored mp_profiles as stable ground truth for MP entity matching — prevents same-name MP merging across eras
 - [Phase 07-parliamentary-voting-records]: Bills not added to entity_connections — bills are not entities; PARL-04 cross-reference is query-time via vote_ballots + donations join
+- [Phase 07-parliamentary-voting-records]: PROMPT_VERSION -v3 invalidates existing politician AI summaries to regenerate with PARL-04 voting pattern context
+- [Phase 07-parliamentary-voting-records]: DivisionCard MP list collapsed by default — bills have up to 338 ballots which would create poor UX if all expanded
 
 ### Pending Todos
 
@@ -178,6 +181,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-05T05:31:48.774Z
-Stopped at: Completed 07-01-PLAN.md
+Last session: 2026-04-05T05:44:55.716Z
+Stopped at: Completed 07-02-PLAN.md
 Resume file: None

@@ -24,7 +24,7 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
 
 - [ ] **Phase 5: International Aid Ingestion** - Ingest IATI Activity Files from Global Affairs Canada (overseas aid projects, recipient countries, amounts, funding departments), entity-match aid recipients against existing domestic entities
 - [ ] **Phase 6: Debt vs Spending Dashboard** - Real-time national debt tracker alongside overseas aid spending, timeline visualization comparing aid commitments against debt growth, department-level spending breakdown
-- [ ] **Phase 7: Parliamentary Voting Records** - Ingest House of Commons voting records and bill positions, show how each politician voted on every bill, cross-reference voting patterns with their donors and lobbyists
+- [x] **Phase 7: Parliamentary Voting Records** - Ingest House of Commons voting records and bill positions, show how each politician voted on every bill, cross-reference voting patterns with their donors and lobbyists (completed 2026-04-05)
 
 ## Phase Details
 
@@ -74,7 +74,7 @@ Plans:
 
 Plans:
 - [x] 07-01-PLAN.md — Ingestion pipeline: schema, parsers, downloaders, upsert, runner, MP entity matching, bill summaries, scheduler
-- [ ] 07-02-PLAN.md — Web UI: Votes tab, bill pages, search integration, AI summary voting insights, How It Works 7th dataset
+- [x] 07-02-PLAN.md — Web UI: Votes tab, bill pages, search integration, AI summary voting insights, How It Works 7th dataset
 
 ## Progress
 
@@ -87,7 +87,7 @@ Plans:
 | 4.2 Entity Profile Storytelling | v1.0 | 3/3 | Complete | 2026-04-04 |
 | 5. International Aid Ingestion | v2.0 | 1/2 | In Progress|  |
 | 6. Debt vs Spending Dashboard | v2.0 | 1/2 | In Progress|  |
-| 7. Parliamentary Voting Records | v2.0 | 0/2 | Not started | - |
+| 7. Parliamentary Voting Records | v2.0 | 2/2 | Complete   | 2026-04-05 |
 
 ---
 
