@@ -21,12 +21,12 @@ export async function buildEntityConnections(): Promise<ConnectionBuildResult> {
   console.log('Building entity_connections table...')
 
   // Step 1: Mark existing as stale
-  await db.execute(sql`UPDATE entity_connections SET is_stale = true`)
+  await db.execute(sql.raw(`UPDATE entity_connections SET is_stale = true`))
   console.log('  Marked existing connections as stale')
 
-  // DONATIONS: donor entity → recipient entity (JOIN instead of correlated subquery)
+  // DONATIONS: donor entity → recipient entity
   console.log('  Building donor → recipient connections...')
-  const donorResult = await db.execute(sql`
+  await db.execute(sql.raw(`
     INSERT INTO entity_connections (
       entity_a_id, entity_b_id, connection_type,
       total_value, transaction_count, first_seen, last_seen,
@@ -56,13 +56,12 @@ export async function buildEntityConnections(): Promise<ConnectionBuildResult> {
       last_seen = EXCLUDED.last_seen,
       is_stale = false,
       computed_at = NOW()
-  `)
-  result.donorToParty = Number((donorResult as unknown as Array<unknown>).length ?? 0)
-  console.log(`  donor_to_party: done`)
+  `))
+  console.log('  donor_to_party: done')
 
   // CONTRACTS: vendor entity → department entity
   console.log('  Building vendor → department connections...')
-  const contractResult = await db.execute(sql`
+  await db.execute(sql.raw(`
     INSERT INTO entity_connections (
       entity_a_id, entity_b_id, connection_type,
       total_value, transaction_count, first_seen, last_seen,
@@ -92,12 +91,12 @@ export async function buildEntityConnections(): Promise<ConnectionBuildResult> {
       last_seen = EXCLUDED.last_seen,
       is_stale = false,
       computed_at = NOW()
-  `)
-  console.log(`  vendor_to_department: done`)
+  `))
+  console.log('  vendor_to_department: done')
 
   // GRANTS: recipient entity → department entity
   console.log('  Building grant recipient → department connections...')
-  await db.execute(sql`
+  await db.execute(sql.raw(`
     INSERT INTO entity_connections (
       entity_a_id, entity_b_id, connection_type,
       total_value, transaction_count, first_seen, last_seen,
@@ -127,12 +126,12 @@ export async function buildEntityConnections(): Promise<ConnectionBuildResult> {
       last_seen = EXCLUDED.last_seen,
       is_stale = false,
       computed_at = NOW()
-  `)
-  console.log(`  grant_recipient_to_department: done`)
+  `))
+  console.log('  grant_recipient_to_department: done')
 
   // INTERNATIONAL AID: implementer entity → funding department entity
   console.log('  Building aid recipient → department connections...')
-  await db.execute(sql`
+  await db.execute(sql.raw(`
     INSERT INTO entity_connections (
       entity_a_id, entity_b_id, connection_type,
       total_value, transaction_count, first_seen, last_seen,
@@ -162,12 +161,12 @@ export async function buildEntityConnections(): Promise<ConnectionBuildResult> {
       last_seen = EXCLUDED.last_seen,
       is_stale = false,
       computed_at = NOW()
-  `)
-  console.log(`  aid_recipient_to_department: done`)
+  `))
+  console.log('  aid_recipient_to_department: done')
 
   // LOBBY: lobbyist → official (only where both entity IDs exist)
   console.log('  Building lobbyist → official connections...')
-  await db.execute(sql`
+  await db.execute(sql.raw(`
     INSERT INTO entity_connections (
       entity_a_id, entity_b_id, connection_type,
       transaction_count, first_seen, last_seen,
@@ -194,11 +193,11 @@ export async function buildEntityConnections(): Promise<ConnectionBuildResult> {
       last_seen = EXCLUDED.last_seen,
       is_stale = false,
       computed_at = NOW()
-  `)
-  console.log(`  lobbyist_to_official: done`)
+  `))
+  console.log('  lobbyist_to_official: done')
 
   // Step 3: Delete stale
-  await db.execute(sql`DELETE FROM entity_connections WHERE is_stale = true`)
+  await db.execute(sql.raw(`DELETE FROM entity_connections WHERE is_stale = true`))
 
   // Final count
   const countResult = await db.execute(sql`SELECT count(*) as c FROM entity_connections`)
