@@ -54,27 +54,34 @@ export async function runMatchingPipeline(): Promise<MatchingStats> {
   for (const config of SOURCE_CONFIGS) {
     console.log(`Matching ${config.table}.${config.nameField}...`)
 
-    // Fetch distinct unmatched names from this source
-    const unmatched = await db.execute<{ raw_name: string; id: string }>(sql`
-      SELECT DISTINCT ${sql.raw(config.nameField)} AS raw_name, id
+    // Fetch distinct unmatched names (not rows) — match each name once, bulk-update all rows
+    const unmatched = await db.execute<{ raw_name: string; cnt: string }>(sql`
+      SELECT ${sql.raw(config.nameField)} AS raw_name, count(*) AS cnt
       FROM ${sql.raw(config.table)}
       WHERE ${sql.raw(config.entityIdField)} IS NULL
         AND ${sql.raw(config.nameField)} IS NOT NULL
-      ORDER BY raw_name
+      GROUP BY ${sql.raw(config.nameField)}
+      ORDER BY cnt DESC
     `)
 
-    // drizzle-orm with postgres-js driver returns the array directly (postgres.RowList is T[])
-    const unmatchedRows = unmatched as unknown as Array<{ raw_name: string; id: string }>
+    const unmatchedRows = unmatched as unknown as Array<{ raw_name: string; cnt: string }>
+    const totalNames = unmatchedRows.length
+    let processed = 0
+
     for (const row of unmatchedRows) {
       const rawName = row.raw_name
       stats.total++
+      processed++
+
+      if (processed % 5000 === 0) {
+        console.log(`  ${config.table}.${config.nameField}: ${processed}/${totalNames} names processed`)
+      }
 
       // Stage 1: Deterministic exact match
       const deterministicResult = await findDeterministicMatch(rawName, config.table, config.nameField)
 
       if (deterministicResult) {
         stats.deterministic++
-        // Update source record with entity_id and normalized_name
         const normalizedName = normalizeName(rawName)
         await db.execute(sql`
           UPDATE ${sql.raw(config.table)}
@@ -103,9 +110,7 @@ export async function runMatchingPipeline(): Promise<MatchingStats> {
               AND ${sql.raw(config.entityIdField)} IS NULL
           `)
         } else {
-          // Medium confidence — queue for AI in Plan 07
           stats.mediumConfidenceQueued++
-          // Mark as needing AI: log to entity_matches_log with decision='uncertain'
           const normalizedName = normalizeName(rawName)
           await db.insert(entityMatchesLog).values({
             entityBId: top.entityId,
@@ -133,6 +138,7 @@ export async function runMatchingPipeline(): Promise<MatchingStats> {
         `)
       }
     }
+    console.log(`  ${config.table}.${config.nameField}: complete (${totalNames} distinct names)`)
   }
 
   // Stage 4: Cross-dataset merge — unify entities with same normalized_name but different entity_type

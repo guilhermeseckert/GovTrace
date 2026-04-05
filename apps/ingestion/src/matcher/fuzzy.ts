@@ -28,7 +28,10 @@ export async function findFuzzyMatches(
   const normalizedName = normalizeName(rawName)
   if (!normalizedName) return []
 
-  // pg_trgm similarity query using GIN index — MATCH-02
+  // Set pg_trgm threshold so the % operator uses the GIN index — MATCH-02
+  await db.execute(sql`SET pg_trgm.similarity_threshold = ${FUZZY_MIN}`)
+
+  // pg_trgm % operator leverages GIN index for fast pre-filtering
   const results = await db.execute<{
     id: string
     canonical_name: string
@@ -41,7 +44,7 @@ export async function findFuzzyMatches(
       normalized_name,
       similarity(normalized_name, ${normalizedName}) AS similarity
     FROM entities
-    WHERE similarity(normalized_name, ${normalizedName}) > ${FUZZY_MIN}
+    WHERE normalized_name % ${normalizedName}
     ORDER BY similarity DESC
     LIMIT 5
   `)
