@@ -74,8 +74,8 @@ export function SearchBar({ initialValue = '', onSearch, autoFocus = false }: Se
             placeholder={en.search.placeholder}
             className="h-[52px] pr-10 text-base shadow-md focus:shadow-md"
             aria-autocomplete="list"
-            aria-controls="autocomplete-listbox"
-            aria-activedescendant={activeIndex >= 0 ? `autocomplete-option-${activeIndex}` : undefined}
+            aria-controls={showDropdown ? 'autocomplete-listbox' : undefined}
+            aria-activedescendant={showDropdown && activeIndex >= 0 ? `autocomplete-option-${activeIndex}` : undefined}
             autoFocus={autoFocus}
             onKeyDown={(e) => {
               const len = suggestions?.length ?? 0

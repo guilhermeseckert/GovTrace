@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&family=JetBrains+Mono:wght@400;500&display=swap');
+/* Google Fonts loaded via <link> in root head for non-render-blocking preload */
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -18,7 +18,7 @@
     --secondary: 220 14% 93%;
     --secondary-foreground: 220 30% 10%;
     --muted: 220 14% 93%;
-    --muted-foreground: 220 10% 46%;
+    --muted-foreground: 220 10% 38%;
     --accent: 12 80% 55%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 72% 51%;
@@ -49,7 +49,7 @@
     --secondary: 220 15% 15%;
     --secondary-foreground: 220 10% 92%;
     --muted: 220 15% 15%;
-    --muted-foreground: 220 10% 55%;
+    --muted-foreground: 220 10% 63%;
     --accent: 12 80% 55%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 63% 31%;
