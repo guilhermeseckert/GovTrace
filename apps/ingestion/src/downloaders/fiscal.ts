@@ -41,7 +41,7 @@ export async function downloadFiscalCsv(destDir: string): Promise<FiscalDownload
   // Step 3: Extract the data CSV (not the _MetaData CSV)
   const zip = new AdmZip(zipBuffer)
   const dataEntry = zip.getEntries().find(
-    (e) => e.entryName.endsWith('-eng.csv') && !e.entryName.includes('_MetaData'),
+    (e) => e.entryName.endsWith('.csv') && !e.entryName.includes('MetaData'),
   )
   if (!dataEntry) {
     throw new Error(`Data CSV not found in StatsCan ZIP. Entries: ${zip.getEntries().map((e) => e.entryName).join(', ')}`)
