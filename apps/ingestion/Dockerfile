@@ -11,4 +11,5 @@ RUN pnpm install --frozen-lockfile
 COPY packages/db ./packages/db
 COPY apps/ingestion ./apps/ingestion
 
-CMD ["node", "--import", "tsx/esm", "apps/ingestion/src/index.ts", "scheduler"]
+WORKDIR /app/apps/ingestion
+CMD ["tsx", "src/index.ts", "scheduler"]
