@@ -52,28 +52,16 @@ export const getDebtTimeline = createServerFn({ method: 'GET' }).handler(
   async (): Promise<DebtAidDataPoint[]> => {
     const db = getDb()
 
-    // Annual debt: pick the December value per year (or latest month for current year)
-    // This avoids the partial-year dip (Research Pitfall 4)
-    const debtByYear = await db
-      .select({
-        year: sql<number>`EXTRACT(YEAR FROM ${fiscalSnapshots.refDate})::int`,
-        debtMillions: sql<number>`(
-          SELECT value_millions_cad::numeric
-          FROM fiscal_snapshots fs2
-          WHERE EXTRACT(YEAR FROM fs2.ref_date) = EXTRACT(YEAR FROM ${fiscalSnapshots.refDate})
-            AND fs2.series = 'accumulated_deficit'
-            AND fs2.value_millions_cad IS NOT NULL
-          ORDER BY fs2.ref_date DESC
-          LIMIT 1
-        )`,
-      })
-      .from(fiscalSnapshots)
-      .where(
-        sql`${fiscalSnapshots.series} = 'accumulated_deficit'
-          AND ${fiscalSnapshots.valueMillionsCad} IS NOT NULL`,
-      )
-      .groupBy(sql`EXTRACT(YEAR FROM ${fiscalSnapshots.refDate})`)
-      .orderBy(sql`EXTRACT(YEAR FROM ${fiscalSnapshots.refDate})`)
+    // Annual debt: pick the latest month per year using DISTINCT ON
+    const debtByYear = await db.execute<{ year: number; debt_millions: string }>(sql`
+      SELECT DISTINCT ON (EXTRACT(YEAR FROM ref_date))
+        EXTRACT(YEAR FROM ref_date)::int AS year,
+        value_millions_cad::text AS debt_millions
+      FROM fiscal_snapshots
+      WHERE series = 'accumulated_deficit'
+        AND value_millions_cad IS NOT NULL
+      ORDER BY EXTRACT(YEAR FROM ref_date), ref_date DESC
+    `)
 
     // Annual aid aggregates from international_aid
     const aidByYear = await db
@@ -97,12 +85,13 @@ export const getDebtTimeline = createServerFn({ method: 'GET' }).handler(
     }
 
     // Join by year — only include years where debt data exists
+    const debtRows = Array.from(debtByYear) as Array<{ year: number; debt_millions: string }>
     const results: DebtAidDataPoint[] = []
-    for (const debt of debtByYear) {
+    for (const debt of debtRows) {
       const aid = aidMap.get(debt.year) ?? { committed: 0, disbursed: 0 }
       results.push({
         year: debt.year,
-        debtBillionsCad: Number(debt.debtMillions ?? 0) / 1000,
+        debtBillionsCad: Number(debt.debt_millions ?? 0) / 1000,
         aidCommittedBillionsCad: aid.committed,
         aidDisbursedBillionsCad: aid.disbursed,
         sourceDebtUrl: DEBT_SOURCE_URL,
