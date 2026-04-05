@@ -75,7 +75,7 @@ export function parseVotesXml(xml: string, parlSessionCode: string): VoteRecord[
       sessionNumber: session,
       parlSessionCode,
       divisionNumber,
-      voteDate: dateTimeStr ? dateTimeStr.split('T')[0] : '',
+      voteDate: dateTimeStr ? (dateTimeStr.split('T')[0] ?? '') : '',
       voteDateTime: dateTimeStr,
       subject: String(v['DecisionDivisionSubject'] ?? '').trim(),
       resultName: String(v['DecisionResultName'] ?? '').trim(),

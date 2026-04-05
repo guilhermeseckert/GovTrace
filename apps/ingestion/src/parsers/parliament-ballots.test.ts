@@ -13,6 +13,7 @@ describe('parseVoteBallotsXml', () => {
     expect(records).toHaveLength(4)
 
     const nayVoter = records[0]
+    if (!nayVoter) throw new Error('Expected first ballot record to exist')
     expect(nayVoter.id).toBe('44-1-377-89156')
     expect(nayVoter.voteId).toBe('44-1-377')
     expect(nayVoter.personId).toBe(89156)
@@ -76,6 +77,8 @@ describe('parseVoteBallotsXml', () => {
     const records = parseVoteBallotsXml(singleXml, '44-1-100')
     expect(Array.isArray(records)).toBe(true)
     expect(records).toHaveLength(1)
-    expect(records[0].personId).toBe(99999)
+    const singleRecord = records[0]
+    if (!singleRecord) throw new Error('Expected single ballot record to exist')
+    expect(singleRecord.personId).toBe(99999)
   })
 })

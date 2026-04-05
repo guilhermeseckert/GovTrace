@@ -8,6 +8,7 @@
     "./schema/entities": "./src/schema/entities.ts",
     "./schema/connections": "./src/schema/connections.ts",
     "./schema/jobs": "./src/schema/jobs.ts",
+    "./schema/parliament": "./src/schema/parliament.ts",
     "./client": "./src/client.ts"
   },
   "scripts": {

@@ -13,6 +13,7 @@ describe('parseVotesXml', () => {
     expect(records).toHaveLength(3)
 
     const first = records[0]
+    if (!first) throw new Error('Expected first vote record to exist')
     expect(first.id).toBe('44-1-377')
     expect(first.parliamentNumber).toBe(44)
     expect(first.sessionNumber).toBe(1)
@@ -32,6 +33,7 @@ describe('parseVotesXml', () => {
     const records = parseVotesXml(xml, '44-1')
 
     const motionVote = records[1]
+    if (!motionVote) throw new Error('Expected second vote record to exist')
     expect(motionVote.divisionNumber).toBe(378)
     expect(motionVote.billNumberCode).toBeNull()
     expect(motionVote.resultName).toBe('Negatived')
@@ -64,6 +66,8 @@ describe('parseVotesXml', () => {
     const records = parseVotesXml(singleVoteXml, '44-1')
     expect(Array.isArray(records)).toBe(true)
     expect(records).toHaveLength(1)
-    expect(records[0].divisionNumber).toBe(100)
+    const onlyRecord = records[0]
+    if (!onlyRecord) throw new Error('Expected single vote record to exist')
+    expect(onlyRecord.divisionNumber).toBe(100)
   })
 })
