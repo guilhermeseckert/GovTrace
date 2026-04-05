@@ -3,16 +3,19 @@ import { Link } from '@tanstack/react-router'
 import { ArrowRight, FileText, Gift, TrendingUp, Globe, Vote, Users, ExternalLink, BookOpen } from 'lucide-react'
 import { getPlatformStats } from '@/server-fns/stats'
 import { getLandingData } from '@/server-fns/landing'
+import { getDebtHeroStats } from '@/server-fns/dashboard'
 import { HeroSearch } from '@/components/landing/HeroSearch'
 import type { RecentActivity, TopRecipient } from '@/server-fns/landing'
+import type { DebtHeroStats } from '@/server-fns/dashboard'
 
 export const Route = createFileRoute('/')({
   loader: async () => {
-    const [stats, landing] = await Promise.all([
+    const [stats, landing, debtStats] = await Promise.all([
       getPlatformStats(),
       getLandingData().catch(() => null),
+      getDebtHeroStats().catch(() => null),
     ])
-    return { stats, landing }
+    return { stats, landing, debtStats }
   },
   component: IndexPage,
 })
@@ -136,8 +139,78 @@ const FEATURE_CARDS = [
   },
 ] as const
 
+function formatBillions(n: number): string {
+  if (n >= 1000) return `$${(n / 1000).toFixed(1)}T`
+  if (n >= 1) return `$${n.toFixed(1)}B`
+  return `$${(n * 1000).toFixed(0)}M`
+}
+
+function DebtPreview({ debtStats }: { debtStats: DebtHeroStats }) {
+  return (
+    <section className="border-t bg-muted/30">
+      <div className="mx-auto max-w-7xl px-4 py-16">
+        <div className="mb-2 flex items-center justify-center gap-2">
+          <Globe className="h-5 w-5 text-rose-500" />
+          <h2 className="font-serif text-2xl">Debt vs Overseas Spending</h2>
+        </div>
+        <p className="mb-10 text-center text-sm text-muted-foreground">
+          How much does Canada send overseas relative to the national debt? Every number links to the original government source.
+        </p>
+
+        <div className="mx-auto grid max-w-3xl gap-6 md:grid-cols-3">
+          <a
+            href={debtStats.sourceDebtUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group cursor-pointer rounded-xl border bg-card p-6 text-center transition-all hover:border-primary/30 hover:shadow-md"
+          >
+            <p className="mb-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">National Debt</p>
+            <p className="text-3xl font-bold tabular-nums">{formatBillions(debtStats.currentDebtBillions)}</p>
+            <p className="mt-2 inline-flex items-center gap-1 text-xs text-muted-foreground group-hover:text-primary">
+              <ExternalLink className="h-3 w-3" />
+              Statistics Canada
+            </p>
+          </a>
+
+          <a
+            href={debtStats.sourceAidUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group cursor-pointer rounded-xl border bg-card p-6 text-center transition-all hover:border-primary/30 hover:shadow-md"
+          >
+            <p className="mb-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">Overseas Aid</p>
+            <p className="text-3xl font-bold tabular-nums">{formatBillions(debtStats.totalAidBillions)}</p>
+            <p className="mt-2 inline-flex items-center gap-1 text-xs text-muted-foreground group-hover:text-primary">
+              <ExternalLink className="h-3 w-3" />
+              Global Affairs Canada
+            </p>
+          </a>
+
+          <div className="rounded-xl border bg-card p-6 text-center">
+            <p className="mb-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">Aid as % of Debt</p>
+            <p className="text-3xl font-bold tabular-nums">{debtStats.aidAsPercentOfDebt.toFixed(2)}%</p>
+            <p className="mt-2 text-xs text-muted-foreground">
+              As of {new Date(debtStats.debtAsOf).toLocaleDateString('en-CA', { month: 'short', year: 'numeric' })}
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-8 text-center">
+          <Link
+            to="/dashboard"
+            className="inline-flex items-center gap-2 text-sm font-medium text-primary transition-colors hover:underline"
+          >
+            See the full dashboard with historical trends
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 function IndexPage() {
-  const { stats, landing } = Route.useLoaderData()
+  const { stats, landing, debtStats } = Route.useLoaderData()
 
   return (
     <main id="main-content">
@@ -169,6 +242,9 @@ function IndexPage() {
           ))}
         </div>
       </section>
+
+      {/* Debt vs Aid preview */}
+      {debtStats && <DebtPreview debtStats={debtStats} />}
 
       {/* Live data section */}
       {landing && (
