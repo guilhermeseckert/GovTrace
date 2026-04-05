@@ -12,3 +12,7 @@ docker-compose.override.yml
 
 # pnpm lock (keep for reproducibility)
 # pnpm-lock.yaml
+
+# Claude Code and GSD planning (local only)
+.claude/
+.planning/
