@@ -12,6 +12,7 @@ import {
   Users,
   Vote,
   XCircle,
+  Heart,
 } from 'lucide-react'
 import {
   Accordion,
@@ -341,6 +342,27 @@ function HowItWorksPage() {
               ))}
             </Accordion>
           </div>
+        </div>
+      </section>
+
+      {/* Support Section */}
+      <section className="bg-background">
+        <div className="mx-auto max-w-7xl px-4 py-12 text-center">
+          <Heart className="mx-auto h-6 w-6 text-muted-foreground" />
+          <h3 className="mt-3 font-serif text-xl">Support GovTrace</h3>
+          <p className="mx-auto mt-2 max-w-lg text-sm text-muted-foreground">
+            GovTrace is free and open source. Server costs, data processing, and AI usage
+            are funded by community contributions.
+          </p>
+          <a
+            href="https://buymeacoffee.com/govtrace"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 inline-flex items-center gap-2 rounded-lg border px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+          >
+            Buy me a coffee
+            <ExternalLink className="h-3.5 w-3.5" />
+          </a>
         </div>
       </section>
 
