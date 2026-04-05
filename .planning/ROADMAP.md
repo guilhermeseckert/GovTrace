@@ -58,7 +58,7 @@ Plans:
 
 Plans:
 - [x] 06-01-PLAN.md — Data layer: fiscal_snapshots schema, Stats Canada ingestion pipeline, server functions, election constants
-- [ ] 06-02-PLAN.md — Dashboard page: hero stats, D3 debt-vs-aid chart with election markers, department breakdown
+- [x] 06-02-PLAN.md — Dashboard page: hero stats, D3 debt-vs-aid chart with election markers, department breakdown
 
 ### Phase 7: Parliamentary Voting Records
 **Goal**: Search a politician and instantly see how they voted on every bill — then cross-reference those votes with who donated to them and who lobbied them on that topic
