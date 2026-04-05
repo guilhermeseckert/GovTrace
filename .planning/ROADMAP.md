@@ -16,8 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 2: Search and Entity Profiles** - Full product loop: search → autocomplete → entity profile with tabbed data, AI summaries, and community flagging
 - [x] **Phase 3: Visualizations** - Force-directed relationship graph, Sankey money-flow diagram, activity timeline, and supporting API endpoints (completed 2026-04-04)
 - [x] **Phase 4.1: How It Works** *(INSERTED)* - Static explainer page: visual walkthrough of the platform, data sources with logos, step-by-step example, AI transparency, FAQ (completed 2026-04-03)
-- [ ] **Phase 4.2: Entity Profile Storytelling** *(INSERTED)* - AI summary upgrade with cross-referenced connections, plain English connection cards, simplified default view, "Show raw data" toggle
-- [ ] **Phase 4: Newsletter and Secondary Visualizations** - GovTrace Weekly AI newsletter, subscriber management, network heatmap, spending treemap, and donations trend chart
+- [x] **Phase 4.2: Entity Profile Storytelling** *(INSERTED)* - AI summary upgrade with cross-referenced connections, plain English connection cards, simplified default view (completed 2026-04-04)
 
 ## Phase Details
 
@@ -118,31 +117,18 @@ Plans:
 - [x] 04.2-02-PLAN.md — ConnectionCards component (plain English sentences with badges) and PatternCallouts component with getPatternCallouts server function
 - [x] 04.2-03-PLAN.md — Restructure entity profile page to story-first layout with toggle to raw data tables; visual verification checkpoint
 
-### Phase 4: Newsletter and Secondary Visualizations
-**Goal**: Users can subscribe to a weekly digest of new government connections, and power users can explore department-level spending and donation trend analytics
-**Depends on**: Phase 3
-**Requirements**: NEWS-01, NEWS-02, NEWS-03, NEWS-04, NEWS-05, NEWS-06, API-13, VIZ-06, VIZ-07, VIZ-08
-**Success Criteria** (what must be TRUE):
-  1. User can enter their email in the footer or landing page and receive a confirmation email before being subscribed
-  2. User receives a weekly newsletter with AI-generated summaries of notable new government connections
-  3. User can view a heatmap showing which departments have the densest contractor relationships
-  4. User can view a spending treemap broken down by government department, and a donations trend line with federal election dates marked
-**Plans**: TBD
-**UI hint**: yes
-
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4.1 → 4.2 → 4
+Phases execute in numeric order: 1 → 2 → 3 → 4.1 → 4.2
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Data Foundation | 11/11 | Complete | 2026-04-01 |
 | 2. Search and Entity Profiles | 7/7 | Complete | 2026-04-02 |
 | 3. Visualizations | 4/4 | Complete | 2026-04-04 |
-| 4.1 How It Works | 2/2 | Complete   | 2026-04-03 |
-| 4.2 Entity Profile Storytelling | 0/3 | Planning | - |
-| 4. Newsletter and Secondary Visualizations | 0/TBD | Not started | - |
+| 4.1 How It Works | 2/2 | Complete | 2026-04-03 |
+| 4.2 Entity Profile Storytelling | 3/3 | Complete | 2026-04-04 |
 
 ---
 
@@ -214,6 +200,14 @@ Expand GovTrace beyond domestic government data to track Canada's international 
 ## Backlog
 
 Ideas captured for future planning. Not sequenced, not prioritized. Promote with `/gsd:review-backlog` when ready.
+
+### Phase 999.2: Newsletter and Secondary Visualizations (BACKLOG)
+**Goal**: Users can subscribe to a weekly digest of new government connections, and power users can explore department-level spending and donation trend analytics
+**Requirements**: NEWS-01, NEWS-02, NEWS-03, NEWS-04, NEWS-05, NEWS-06, API-13, VIZ-06, VIZ-07, VIZ-08
+**Plans**: 0 plans
+
+Plans:
+- [ ] TBD (promote with /gsd:review-backlog when ready)
 
 ### Phase 999.1: Ingestion Hash-Check Optimization (BACKLOG)
 **Goal**: Skip re-parsing CSV files when the source file hash matches the previous `ingestion_runs.source_file_hash` — the table already tracks hashes, just needs a check before parsing. Saves ~1 hour of weekly CPU when government data hasn't changed.
