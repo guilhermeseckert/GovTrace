@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
 milestone: v2.0
-milestone_name: milestone
-status: defining_requirements
-stopped_at: Starting v2.0 milestone
-last_updated: "2026-04-05T00:08:15.445Z"
+milestone_name: International Money Tracking
+status: executing
+stopped_at: Completed 05-01-PLAN.md
+last_updated: "2026-04-05T00:59:43.374Z"
 last_activity: 2026-04-05
 progress:
-  total_phases: 10
-  completed_phases: 5
-  total_plans: 27
-  completed_plans: 27
+  total_phases: 5
+  completed_phases: 0
+  total_plans: 2
+  completed_plans: 1
   percent: 0
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-31)
 
 **Core value:** Anyone can search a name and instantly trace the flow of money and influence across all public government datasets — with clarity a 9-year-old could follow.
-**Current focus:** v2.0 — International Money Tracking
+**Current focus:** Phase 05 — international-aid-ingestion
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-04-04 — Milestone v2.0 started
+Phase: 05 (international-aid-ingestion) — EXECUTING
+Plan: 2 of 2
+Status: Ready to execute
+Last activity: 2026-04-05
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -79,6 +79,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 04.2-entity-profile-storytelling P01 | 4min | 2 tasks | 4 files |
 | Phase 04.2-entity-profile-storytelling P02 | 3min | 2 tasks | 3 files |
 | Phase 04.2-entity-profile-storytelling P03 | 1min | 1 tasks | 2 files |
+| Phase 05-international-aid-ingestion P01 | 6min | 2 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -154,6 +155,9 @@ Recent decisions affecting current work:
 - [Phase 04.2-entity-profile-storytelling]: HIGH_VALUE_THRESHOLD=500K as top-1% proxy; TEMPORAL_CLUSTER_DAYS=90 for lobbying-near-contract pattern
 - [Phase 04.2-entity-profile-storytelling]: db.execute raw SQL for temporal clustering self-join — Drizzle ORM lacks support for this query shape
 - [Phase 04.2-entity-profile-storytelling]: Story-first layout promotes NetworkGraph from viz sub-tab to inline story mode; ProfileTabs conditionally rendered (not CSS hidden) behind toggle
+- [Phase 05-international-aid-ingestion]: fast-xml-parser chosen over node-xml-stream-parser: 9-29MB files acceptable for full-document parse; simpler API
+- [Phase 05-international-aid-ingestion]: iati-identifier used as PK directly (no hash) — globally unique and stable by IATI standard
+- [Phase 05-international-aid-ingestion]: isArray callback forces array mode for all repeated IATI elements to prevent single-element collapse
 
 ### Pending Todos
 
@@ -166,6 +170,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-04T23:39:43.942Z
-Stopped at: Completed 04.2-03-PLAN.md
+Last session: 2026-04-05T00:59:43.370Z
+Stopped at: Completed 05-01-PLAN.md
 Resume file: None

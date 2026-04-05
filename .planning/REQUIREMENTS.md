@@ -9,9 +9,9 @@ Requirements for v2.0 International Money Tracking milestone.
 
 ### International Aid
 
-- [ ] **INTL-01**: User can see international aid projects on entity profiles (recipient, amount, funding department)
-- [ ] **INTL-02**: Aid recipient organizations are entity-matched against existing domestic entities
-- [ ] **INTL-03**: Entity profiles show international aid alongside domestic data ("received $X in overseas aid AND donated $Y to political parties")
+- [x] **INTL-01**: User can see international aid projects on entity profiles (recipient, amount, funding department)
+- [x] **INTL-02**: Aid recipient organizations are entity-matched against existing domestic entities
+- [x] **INTL-03**: Entity profiles show international aid alongside domestic data ("received $X in overseas aid AND donated $Y to political parties")
 - [ ] **INTL-04**: Search results include international aid data in entity counts
 - [ ] **INTL-05**: How It Works page is updated to explain the 6th dataset (IATI Activity Files)
 
@@ -42,9 +42,9 @@ Requirements for v2.0 International Money Tracking milestone.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INTL-01 | Phase 5 | Pending |
-| INTL-02 | Phase 5 | Pending |
-| INTL-03 | Phase 5 | Pending |
+| INTL-01 | Phase 5 | Complete |
+| INTL-02 | Phase 5 | Complete |
+| INTL-03 | Phase 5 | Complete |
 | INTL-04 | Phase 5 | Pending |
 | INTL-05 | Phase 5 | Pending |
 | DEBT-01 | Phase 6 | Pending |

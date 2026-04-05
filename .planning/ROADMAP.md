@@ -41,7 +41,7 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
 **Plans**: 2 plans
 
 Plans:
-- [ ] 05-01-PLAN.md — Ingestion pipeline: schema, XML parser, downloader, upsert, runner, entity matching, connections
+- [x] 05-01-PLAN.md — Ingestion pipeline: schema, XML parser, downloader, upsert, runner, entity matching, connections
 - [ ] 05-02-PLAN.md — Web UI: search counts, entity profile aid tab, How It Works 6th dataset
 
 ### Phase 6: Debt vs Spending Dashboard
@@ -79,7 +79,7 @@ Plans:
 | 3. Visualizations | v1.0 | 4/4 | Complete | 2026-04-04 |
 | 4.1 How It Works | v1.0 | 2/2 | Complete | 2026-04-03 |
 | 4.2 Entity Profile Storytelling | v1.0 | 3/3 | Complete | 2026-04-04 |
-| 5. International Aid Ingestion | v2.0 | 0/2 | Not started | - |
+| 5. International Aid Ingestion | v2.0 | 1/2 | In Progress|  |
 | 6. Debt vs Spending Dashboard | v2.0 | 0/TBD | Not started | - |
 | 7. Parliamentary Voting Records | v2.0 | 0/TBD | Not started | - |
 
