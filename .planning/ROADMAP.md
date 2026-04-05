@@ -67,8 +67,11 @@ Plans:
   4. AI summary for politicians includes voting pattern insights: "Voted in favour of 3 bills related to energy — received $12K from oil & gas donors"
   5. Cross-reference visualization: lobbying registrations mentioning a bill's subject matter vs how the lobbied politician voted
   6. Every bill has an AI-generated plain-language summary explaining what it actually does — no legalese, grandpa-readable
-**Plans**: TBD
-**UI hint**: yes
+**Plans**: 2 plans
+
+Plans:
+- [ ] 07-01-PLAN.md — Ingestion pipeline: schema, parsers, downloaders, upsert, runner, MP entity matching, bill summaries, scheduler
+- [ ] 07-02-PLAN.md — Web UI: Votes tab, bill pages, search integration, AI summary voting insights, How It Works 7th dataset
 
 ## Progress
 
@@ -81,7 +84,7 @@ Plans:
 | 4.2 Entity Profile Storytelling | v1.0 | 3/3 | Complete | 2026-04-04 |
 | 5. International Aid Ingestion | v2.0 | 1/2 | In Progress|  |
 | 6. Debt vs Spending Dashboard | v2.0 | 0/TBD | Not started | - |
-| 7. Parliamentary Voting Records | v2.0 | 0/TBD | Not started | - |
+| 7. Parliamentary Voting Records | v2.0 | 0/2 | Not started | - |
 
 ---
 
