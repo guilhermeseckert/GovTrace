@@ -15,7 +15,7 @@ export function HeroSearch({ stats }: HeroSearchProps) {
         <div className="flex justify-center">
           <span className="inline-flex items-center gap-2 rounded-full border bg-card px-4 py-1.5 text-xs font-medium tracking-wide text-muted-foreground">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-            Tracking 5 federal datasets in real-time
+            Tracking 7 public federal datasets
           </span>
         </div>
 
@@ -28,7 +28,7 @@ export function HeroSearch({ stats }: HeroSearchProps) {
           </h1>
           <p className="mx-auto max-w-md text-base text-muted-foreground sm:text-lg">
             Search any politician, company, or person — instantly see their donations,
-            contracts, lobbying, and grants across all public federal records.
+            contracts, lobbying, grants, international aid, and how they voted in Parliament.
           </p>
         </div>
 
@@ -42,7 +42,7 @@ export function HeroSearch({ stats }: HeroSearchProps) {
 
         {/* Bottom attribution */}
         <p className="text-center text-xs text-muted-foreground/60">
-          All data from Elections Canada, open.canada.ca, and lobbycanada.gc.ca
+          All data from Elections Canada, open.canada.ca, lobbycanada.gc.ca, and ourcommons.ca
         </p>
       </div>
     </section>

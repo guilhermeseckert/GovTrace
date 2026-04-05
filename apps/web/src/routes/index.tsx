@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { Link } from '@tanstack/react-router'
-import { ArrowRight, FileText, Gift, TrendingUp } from 'lucide-react'
+import { ArrowRight, FileText, Gift, TrendingUp, Globe, Vote, Users, ExternalLink, BookOpen } from 'lucide-react'
 import { getPlatformStats } from '@/server-fns/stats'
 import { getLandingData } from '@/server-fns/landing'
 import { HeroSearch } from '@/components/landing/HeroSearch'
@@ -10,7 +10,7 @@ export const Route = createFileRoute('/')({
   loader: async () => {
     const [stats, landing] = await Promise.all([
       getPlatformStats(),
-      getLandingData(),
+      getLandingData().catch(() => null),
     ])
     return { stats, landing }
   },
@@ -109,6 +109,33 @@ function TopList({ items, title, icon }: { items: TopRecipient[]; title: string;
   )
 }
 
+const FEATURE_CARDS = [
+  {
+    title: 'Where your tax dollars go overseas',
+    description: 'See how much Canada spends on international aid, which departments authorize it, and how it compares to the national debt.',
+    Icon: Globe,
+    iconColor: 'bg-rose-100 text-rose-600 dark:bg-rose-950 dark:text-rose-400',
+    href: '/dashboard',
+    cta: 'View the dashboard',
+  },
+  {
+    title: 'How your MP voted',
+    description: 'Search any politician and see every bill they voted on — then see who donated to them and who lobbied them.',
+    Icon: Vote,
+    iconColor: 'bg-violet-100 text-violet-600 dark:bg-violet-950 dark:text-violet-400',
+    href: '/search',
+    cta: 'Search a politician',
+  },
+  {
+    title: "Who's connected to whom",
+    description: 'Type any name and instantly see the full picture — donations, contracts, lobbying, grants, and international aid in one place.',
+    Icon: Users,
+    iconColor: 'bg-sky-100 text-sky-600 dark:bg-sky-950 dark:text-sky-400',
+    href: '/search',
+    cta: 'Search a name',
+  },
+] as const
+
 function IndexPage() {
   const { stats, landing } = Route.useLoaderData()
 
@@ -116,60 +143,112 @@ function IndexPage() {
     <main id="main-content">
       <HeroSearch stats={stats} />
 
+      {/* Feature cards */}
+      <section className="mx-auto max-w-7xl px-4 py-16">
+        <h2 className="mb-2 text-center font-serif text-3xl">What can you find?</h2>
+        <p className="mb-10 text-center text-muted-foreground">
+          Seven public datasets. One search bar. The full picture.
+        </p>
+        <div className="grid gap-6 md:grid-cols-3">
+          {FEATURE_CARDS.map((card) => (
+            <Link
+              key={card.title}
+              to={card.href}
+              className="group cursor-pointer rounded-xl border bg-card p-6 transition-all hover:border-primary/30 hover:shadow-md"
+            >
+              <div className={`mb-4 inline-flex rounded-lg p-2.5 ${card.iconColor}`}>
+                <card.Icon className="h-5 w-5" />
+              </div>
+              <h3 className="mb-2 text-lg font-semibold">{card.title}</h3>
+              <p className="mb-4 text-sm leading-relaxed text-muted-foreground">{card.description}</p>
+              <span className="inline-flex items-center gap-1 text-sm font-medium text-primary transition-colors group-hover:underline">
+                {card.cta}
+                <ArrowRight className="h-3.5 w-3.5" />
+              </span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
       {/* Live data section */}
-      <section className="mx-auto max-w-7xl px-4 py-12">
-        <div className="mb-8 flex items-center gap-2">
-          <TrendingUp className="h-5 w-5 text-primary" />
-          <h2 className="font-serif text-2xl">Where the money is going</h2>
-        </div>
+      {landing && (
+        <section className="border-t bg-muted/30">
+          <div className="mx-auto max-w-7xl px-4 py-16">
+            <div className="mb-8 flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-primary" />
+              <h2 className="font-serif text-2xl">Where the money is going</h2>
+            </div>
 
-        {/* Top recipients */}
-        <div className="mb-12 grid gap-8 md:grid-cols-2">
-          <TopList
-            items={landing.topContractors}
-            title="Top Government Contractors"
-            icon={<FileText className="h-4 w-4 text-emerald-500" />}
-          />
-          <TopList
-            items={landing.topGrantRecipients}
-            title="Top Grant Recipients"
-            icon={<Gift className="h-4 w-4 text-amber-500" />}
-          />
-        </div>
+            <div className="mb-12 grid gap-8 md:grid-cols-2">
+              <TopList
+                items={landing.topContractors}
+                title="Top Government Contractors"
+                icon={<FileText className="h-4 w-4 text-emerald-500" />}
+              />
+              <TopList
+                items={landing.topGrantRecipients}
+                title="Top Grant Recipients"
+                icon={<Gift className="h-4 w-4 text-amber-500" />}
+              />
+            </div>
 
-        {/* Recent activity */}
-        <div className="grid gap-8 md:grid-cols-2">
-          <div>
-            <div className="mb-3 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <FileText className="h-4 w-4 text-emerald-500" />
-                <h3 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
-                  Recent Contracts
-                </h3>
+            <div className="grid gap-8 md:grid-cols-2">
+              <div>
+                <div className="mb-3 flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-emerald-500" />
+                  <h3 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
+                    Recent Contracts
+                  </h3>
+                </div>
+                <div className="divide-y rounded-lg border bg-card">
+                  {landing.recentContracts.map((item, i) => (
+                    <ActivityRow key={`c-${i}`} item={item} />
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <div className="mb-3 flex items-center gap-2">
+                  <Gift className="h-4 w-4 text-amber-500" />
+                  <h3 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
+                    Recent Grants
+                  </h3>
+                </div>
+                <div className="divide-y rounded-lg border bg-card">
+                  {landing.recentGrants.map((item, i) => (
+                    <ActivityRow key={`g-${i}`} item={item} />
+                  ))}
+                </div>
               </div>
             </div>
-            <div className="divide-y rounded-lg border">
-              {landing.recentContracts.map((item, i) => (
-                <ActivityRow key={`c-${i}`} item={item} />
-              ))}
-            </div>
           </div>
+        </section>
+      )}
 
-          <div>
-            <div className="mb-3 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Gift className="h-4 w-4 text-amber-500" />
-                <h3 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
-                  Recent Grants
-                </h3>
-              </div>
-            </div>
-            <div className="divide-y rounded-lg border">
-              {landing.recentGrants.map((item, i) => (
-                <ActivityRow key={`g-${i}`} item={item} />
-              ))}
-            </div>
+      {/* Trust / Source section */}
+      <section className="border-t">
+        <div className="mx-auto max-w-7xl px-4 py-16 text-center">
+          <h2 className="mb-3 font-serif text-2xl">Open data. Zero editorializing.</h2>
+          <p className="mx-auto mb-8 max-w-lg text-sm leading-relaxed text-muted-foreground">
+            Every connection on GovTrace links to the original government source.
+            We show the data — you decide what it means.
+          </p>
+          <div className="mx-auto mb-8 flex max-w-2xl flex-wrap items-center justify-center gap-3 text-xs text-muted-foreground">
+            <span className="rounded-full border px-3 py-1">Elections Canada</span>
+            <span className="rounded-full border px-3 py-1">Federal Contracts</span>
+            <span className="rounded-full border px-3 py-1">Federal Grants</span>
+            <span className="rounded-full border px-3 py-1">Lobbyist Registry</span>
+            <span className="rounded-full border px-3 py-1">Lobby Communications</span>
+            <span className="rounded-full border px-3 py-1">International Aid (IATI)</span>
+            <span className="rounded-full border px-3 py-1">House of Commons Votes</span>
           </div>
+          <Link
+            to="/how-it-works"
+            className="inline-flex items-center gap-2 text-sm font-medium text-primary transition-colors hover:underline"
+          >
+            <BookOpen className="h-4 w-4" />
+            Learn how it works
+          </Link>
         </div>
       </section>
     </main>
