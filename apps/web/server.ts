@@ -22,6 +22,23 @@ const MIME_TYPES: Record<string, string> = {
 
 const port = Number(process.env.PORT ?? 3000)
 
+const SECURITY_HEADERS: Record<string, string> = {
+  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+  'X-Frame-Options': 'DENY',
+  'X-Content-Type-Options': 'nosniff',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Cross-Origin-Opener-Policy': 'same-origin',
+  'Content-Security-Policy': [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline'",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "font-src 'self' https://fonts.gstatic.com",
+    "img-src 'self' data: https:",
+    "connect-src 'self'",
+    "frame-ancestors 'none'",
+  ].join('; '),
+}
+
 const server = createServer(async (req, res) => {
   const url = new URL(req.url ?? '/', `http://localhost:${port}`)
 
@@ -32,6 +49,7 @@ const server = createServer(async (req, res) => {
       const stat = statSync(filePath)
       const ext = extname(filePath)
       res.writeHead(200, {
+        ...SECURITY_HEADERS,
         'Content-Type': MIME_TYPES[ext] ?? 'application/octet-stream',
         'Content-Length': stat.size,
         'Cache-Control': url.pathname.startsWith('/assets/') ? 'public, max-age=31536000, immutable' : 'public, max-age=3600',
@@ -49,7 +67,8 @@ const server = createServer(async (req, res) => {
     ),
   }))
 
-  res.writeHead(response.status, Object.fromEntries(response.headers.entries()))
+  const responseHeaders = Object.fromEntries(response.headers.entries())
+  res.writeHead(response.status, { ...SECURITY_HEADERS, ...responseHeaders })
   const body = await response.text()
   res.end(body)
 })
