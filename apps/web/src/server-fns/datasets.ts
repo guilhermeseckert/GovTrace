@@ -5,6 +5,7 @@ import { getDb } from '@govtrace/db/client'
 import { contracts, donations, grants, internationalAid, lobbyCommunications, lobbyRegistrations } from '@govtrace/db/schema/raw'
 import { entityConnections } from '@govtrace/db/schema/connections'
 import { entities } from '@govtrace/db/schema/entities'
+import { parliamentBills, parliamentVoteBallots, parliamentVotes, billSummaries } from '@govtrace/db/schema/parliament'
 
 const DatasetInputSchema = z.object({
   entityId: z.string().uuid(),
@@ -337,5 +338,212 @@ export const getInternationalAid = createServerFn({ method: 'GET' })
       total: Number(totalRows[0]?.c ?? 0),
       page: data.page,
       pageSize: data.pageSize,
+    }
+  })
+
+const VotingRecordInputSchema = z.object({
+  entityId: z.string().uuid(),
+  page: z.number().int().min(1).default(1),
+})
+
+const PAGE_SIZE = 25
+
+// PARL-02: Paginated voting history for a politician entity profile.
+// Joins parliamentVoteBallots (by entityId) with parliamentVotes and optionally parliamentBills.
+export const getVotingRecord = createServerFn({ method: 'GET' })
+  .inputValidator(VotingRecordInputSchema)
+  .handler(async ({ data }) => {
+    const db = getDb()
+    const offset = (data.page - 1) * PAGE_SIZE
+
+    const [rows, totalRows] = await Promise.all([
+      db
+        .select({
+          voteDate: parliamentVotes.voteDate,
+          subject: parliamentVotes.subject,
+          billNumber: parliamentVotes.billNumber,
+          billId: parliamentVotes.billId,
+          ballotValue: parliamentVoteBallots.ballotValue,
+          resultName: parliamentVotes.resultName,
+          shortTitleEn: parliamentBills.shortTitleEn,
+          divisionNumber: parliamentVotes.divisionNumber,
+          parlSessionCode: parliamentVotes.parlSessionCode,
+          parliamentNumber: parliamentVotes.parliamentNumber,
+          sessionNumber: parliamentVotes.sessionNumber,
+        })
+        .from(parliamentVoteBallots)
+        .innerJoin(parliamentVotes, eq(parliamentVoteBallots.voteId, parliamentVotes.id))
+        .leftJoin(parliamentBills, eq(parliamentVotes.billId, parliamentBills.id))
+        .where(eq(parliamentVoteBallots.entityId, data.entityId))
+        .orderBy(desc(parliamentVotes.voteDate))
+        .limit(PAGE_SIZE)
+        .offset(offset),
+
+      db
+        .select({ c: count() })
+        .from(parliamentVoteBallots)
+        .where(eq(parliamentVoteBallots.entityId, data.entityId)),
+    ])
+
+    return {
+      rows,
+      total: Number(totalRows[0]?.c ?? 0),
+      page: data.page,
+      pageSize: PAGE_SIZE,
+    }
+  })
+
+const BillVotesInputSchema = z.object({
+  billId: z.string().min(1),
+})
+
+// PARL-03: Full vote breakdown for a bill detail page.
+// Returns the bill record, bill summary, and all divisions with party-grouped ballots.
+export const getBillVotes = createServerFn({ method: 'GET' })
+  .inputValidator(BillVotesInputSchema)
+  .handler(async ({ data }) => {
+    const db = getDb()
+
+    const [billRows, summaryRows, divisionRows] = await Promise.all([
+      db
+        .select({
+          id: parliamentBills.id,
+          billNumber: parliamentBills.billNumber,
+          billNumberFormatted: parliamentBills.billNumberFormatted,
+          shortTitleEn: parliamentBills.shortTitleEn,
+          longTitleEn: parliamentBills.longTitleEn,
+          billTypeEn: parliamentBills.billTypeEn,
+          sponsorEn: parliamentBills.sponsorEn,
+          currentStatusEn: parliamentBills.currentStatusEn,
+          parlSessionCode: parliamentBills.parlSessionCode,
+          parliamentNumber: parliamentBills.parliamentNumber,
+          sessionNumber: parliamentBills.sessionNumber,
+          legisInfoUrl: parliamentBills.legisInfoUrl,
+        })
+        .from(parliamentBills)
+        .where(eq(parliamentBills.id, data.billId))
+        .limit(1),
+
+      db
+        .select({
+          summaryText: billSummaries.summaryText,
+          model: billSummaries.model,
+          generatedAt: billSummaries.generatedAt,
+        })
+        .from(billSummaries)
+        .where(eq(billSummaries.billId, data.billId))
+        .limit(1),
+
+      // Get all divisions for this bill with their ballots
+      db
+        .select({
+          voteId: parliamentVotes.id,
+          divisionNumber: parliamentVotes.divisionNumber,
+          voteDate: parliamentVotes.voteDate,
+          subject: parliamentVotes.subject,
+          resultName: parliamentVotes.resultName,
+          yeasTotal: parliamentVotes.yeasTotal,
+          naysTotal: parliamentVotes.naysTotal,
+          parlSessionCode: parliamentVotes.parlSessionCode,
+          parliamentNumber: parliamentVotes.parliamentNumber,
+          sessionNumber: parliamentVotes.sessionNumber,
+          ballotId: parliamentVoteBallots.id,
+          firstName: parliamentVoteBallots.firstName,
+          lastName: parliamentVoteBallots.lastName,
+          caucusShortName: parliamentVoteBallots.caucusShortName,
+          ballotValue: parliamentVoteBallots.ballotValue,
+          entityId: parliamentVoteBallots.entityId,
+        })
+        .from(parliamentVotes)
+        .innerJoin(parliamentVoteBallots, eq(parliamentVoteBallots.voteId, parliamentVotes.id))
+        .where(eq(parliamentVotes.billId, data.billId))
+        .orderBy(parliamentVotes.divisionNumber),
+    ])
+
+    const bill = billRows[0] ?? null
+    const summary = summaryRows[0] ?? null
+
+    // Group ballots by division
+    const divisionsMap = new Map<
+      string,
+      {
+        divisionNumber: number
+        voteDate: string
+        subject: string
+        resultName: string
+        yeasTotal: number
+        naysTotal: number
+        parlSessionCode: string
+        parliamentNumber: number
+        sessionNumber: number
+        ballots: Array<{
+          firstName: string
+          lastName: string
+          caucusShortName: string | null
+          ballotValue: string
+          entityId: string | null
+        }>
+      }
+    >()
+
+    for (const row of divisionRows) {
+      const existing = divisionsMap.get(row.voteId)
+      const ballot = {
+        firstName: row.firstName,
+        lastName: row.lastName,
+        caucusShortName: row.caucusShortName,
+        ballotValue: row.ballotValue,
+        entityId: row.entityId,
+      }
+      if (existing) {
+        existing.ballots.push(ballot)
+      } else {
+        divisionsMap.set(row.voteId, {
+          divisionNumber: row.divisionNumber,
+          voteDate: String(row.voteDate),
+          subject: row.subject,
+          resultName: row.resultName,
+          yeasTotal: row.yeasTotal,
+          naysTotal: row.naysTotal,
+          parlSessionCode: row.parlSessionCode,
+          parliamentNumber: row.parliamentNumber,
+          sessionNumber: row.sessionNumber,
+          ballots: [ballot],
+        })
+      }
+    }
+
+    const divisions = Array.from(divisionsMap.values())
+
+    return { bill, summary, divisions }
+  })
+
+const BillSummaryInputSchema = z.object({
+  billId: z.string().min(1),
+})
+
+// PARL-05: Fetch an AI-generated bill summary by billId.
+export const getBillSummary = createServerFn({ method: 'GET' })
+  .inputValidator(BillSummaryInputSchema)
+  .handler(async ({ data }) => {
+    const db = getDb()
+
+    const rows = await db
+      .select({
+        summaryText: billSummaries.summaryText,
+        model: billSummaries.model,
+        generatedAt: billSummaries.generatedAt,
+      })
+      .from(billSummaries)
+      .where(eq(billSummaries.billId, data.billId))
+      .limit(1)
+
+    const row = rows[0]
+    if (!row) return null
+
+    return {
+      summaryText: row.summaryText,
+      model: row.model,
+      generatedAt: row.generatedAt,
     }
   })
