@@ -29,7 +29,7 @@ export async function findFuzzyMatches(
   if (!normalizedName) return []
 
   // Set pg_trgm threshold so the % operator uses the GIN index — MATCH-02
-  await db.execute(sql`SET pg_trgm.similarity_threshold = ${FUZZY_MIN}`)
+  await db.execute(sql`SET pg_trgm.similarity_threshold = ${sql.raw(String(FUZZY_MIN))}`)
 
   // pg_trgm % operator leverages GIN index for fast pre-filtering
   const results = await db.execute<{
