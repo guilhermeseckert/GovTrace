@@ -38,7 +38,11 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
   3. Entity profile pages show international aid alongside domestic data ("This company received $X in overseas aid contracts AND donated $Y to political parties")
   4. Search results include international aid data in entity counts
   5. The "How it Works" page is updated to explain the 6th dataset
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 05-01-PLAN.md — Ingestion pipeline: schema, XML parser, downloader, upsert, runner, entity matching, connections
+- [ ] 05-02-PLAN.md — Web UI: search counts, entity profile aid tab, How It Works 6th dataset
 
 ### Phase 6: Debt vs Spending Dashboard
 **Goal**: Citizens can see at a glance how much Canada sends overseas relative to the national debt, with timeline context showing trends over election cycles
@@ -75,7 +79,7 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
 | 3. Visualizations | v1.0 | 4/4 | Complete | 2026-04-04 |
 | 4.1 How It Works | v1.0 | 2/2 | Complete | 2026-04-03 |
 | 4.2 Entity Profile Storytelling | v1.0 | 3/3 | Complete | 2026-04-04 |
-| 5. International Aid Ingestion | v2.0 | 0/TBD | Not started | - |
+| 5. International Aid Ingestion | v2.0 | 0/2 | Not started | - |
 | 6. Debt vs Spending Dashboard | v2.0 | 0/TBD | Not started | - |
 | 7. Parliamentary Voting Records | v2.0 | 0/TBD | Not started | - |
 
