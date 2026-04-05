@@ -3,10 +3,11 @@ import { readFileSync } from 'node:fs'
 import Papa from 'papaparse'
 
 // Maps StatsCan series name strings to our internal series identifiers
-const SERIES_MAP: Record<string, string> = {
-  'A. Federal debt (accumulated deficit)': 'accumulated_deficit',
-  'B. Net debt': 'federal_net_debt',
-}
+// Match series by prefix — StatsCan appends formula references like ", (B - E)"
+const SERIES_PREFIXES: Array<{ prefix: string; series: string }> = [
+  { prefix: 'A. Federal debt (accumulated deficit)', series: 'accumulated_deficit' },
+  { prefix: 'B. Net debt', series: 'federal_net_debt' },
+]
 
 const SCALAR_MULTIPLIERS: Record<string, number> = {
   MILLIONS: 1,
@@ -45,7 +46,8 @@ interface StatCanRow {
  * We normalise all values to millions CAD before storing.
  */
 export function parseFiscalCsv(csvPath: string, _fileHash: string): FiscalSnapshotRow[] {
-  const csvContent = readFileSync(csvPath, 'utf8')
+  // Strip BOM if present (StatsCan CSVs have UTF-8 BOM)
+  const csvContent = readFileSync(csvPath, 'utf8').replace(/^\uFEFF/, '')
 
   const parseResult = Papa.parse<StatCanRow>(csvContent, {
     header: true,
@@ -62,8 +64,10 @@ export function parseFiscalCsv(csvPath: string, _fileHash: string): FiscalSnapsh
 
   for (const row of parseResult.data) {
     const seriesName = row['Central government debt']?.trim()
-    const internalSeries = seriesName ? SERIES_MAP[seriesName] : undefined
-    if (!internalSeries) continue
+    if (!seriesName) continue
+    const match = SERIES_PREFIXES.find((s) => seriesName.startsWith(s.prefix))
+    if (!match) continue
+    const internalSeries = match.series
 
     const refDate = row.REF_DATE?.trim()
     if (!refDate) continue
@@ -77,7 +81,7 @@ export function parseFiscalCsv(csvPath: string, _fileHash: string): FiscalSnapsh
     if (rawValue && rawValue !== '' && rawValue.toUpperCase() !== 'NULL') {
       const numericValue = Number.parseFloat(rawValue)
       if (!Number.isNaN(numericValue)) {
-        const scalarFactor = (row.SCALAR_FACTOR?.trim().toUpperCase()) ?? 'MILLIONS'
+        const scalarFactor = (row.SCALAR_FACTOR?.trim().toUpperCase()) || 'MILLIONS'
         const multiplier = SCALAR_MULTIPLIERS[scalarFactor] ?? 1
         valueMillionsCad = (numericValue * multiplier).toFixed(2)
       }
