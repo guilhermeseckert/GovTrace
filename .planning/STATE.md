@@ -2,8 +2,8 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 04.2-03-PLAN.md
+status: defining_requirements
+stopped_at: Starting v2.0 milestone
 last_updated: "2026-04-05T00:08:15.445Z"
 last_activity: 2026-04-05
 progress:
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-31)
 
 **Core value:** Anyone can search a name and instantly trace the flow of money and influence across all public government datasets — with clarity a 9-year-old could follow.
-**Current focus:** Phase 04.2 — entity-profile-storytelling
+**Current focus:** v2.0 — International Money Tracking
 
 ## Current Position
 
-Phase: 999.1
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-04-05
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-04-04 — Milestone v2.0 started
 
 Progress: [░░░░░░░░░░] 0%
 

@@ -45,6 +45,15 @@ Anyone can search a name and instantly trace the flow of money and influence acr
 - Editorializing or implying wrongdoing — present connections, let users decide
 - French translations for v1 — structure for i18n but English-only initially
 
+## Current Milestone: v2.0 International Money Tracking
+
+**Goal:** Expand GovTrace beyond domestic data to track international aid spending, compare it against national debt, and cross-reference parliamentary voting records with donors and lobbyists.
+
+**Target features:**
+- International aid ingestion (IATI Activity Files from Global Affairs Canada)
+- Debt vs spending dashboard (national debt tracker alongside overseas aid)
+- Parliamentary voting records (how MPs voted, cross-referenced with donors/lobbyists)
+
 ## Context
 
 Shipped v1.0 with 46,755 lines of TypeScript across 248 files in 5 days (2026-03-31 → 2026-04-04).
@@ -100,4 +109,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-04 after v1.0 milestone*
+*Last updated: 2026-04-04 after v2.0 milestone start*
