@@ -95,7 +95,7 @@ function sumBudgetsByType(budgets: unknown[], typeCode: string): number {
       if (typeof b !== 'object' || b === null) return false
       return String((b as Record<string, unknown>)['@_type']) === typeCode
     })
-    .reduce((sum, b) => {
+    .reduce((sum: number, b) => {
       const val = (b as Record<string, unknown>)['value']
       return sum + extractNumericValue(val)
     }, 0)
@@ -113,7 +113,7 @@ function sumTransactionsByType(transactions: unknown[], typeCode: string): numbe
       if (typeof txType !== 'object' || txType === null) return false
       return String((txType as Record<string, unknown>)['@_code']) === typeCode
     })
-    .reduce((sum, t) => {
+    .reduce((sum: number, t) => {
       const val = (t as Record<string, unknown>)['value']
       return sum + extractNumericValue(val)
     }, 0)

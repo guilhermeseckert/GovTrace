@@ -7,6 +7,7 @@ export interface ConnectionBuildResult {
   grantRecipientToDepartment: number
   lobbyistToOfficial: number
   lobbyistClientToOfficial: number
+  aidRecipientToDepartment: number
   total: number
 }
 
@@ -14,7 +15,7 @@ export async function buildEntityConnections(): Promise<ConnectionBuildResult> {
   const db = getDb()
   const result: ConnectionBuildResult = {
     donorToParty: 0, vendorToDepartment: 0, grantRecipientToDepartment: 0,
-    lobbyistToOfficial: 0, lobbyistClientToOfficial: 0, total: 0,
+    lobbyistToOfficial: 0, lobbyistClientToOfficial: 0, aidRecipientToDepartment: 0, total: 0,
   }
 
   console.log('Building entity_connections table...')
@@ -128,6 +129,41 @@ export async function buildEntityConnections(): Promise<ConnectionBuildResult> {
       computed_at = NOW()
   `)
   console.log(`  grant_recipient_to_department: done`)
+
+  // INTERNATIONAL AID: implementer entity → funding department entity
+  console.log('  Building aid recipient → department connections...')
+  await db.execute(sql`
+    INSERT INTO entity_connections (
+      entity_a_id, entity_b_id, connection_type,
+      total_value, transaction_count, first_seen, last_seen,
+      source_table, is_stale, computed_at
+    )
+    SELECT
+      ia.entity_id,
+      e.id,
+      'aid_recipient_to_department',
+      SUM(ia.total_disbursed_cad::numeric),
+      COUNT(*),
+      MIN(ia.start_date),
+      MAX(ia.end_date),
+      'international_aid',
+      false,
+      NOW()
+    FROM international_aid ia
+    JOIN entities e ON e.normalized_name = LOWER(TRIM(ia.funding_department))
+    WHERE ia.entity_id IS NOT NULL
+      AND ia.funding_department IS NOT NULL
+    GROUP BY ia.entity_id, e.id
+    ON CONFLICT (entity_a_id, entity_b_id, connection_type)
+    DO UPDATE SET
+      total_value = EXCLUDED.total_value,
+      transaction_count = EXCLUDED.transaction_count,
+      first_seen = EXCLUDED.first_seen,
+      last_seen = EXCLUDED.last_seen,
+      is_stale = false,
+      computed_at = NOW()
+  `)
+  console.log(`  aid_recipient_to_department: done`)
 
   // LOBBY: lobbyist → official (only where both entity IDs exist)
   console.log('  Building lobbyist → official connections...')

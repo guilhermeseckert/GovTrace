@@ -12,6 +12,7 @@ export const JOB_NAMES = {
   MATCH_ENTITIES: 'match:entities',
   MERGE_ENTITIES: 'merge:cross-dataset',
   BUILD_CONNECTIONS: 'build:entity-connections',
+  INGEST_INTERNATIONAL_AID: 'ingest:international-aid',
   MARK_SUMMARIES_STALE: 'mark-summaries-stale',
 } as const
 
@@ -61,6 +62,11 @@ export async function registerIngestionJobs(databaseUrl: string): Promise<void> 
     await runLobbyCommunicationsIngestion()
   })
 
+  await boss.work(JOB_NAMES.INGEST_INTERNATIONAL_AID, async () => {
+    const { runInternationalAidIngestion } = await import('../runners/international-aid.ts')
+    await runInternationalAidIngestion()
+  })
+
   await boss.work(JOB_NAMES.MATCH_ENTITIES, async () => {
     const { runMatchingPipeline } = await import('../matcher/run-matching.ts')
     await runMatchingPipeline()
@@ -98,6 +104,11 @@ export async function registerIngestionJobs(databaseUrl: string): Promise<void> 
     tz: 'UTC',
   })
 
+  // Monthly: international aid (first Sunday of each month at 5:30am UTC)
+  await boss.schedule(JOB_NAMES.INGEST_INTERNATIONAL_AID, '30 5 1-7 * 0', {}, {
+    tz: 'UTC',
+  })
+
   // Match entities: weekly after all ingestion runs (Sunday 6am UTC)
   await boss.schedule(JOB_NAMES.MATCH_ENTITIES, '0 6 * * 0', {}, {
     tz: 'UTC',
@@ -129,6 +140,7 @@ export async function registerIngestionJobs(databaseUrl: string): Promise<void> 
   console.log('  Weekly (Sunday 2am): elections-canada')
   console.log('  Weekly (Sunday 3-4am): lobby-registrations, lobby-communications')
   console.log('  Quarterly (first Sunday 5am): contracts, grants')
+  console.log('  Monthly (first Sunday 5:30am): international-aid')
   console.log('  Weekly (Sunday 6am): match-entities')
   console.log('  Weekly (Sunday 7am): merge-cross-dataset')
   console.log('  Weekly (Sunday 8am): build-connections')
