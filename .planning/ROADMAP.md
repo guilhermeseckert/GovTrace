@@ -110,3 +110,11 @@ Plans:
 
 Plans:
 - [ ] TBD (promote with /gsd:review-backlog when ready)
+
+### Phase 999.3: International Aid Country & Theme Breakdown (BACKLOG)
+**Goal**: Users can see where Canadian overseas aid goes by country (Ukraine, etc.) and by project theme (gender development, climate, health). Filterable breakdown on the dashboard showing money flow to each recipient country with project descriptions.
+**Requirements**: TBD
+**Plans**: 0 plans
+
+Plans:
+- [ ] TBD (promote with /gsd:review-backlog when ready)
