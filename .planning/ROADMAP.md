@@ -42,7 +42,7 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
 
 Plans:
 - [x] 05-01-PLAN.md — Ingestion pipeline: schema, XML parser, downloader, upsert, runner, entity matching, connections
-- [ ] 05-02-PLAN.md — Web UI: search counts, entity profile aid tab, How It Works 6th dataset
+- [x] 05-02-PLAN.md — Web UI: search counts, entity profile aid tab, How It Works 6th dataset
 
 ### Phase 6: Debt vs Spending Dashboard
 **Goal**: Citizens can see at a glance how much Canada sends overseas relative to the national debt, with timeline context showing trends over election cycles

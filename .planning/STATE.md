@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: International Money Tracking
-status: executing
-stopped_at: Completed 05-01-PLAN.md
-last_updated: "2026-04-05T00:59:43.374Z"
+status: verifying
+stopped_at: Completed 05-02-PLAN.md
+last_updated: "2026-04-05T01:06:45.650Z"
 last_activity: 2026-04-05
 progress:
   total_phases: 5
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
-  completed_plans: 1
+  completed_plans: 2
   percent: 0
 ---
 
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-03-31)
 
 Phase: 05 (international-aid-ingestion) — EXECUTING
 Plan: 2 of 2
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-04-05
 
 Progress: [░░░░░░░░░░] 0%
@@ -80,6 +80,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 04.2-entity-profile-storytelling P02 | 3min | 2 tasks | 3 files |
 | Phase 04.2-entity-profile-storytelling P03 | 1min | 1 tasks | 2 files |
 | Phase 05-international-aid-ingestion P01 | 6min | 2 tasks | 12 files |
+| Phase 05 P02 | 4 minutes | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -158,6 +159,8 @@ Recent decisions affecting current work:
 - [Phase 05-international-aid-ingestion]: fast-xml-parser chosen over node-xml-stream-parser: 9-29MB files acceptable for full-document parse; simpler API
 - [Phase 05-international-aid-ingestion]: iati-identifier used as PK directly (no hash) — globally unique and stable by IATI standard
 - [Phase 05-international-aid-ingestion]: isArray callback forces array mode for all repeated IATI elements to prevent single-element collapse
+- [Phase 05]: IATI identifier last segment used to construct Global Affairs Canada project browser URL in AidTable
+- [Phase 05]: AidTable mirrors GrantsTable pattern for consistency; i18n not extended as tab descriptions use hardcoded strings matching existing pattern
 
 ### Pending Todos
 
@@ -170,6 +173,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-05T00:59:43.370Z
-Stopped at: Completed 05-01-PLAN.md
+Last session: 2026-04-05T01:06:45.647Z
+Stopped at: Completed 05-02-PLAN.md
 Resume file: None
