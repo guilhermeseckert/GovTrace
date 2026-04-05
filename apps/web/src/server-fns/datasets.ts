@@ -2,7 +2,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { count, desc, eq, or, sql } from 'drizzle-orm'
 import { getDb } from '@govtrace/db/client'
-import { contracts, donations, grants, lobbyCommunications, lobbyRegistrations } from '@govtrace/db/schema/raw'
+import { contracts, donations, grants, internationalAid, lobbyCommunications, lobbyRegistrations } from '@govtrace/db/schema/raw'
 import { entityConnections } from '@govtrace/db/schema/connections'
 import { entities } from '@govtrace/db/schema/entities'
 
@@ -294,6 +294,47 @@ export const getConnections = createServerFn({ method: 'GET' })
     return {
       rows: [...rowsA, ...rowsB],
       total: Number(countA[0]?.c ?? 0) + Number(countB[0]?.c ?? 0),
+      page: data.page,
+      pageSize: data.pageSize,
+    }
+  })
+
+export const getInternationalAid = createServerFn({ method: 'GET' })
+  .inputValidator(DatasetInputSchema)
+  .handler(async ({ data }) => {
+    const db = getDb()
+    const offset = (data.page - 1) * data.pageSize
+
+    const [rows, totalRows] = await Promise.all([
+      db.select({
+        id: internationalAid.id,
+        projectTitle: internationalAid.projectTitle,
+        description: internationalAid.description,
+        implementerName: internationalAid.implementerName,
+        fundingDepartment: internationalAid.fundingDepartment,
+        activityStatus: internationalAid.activityStatus,
+        recipientCountry: internationalAid.recipientCountry,
+        recipientRegion: internationalAid.recipientRegion,
+        startDate: internationalAid.startDate,
+        endDate: internationalAid.endDate,
+        totalBudgetCad: internationalAid.totalBudgetCad,
+        totalDisbursedCad: internationalAid.totalDisbursedCad,
+        totalCommittedCad: internationalAid.totalCommittedCad,
+        currency: internationalAid.currency,
+        rawData: internationalAid.rawData,
+      })
+      .from(internationalAid)
+      .where(eq(internationalAid.entityId, data.entityId))
+      .orderBy(desc(internationalAid.startDate))
+      .limit(data.pageSize)
+      .offset(offset),
+
+      db.select({ c: count() }).from(internationalAid).where(eq(internationalAid.entityId, data.entityId)),
+    ])
+
+    return {
+      rows,
+      total: Number(totalRows[0]?.c ?? 0),
       page: data.page,
       pageSize: data.pageSize,
     }

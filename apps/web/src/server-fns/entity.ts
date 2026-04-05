@@ -2,7 +2,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { count, desc, eq, max, or } from 'drizzle-orm'
 import { getDb } from '@govtrace/db/client'
-import { contracts, donations, grants, lobbyCommunications, lobbyRegistrations } from '@govtrace/db/schema/raw'
+import { contracts, donations, grants, internationalAid, lobbyCommunications, lobbyRegistrations } from '@govtrace/db/schema/raw'
 import { aiSummaries, entityAliases, entityMatchesLog, entities } from '@govtrace/db/schema/entities'
 import { entityConnections } from '@govtrace/db/schema/connections'
 
@@ -77,6 +77,7 @@ export type EntityProvenance = {
   contracts: string | null
   grants: string | null
   lobbying: string | null
+  aid: string | null
 }
 
 export const getEntityProvenance = createServerFn({ method: 'GET' })
@@ -84,7 +85,7 @@ export const getEntityProvenance = createServerFn({ method: 'GET' })
   .handler(async ({ data }): Promise<EntityProvenance> => {
     const db = getDb()
 
-    const [donResult, conResult, grResult, lobRegResult, lobCommResult] =
+    const [donResult, conResult, grResult, lobRegResult, lobCommResult, aidResult] =
       await Promise.all([
         db
           .select({ maxDate: max(donations.ingestedAt) })
@@ -116,6 +117,10 @@ export const getEntityProvenance = createServerFn({ method: 'GET' })
               eq(lobbyCommunications.officialEntityId, data.id),
             ),
           ),
+        db
+          .select({ maxDate: max(internationalAid.ingestedAt) })
+          .from(internationalAid)
+          .where(eq(internationalAid.entityId, data.id)),
       ])
 
     // Pick the most recent lobbying timestamp between registrations and communications
@@ -137,11 +142,14 @@ export const getEntityProvenance = createServerFn({ method: 'GET' })
     const conDate = conResult[0]?.maxDate
     const grDate = grResult[0]?.maxDate
 
+    const aidDate = aidResult[0]?.maxDate
+
     return {
       donations: donDate ? donDate.toISOString() : null,
       contracts: conDate ? conDate.toISOString() : null,
       grants: grDate ? grDate.toISOString() : null,
       lobbying: lobbyingDate,
+      aid: aidDate ? aidDate.toISOString() : null,
     }
   })
 
@@ -160,7 +168,7 @@ export const getEntityStats = createServerFn({ method: 'GET' })
       ? eq(donations.recipientName, entity[0].canonicalName)
       : eq(donations.entityId, data.id)
 
-    const [donCount, conCount, grCount, lobCount, connCount, summaryRows] = await Promise.all([
+    const [donCount, conCount, grCount, lobCount, connCount, summaryRows, aidCount] = await Promise.all([
       db.select({ c: count() }).from(donations).where(donWhere),
       db.select({ c: count() }).from(contracts).where(eq(contracts.entityId, data.id)),
       db.select({ c: count() }).from(grants).where(eq(grants.entityId, data.id)),
@@ -171,6 +179,7 @@ export const getEntityStats = createServerFn({ method: 'GET' })
         or(eq(entityConnections.entityAId, data.id), eq(entityConnections.entityBId, data.id))
       ),
       db.select({ isStale: aiSummaries.isStale }).from(aiSummaries).where(eq(aiSummaries.entityId, data.id)).limit(1),
+      db.select({ c: count() }).from(internationalAid).where(eq(internationalAid.entityId, data.id)),
     ])
 
     return {
@@ -179,6 +188,7 @@ export const getEntityStats = createServerFn({ method: 'GET' })
       grants: Number(grCount[0]?.c ?? 0),
       lobbying: Number(lobCount[0]?.c ?? 0),
       connections: Number(connCount[0]?.c ?? 0),
+      aid: Number(aidCount[0]?.c ?? 0),
       hasFreshSummary: summaryRows.length > 0 && !summaryRows[0]?.isStale,
     }
   })
