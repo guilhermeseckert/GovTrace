@@ -13,6 +13,7 @@ import { ContractsTable } from '@/components/tables/ContractsTable'
 import { GrantsTable } from '@/components/tables/GrantsTable'
 import { LobbyingTable } from '@/components/tables/LobbyingTable'
 import { AidTable } from '@/components/tables/AidTable'
+import { VotesTable } from '@/components/tables/VotesTable'
 import { ConnectionsTable } from '@/components/tables/ConnectionsTable'
 import { NetworkGraph } from '@/components/visualizations/NetworkGraph'
 import { MoneyFlowSankey } from '@/components/visualizations/MoneyFlowSankey'
@@ -141,6 +142,7 @@ function EntityProfilePage() {
               case 'grants': return <GrantsTable entityId={profile.id} />
               case 'lobbying': return <LobbyingTable entityId={profile.id} />
               case 'aid': return <AidTable entityId={profile.id} />
+              case 'votes': return <VotesTable entityId={profile.id} />
               case 'connections': return <ConnectionsTable entityId={profile.id} />
               case 'visualizations': return <VisualizationsPanel entityId={profile.id} />
               default: return null
@@ -157,6 +159,7 @@ function EntityProfilePage() {
             {provenance.grants && <span>Grants {new Date(provenance.grants).toISOString().slice(0, 10)}</span>}
             {provenance.lobbying && <span>Lobbying {new Date(provenance.lobbying).toISOString().slice(0, 10)}</span>}
             {provenance.aid && <span>International Aid {new Date(provenance.aid).toISOString().slice(0, 10)}</span>}
+            {provenance.votes && <span>Votes {new Date(provenance.votes).toISOString().slice(0, 10)}</span>}
           </div>
         )}
       </div>

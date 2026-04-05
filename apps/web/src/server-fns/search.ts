@@ -4,6 +4,7 @@ import { sql, eq, count, or } from 'drizzle-orm'
 import { getDb } from '@govtrace/db/client'
 import { entities } from '@govtrace/db/schema/entities'
 import { donations, contracts, grants, internationalAid, lobbyRegistrations } from '@govtrace/db/schema/raw'
+import { parliamentVoteBallots } from '@govtrace/db/schema/parliament'
 
 const SearchInputSchema = z.object({
   query: z.string().min(1).max(200),
@@ -24,12 +25,12 @@ const AutocompleteInputSchema = z.object({
 async function getEntityCounts(
   db: ReturnType<typeof getDb>,
   entityIds: string[],
-): Promise<Record<string, { donations: number; contracts: number; grants: number; lobbying: number; aid: number }>> {
+): Promise<Record<string, { donations: number; contracts: number; grants: number; lobbying: number; aid: number; votes: number }>> {
   if (entityIds.length === 0) return {}
 
   const results: Record<
     string,
-    { donations: number; contracts: number; grants: number; lobbying: number; aid: number }
+    { donations: number; contracts: number; grants: number; lobbying: number; aid: number; votes: number }
   > = {}
 
   // Batch-fetch entity info to determine politician vs person/org
@@ -47,7 +48,7 @@ async function getEntityCounts(
       ? eq(donations.recipientName, entity.canonicalName)
       : eq(donations.entityId, id)
 
-    const [donCount, conCount, grCount, lobCount, aidCount] = await Promise.all([
+    const [donCount, conCount, grCount, lobCount, aidCount, voteCount] = await Promise.all([
       db.select({ c: count() }).from(donations).where(donationWhere),
       db.select({ c: count() }).from(contracts).where(eq(contracts.entityId, id)),
       db.select({ c: count() }).from(grants).where(eq(grants.entityId, id)),
@@ -61,6 +62,7 @@ async function getEntityCounts(
           ),
         ),
       db.select({ c: count() }).from(internationalAid).where(eq(internationalAid.entityId, id)),
+      db.select({ c: count() }).from(parliamentVoteBallots).where(eq(parliamentVoteBallots.entityId, id)),
     ])
     results[id] = {
       donations: Number(donCount[0]?.c ?? 0),
@@ -68,6 +70,7 @@ async function getEntityCounts(
       grants: Number(grCount[0]?.c ?? 0),
       lobbying: Number(lobCount[0]?.c ?? 0),
       aid: Number(aidCount[0]?.c ?? 0),
+      votes: Number(voteCount[0]?.c ?? 0),
     }
   }
   return results
@@ -130,7 +133,7 @@ export const searchEntities = createServerFn({ method: 'GET' })
         entityType: r.entity_type,
         province: r.province,
         score: r.score,
-        counts: counts[r.id] ?? { donations: 0, contracts: 0, grants: 0, lobbying: 0, aid: 0 },
+        counts: counts[r.id] ?? { donations: 0, contracts: 0, grants: 0, lobbying: 0, aid: 0, votes: 0 },
       })),
       page: data.page,
       pageSize: data.pageSize,

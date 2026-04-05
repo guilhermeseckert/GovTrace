@@ -4,6 +4,7 @@ import {
   CheckCircle,
   ExternalLink,
   FileText,
+  Gavel,
   Gift,
   MessageSquare,
   Shield,
@@ -80,6 +81,15 @@ const DATA_SOURCES = [
     Icon: Heart,
     iconColor: 'bg-rose-100 text-rose-600 dark:bg-rose-950 dark:text-rose-400',
   },
+  {
+    name: 'Parliamentary Voting Records',
+    description:
+      'House of Commons division voting records from ourcommons.ca, covering every recorded vote since the 38th Parliament (2004). Shows how each MP voted on every bill and motion.',
+    frequency: 'Updated weekly',
+    url: 'https://www.ourcommons.ca/members/en/votes',
+    Icon: Gavel,
+    iconColor: 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-400',
+  },
 ] as const
 
 const STEPS = [
@@ -155,7 +165,7 @@ const FAQ_ITEMS = [
   {
     question: 'Where does the data come from?',
     answer:
-      'Six public federal datasets: Elections Canada (political donations), open.canada.ca (contracts, grants, and international aid), and lobbycanada.gc.ca (lobbying registrations and communications). Each record links to the original government source.',
+      'Seven public federal datasets: Elections Canada (political donations), open.canada.ca (contracts, grants, and international aid), lobbycanada.gc.ca (lobbying registrations and communications), and ourcommons.ca (parliamentary voting records). Each record links to the original government source.',
   },
   {
     question: 'Who built this?',

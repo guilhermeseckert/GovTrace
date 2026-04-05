@@ -1,18 +1,20 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
-import { and, count, desc, eq, or } from 'drizzle-orm'
+import { and, count, desc, eq, or, sql } from 'drizzle-orm'
 import Anthropic from '@anthropic-ai/sdk'
 import { getDb } from '@govtrace/db/client'
 import { aiSummaries, entities } from '@govtrace/db/schema/entities'
 import { contracts, donations, grants, lobbyRegistrations } from '@govtrace/db/schema/raw'
 import { entityConnections } from '@govtrace/db/schema/connections'
+import { parliamentVoteBallots, parliamentVotes } from '@govtrace/db/schema/parliament'
 import { formatAmount } from '@/lib/connection-labels'
 
 // Current model as of March 2026 — claude-haiku-4-5, NOT haiku-3-5
 const SUMMARY_MODEL = 'claude-haiku-4-5-20251001'
 
 // Version marker appended to model field — old summaries without this are treated as stale
-const PROMPT_VERSION = '-v2'
+// v3: adds voting pattern insights for politicians (PARL-04)
+const PROMPT_VERSION = '-v3'
 
 const SummaryInputSchema = z.object({ entityId: z.string().uuid() })
 
@@ -73,6 +75,9 @@ function buildSummaryPrompt(params: {
   grantCount: number
   lobbyCount: number
   connections: TopConnection[]
+  voteCount?: number
+  topYeaSubjects?: string[]
+  topDonors?: string[]
 }): string {
   const connectionLines = params.connections
     .map((c) => {
@@ -87,6 +92,19 @@ function buildSummaryPrompt(params: {
       ? `\nKnown connections (top by value):\n${connectionLines}\n`
       : ''
 
+  // PARL-04: Add voting pattern section for politicians with votes
+  let votingSection = ''
+  if (params.entityType === 'politician' && params.voteCount && params.voteCount > 0) {
+    const yeaList = params.topYeaSubjects && params.topYeaSubjects.length > 0
+      ? params.topYeaSubjects.join('; ')
+      : 'various bills and motions'
+    const donorList = params.topDonors && params.topDonors.length > 0
+      ? params.topDonors.join(', ')
+      : 'unknown donors'
+
+    votingSection = `\nVoting record: This politician voted in ${params.voteCount} recorded divisions. Their most common Yea votes were on bills related to: ${yeaList}. They received donations from: ${donorList}.\n`
+  }
+
   return `You are writing a plain-language summary for GovTrace, a Canadian civic transparency platform.
 
 Write a 2-3 sentence summary about "${params.name}" (a ${params.entityType}) based on these government records:
@@ -94,12 +112,13 @@ Write a 2-3 sentence summary about "${params.name}" (a ${params.entityType}) bas
 - ${params.contractCount} federal contract records
 - ${params.grantCount} federal grant records
 - ${params.lobbyCount} lobbying activity records
-${connectionsSection}
+${connectionsSection}${votingSection}
 Rules:
 - Write in plain language a 9-year-old could follow
 - Use rounded numbers (e.g., "about 50" not "47")
 - Name specific people and companies from the connections data
 - Connect dots across datasets (e.g., "donated to X and also received contracts from Y")
+- For politicians with votes, mention notable voting patterns if they connect with donor data (e.g., "Voted in favour of energy bills — received donations from oil companies")
 - Use dollar amounts when available
 - ALWAYS include this exact phrase at the end: "Connections shown do not imply wrongdoing."
 - Do NOT speculate about intent or imply wrongdoing
@@ -148,7 +167,7 @@ export const getOrGenerateSummary = createServerFn({ method: 'GET' })
       ? eq(donations.recipientName, entity.canonicalName)
       : eq(donations.entityId, data.entityId)
 
-    const [donCount, conCount, grCount, lobCount, connections] = await Promise.all([
+    const [donCount, conCount, grCount, lobCount, connections, voteCount] = await Promise.all([
       db.select({ c: count() }).from(donations).where(donWhere),
       db.select({ c: count() }).from(contracts).where(eq(contracts.entityId, data.entityId)),
       db.select({ c: count() }).from(grants).where(eq(grants.entityId, data.entityId)),
@@ -156,7 +175,53 @@ export const getOrGenerateSummary = createServerFn({ method: 'GET' })
         or(eq(lobbyRegistrations.lobbyistEntityId, data.entityId), eq(lobbyRegistrations.clientEntityId, data.entityId))
       ),
       getTopConnections(db, data.entityId),
+      db.select({ c: count() }).from(parliamentVoteBallots).where(eq(parliamentVoteBallots.entityId, data.entityId)),
     ])
+
+    const totalVotes = Number(voteCount[0]?.c ?? 0)
+
+    // PARL-04: For politicians with votes, fetch top Yea bill subjects and top donor names
+    let topYeaSubjects: string[] = []
+    let topDonors: string[] = []
+
+    if (isPolitician && totalVotes > 0) {
+      const [yeaSubjectRows, donorRows] = await Promise.all([
+        // Top 5 subjects this politician voted Yea on (by count)
+        db
+          .select({
+            subject: parliamentVotes.subject,
+            yeaCount: count(),
+          })
+          .from(parliamentVoteBallots)
+          .innerJoin(parliamentVotes, eq(parliamentVoteBallots.voteId, parliamentVotes.id))
+          .where(
+            and(
+              eq(parliamentVoteBallots.entityId, data.entityId),
+              eq(parliamentVoteBallots.isYea, true),
+            ),
+          )
+          .groupBy(parliamentVotes.subject)
+          .orderBy(desc(count()))
+          .limit(5),
+
+        // Top donor entity names from entity_connections (donation_to_politician type)
+        db
+          .select({ connectedEntityName: entities.canonicalName })
+          .from(entityConnections)
+          .innerJoin(entities, eq(entities.id, entityConnections.entityAId))
+          .where(
+            and(
+              eq(entityConnections.entityBId, data.entityId),
+              sql`${entityConnections.connectionType} LIKE '%donation%'`,
+            ),
+          )
+          .orderBy(desc(entityConnections.totalValue))
+          .limit(5),
+      ])
+
+      topYeaSubjects = yeaSubjectRows.map((r) => r.subject)
+      topDonors = donorRows.map((r) => r.connectedEntityName)
+    }
 
     const apiKey = process.env['ANTHROPIC_API_KEY']
     if (!apiKey) throw new Error('ANTHROPIC_API_KEY environment variable is required')
@@ -176,6 +241,9 @@ export const getOrGenerateSummary = createServerFn({ method: 'GET' })
           grantCount: Number(grCount[0]?.c ?? 0),
           lobbyCount: Number(lobCount[0]?.c ?? 0),
           connections,
+          voteCount: totalVotes,
+          topYeaSubjects,
+          topDonors,
         }),
       }],
     })

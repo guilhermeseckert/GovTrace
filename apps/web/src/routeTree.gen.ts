@@ -14,6 +14,7 @@ import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as EntityIdRouteImport } from './routes/entity/$id'
+import { Route as BillIdRouteImport } from './routes/bill/$id'
 
 const SearchRoute = SearchRouteImport.update({
   id: '/search',
@@ -40,12 +41,18 @@ const EntityIdRoute = EntityIdRouteImport.update({
   path: '/entity/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BillIdRoute = BillIdRouteImport.update({
+  id: '/bill/$id',
+  path: '/bill/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/how-it-works': typeof HowItWorksRoute
   '/search': typeof SearchRoute
+  '/bill/$id': typeof BillIdRoute
   '/entity/$id': typeof EntityIdRoute
 }
 export interface FileRoutesByTo {
@@ -53,6 +60,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/how-it-works': typeof HowItWorksRoute
   '/search': typeof SearchRoute
+  '/bill/$id': typeof BillIdRoute
   '/entity/$id': typeof EntityIdRoute
 }
 export interface FileRoutesById {
@@ -61,19 +69,33 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/how-it-works': typeof HowItWorksRoute
   '/search': typeof SearchRoute
+  '/bill/$id': typeof BillIdRoute
   '/entity/$id': typeof EntityIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/how-it-works' | '/search' | '/entity/$id'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/how-it-works'
+    | '/search'
+    | '/bill/$id'
+    | '/entity/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/how-it-works' | '/search' | '/entity/$id'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/how-it-works'
+    | '/search'
+    | '/bill/$id'
+    | '/entity/$id'
   id:
     | '__root__'
     | '/'
     | '/dashboard'
     | '/how-it-works'
     | '/search'
+    | '/bill/$id'
     | '/entity/$id'
   fileRoutesById: FileRoutesById
 }
@@ -82,6 +104,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   HowItWorksRoute: typeof HowItWorksRoute
   SearchRoute: typeof SearchRoute
+  BillIdRoute: typeof BillIdRoute
   EntityIdRoute: typeof EntityIdRoute
 }
 
@@ -122,6 +145,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EntityIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/bill/$id': {
+      id: '/bill/$id'
+      path: '/bill/$id'
+      fullPath: '/bill/$id'
+      preLoaderRoute: typeof BillIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -130,6 +160,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   HowItWorksRoute: HowItWorksRoute,
   SearchRoute: SearchRoute,
+  BillIdRoute: BillIdRoute,
   EntityIdRoute: EntityIdRoute,
 }
 export const routeTree = rootRouteImport

@@ -5,6 +5,7 @@ import { getDb } from '@govtrace/db/client'
 import { contracts, donations, grants, internationalAid, lobbyCommunications, lobbyRegistrations } from '@govtrace/db/schema/raw'
 import { aiSummaries, entityAliases, entityMatchesLog, entities } from '@govtrace/db/schema/entities'
 import { entityConnections } from '@govtrace/db/schema/connections'
+import { parliamentVoteBallots } from '@govtrace/db/schema/parliament'
 
 const EntityIdSchema = z.object({ id: z.string().uuid() })
 
@@ -78,6 +79,7 @@ export type EntityProvenance = {
   grants: string | null
   lobbying: string | null
   aid: string | null
+  votes: string | null
 }
 
 export const getEntityProvenance = createServerFn({ method: 'GET' })
@@ -85,7 +87,7 @@ export const getEntityProvenance = createServerFn({ method: 'GET' })
   .handler(async ({ data }): Promise<EntityProvenance> => {
     const db = getDb()
 
-    const [donResult, conResult, grResult, lobRegResult, lobCommResult, aidResult] =
+    const [donResult, conResult, grResult, lobRegResult, lobCommResult, aidResult, voteResult] =
       await Promise.all([
         db
           .select({ maxDate: max(donations.ingestedAt) })
@@ -121,6 +123,10 @@ export const getEntityProvenance = createServerFn({ method: 'GET' })
           .select({ maxDate: max(internationalAid.ingestedAt) })
           .from(internationalAid)
           .where(eq(internationalAid.entityId, data.id)),
+        db
+          .select({ maxDate: max(parliamentVoteBallots.ingestedAt) })
+          .from(parliamentVoteBallots)
+          .where(eq(parliamentVoteBallots.entityId, data.id)),
       ])
 
     // Pick the most recent lobbying timestamp between registrations and communications
@@ -141,8 +147,8 @@ export const getEntityProvenance = createServerFn({ method: 'GET' })
     const donDate = donResult[0]?.maxDate
     const conDate = conResult[0]?.maxDate
     const grDate = grResult[0]?.maxDate
-
     const aidDate = aidResult[0]?.maxDate
+    const voteDate = voteResult[0]?.maxDate
 
     return {
       donations: donDate ? donDate.toISOString() : null,
@@ -150,6 +156,7 @@ export const getEntityProvenance = createServerFn({ method: 'GET' })
       grants: grDate ? grDate.toISOString() : null,
       lobbying: lobbyingDate,
       aid: aidDate ? aidDate.toISOString() : null,
+      votes: voteDate ? voteDate.toISOString() : null,
     }
   })
 
@@ -168,7 +175,7 @@ export const getEntityStats = createServerFn({ method: 'GET' })
       ? eq(donations.recipientName, entity[0].canonicalName)
       : eq(donations.entityId, data.id)
 
-    const [donCount, conCount, grCount, lobCount, connCount, summaryRows, aidCount] = await Promise.all([
+    const [donCount, conCount, grCount, lobCount, connCount, summaryRows, aidCount, voteCount] = await Promise.all([
       db.select({ c: count() }).from(donations).where(donWhere),
       db.select({ c: count() }).from(contracts).where(eq(contracts.entityId, data.id)),
       db.select({ c: count() }).from(grants).where(eq(grants.entityId, data.id)),
@@ -180,6 +187,7 @@ export const getEntityStats = createServerFn({ method: 'GET' })
       ),
       db.select({ isStale: aiSummaries.isStale }).from(aiSummaries).where(eq(aiSummaries.entityId, data.id)).limit(1),
       db.select({ c: count() }).from(internationalAid).where(eq(internationalAid.entityId, data.id)),
+      db.select({ c: count() }).from(parliamentVoteBallots).where(eq(parliamentVoteBallots.entityId, data.id)),
     ])
 
     return {
@@ -189,6 +197,7 @@ export const getEntityStats = createServerFn({ method: 'GET' })
       lobbying: Number(lobCount[0]?.c ?? 0),
       connections: Number(connCount[0]?.c ?? 0),
       aid: Number(aidCount[0]?.c ?? 0),
+      votes: Number(voteCount[0]?.c ?? 0),
       hasFreshSummary: summaryRows.length > 0 && !summaryRows[0]?.isStale,
     }
   })
