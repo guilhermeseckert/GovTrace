@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfVote xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Vote>
+    <ParliamentNumber>44</ParliamentNumber>
+    <SessionNumber>1</SessionNumber>
+    <DecisionDivisionNumber>377</DecisionDivisionNumber>
+    <DecisionEventDateTime>2023-06-14T18:32:00</DecisionEventDateTime>
+    <DecisionDivisionSubject>Third reading and adoption of Bill C-69, An Act to enact the Impact Assessment Act and the Canadian Energy Regulator Act</DecisionDivisionSubject>
+    <DecisionResultName>Agreed To</DecisionResultName>
+    <DecisionDivisionNumberOfYeas>167</DecisionDivisionNumberOfYeas>
+    <DecisionDivisionNumberOfNays>145</DecisionDivisionNumberOfNays>
+    <DecisionDivisionNumberOfPaired>2</DecisionDivisionNumberOfPaired>
+    <DecisionDivisionDocumentTypeName>Legislative Process</DecisionDivisionDocumentTypeName>
+    <DecisionDivisionDocumentTypeId>1</DecisionDivisionDocumentTypeId>
+    <BillNumberCode>C-69</BillNumberCode>
+  </Vote>
+  <Vote>
+    <ParliamentNumber>44</ParliamentNumber>
+    <SessionNumber>1</SessionNumber>
+    <DecisionDivisionNumber>378</DecisionDivisionNumber>
+    <DecisionEventDateTime>2023-06-15T14:00:00</DecisionEventDateTime>
+    <DecisionDivisionSubject>Motion for adjournment of the House</DecisionDivisionSubject>
+    <DecisionResultName>Negatived</DecisionResultName>
+    <DecisionDivisionNumberOfYeas>110</DecisionDivisionNumberOfYeas>
+    <DecisionDivisionNumberOfNays>205</DecisionDivisionNumberOfNays>
+    <DecisionDivisionNumberOfPaired>0</DecisionDivisionNumberOfPaired>
+    <DecisionDivisionDocumentTypeName>Supply</DecisionDivisionDocumentTypeName>
+    <DecisionDivisionDocumentTypeId>2</DecisionDivisionDocumentTypeId>
+    <BillNumberCode></BillNumberCode>
+  </Vote>
+  <Vote>
+    <ParliamentNumber>44</ParliamentNumber>
+    <SessionNumber>1</SessionNumber>
+    <DecisionDivisionNumber>379</DecisionDivisionNumber>
+    <DecisionEventDateTime>2023-06-16T16:45:00</DecisionEventDateTime>
+    <DecisionDivisionSubject>Motion respecting government business</DecisionDivisionSubject>
+    <DecisionResultName>Agreed To</DecisionResultName>
+    <DecisionDivisionNumberOfYeas>155</DecisionDivisionNumberOfYeas>
+    <DecisionDivisionNumberOfNays>130</DecisionDivisionNumberOfNays>
+    <DecisionDivisionNumberOfPaired>10</DecisionDivisionNumberOfPaired>
+    <DecisionDivisionDocumentTypeName>Government Business</DecisionDivisionDocumentTypeName>
+    <DecisionDivisionDocumentTypeId>3</DecisionDivisionDocumentTypeId>
+    <BillNumberCode></BillNumberCode>
+  </Vote>
+</ArrayOfVote>

@@ -1,0 +1,44 @@
+[
+  {
+    "BillId": 1082,
+    "BillNumberFormatted": "C-69",
+    "LongTitleEn": "An Act to enact the Impact Assessment Act and the Canadian Energy Regulator Act, to amend the Navigation Protection Act and to make consequential amendments to other Acts",
+    "LongTitleFr": "Loi édictant la Loi sur l'évaluation d'impact et la Loi sur la Régie canadienne de l'énergie, modifiant la Loi sur la protection de la navigation et apportant des modifications corrélatives à d'autres lois",
+    "ShortTitleEn": "Impact Assessment Act",
+    "ShortTitleFr": "Loi sur l'évaluation d'impact",
+    "BillTypeEn": "Government Bill",
+    "SponsorEn": "Hon. Catherine McKenna",
+    "CurrentStatusEn": "Royal Assent",
+    "ReceivedRoyalAssentDateTime": "2019-06-21T00:00:00",
+    "PassedHouseThirdReadingDateTime": "2019-06-13T00:00:00",
+    "ParlSessionCode": "42-1"
+  },
+  {
+    "BillId": 2001,
+    "BillNumberFormatted": "C-1",
+    "LongTitleEn": "An Act for granting to His Majesty certain sums of money for the federal public administration for the fiscal year ending March 31, 2024",
+    "LongTitleFr": "Loi portant octroi à Sa Majesté de crédits pour l'administration publique fédérale pendant l'exercice se terminant le 31 mars 2024",
+    "ShortTitleEn": null,
+    "ShortTitleFr": null,
+    "BillTypeEn": "Government Bill",
+    "SponsorEn": "Hon. Chrystia Freeland",
+    "CurrentStatusEn": "Royal Assent",
+    "ReceivedRoyalAssentDateTime": "2024-03-22T00:00:00",
+    "PassedHouseThirdReadingDateTime": "2024-03-20T00:00:00",
+    "ParlSessionCode": "44-1"
+  },
+  {
+    "BillId": 3500,
+    "BillNumberFormatted": "C-318",
+    "LongTitleEn": "An Act to amend the Employment Insurance Act (adoptive and intended parents)",
+    "LongTitleFr": "Loi modifiant la Loi sur l'assurance-emploi (parents adoptifs et intentionnels)",
+    "ShortTitleEn": "Adoptive and Intended Parents Benefits Act",
+    "ShortTitleFr": "Loi sur les prestations pour parents adoptifs et intentionnels",
+    "BillTypeEn": "Private Member's Bill",
+    "SponsorEn": "Mrs. Michelle Ferreri",
+    "CurrentStatusEn": "At second reading in the Senate",
+    "ReceivedRoyalAssentDateTime": null,
+    "PassedHouseThirdReadingDateTime": "2024-06-19T00:00:00",
+    "ParlSessionCode": "44-1"
+  }
+]

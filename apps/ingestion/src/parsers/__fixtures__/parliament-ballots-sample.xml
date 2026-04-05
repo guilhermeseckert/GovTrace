@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfVoteParticipant xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <VoteParticipant>
+    <PersonId>89156</PersonId>
+    <ParliamentNumber>44</ParliamentNumber>
+    <SessionNumber>1</SessionNumber>
+    <DecisionDivisionNumber>377</DecisionDivisionNumber>
+    <DecisionEventDateTime>2023-06-14T18:32:00</DecisionEventDateTime>
+    <PersonShortSalutation>Mr.</PersonShortSalutation>
+    <PersonOfficialFirstName>Ziad</PersonOfficialFirstName>
+    <PersonOfficialLastName>Aboultaif</PersonOfficialLastName>
+    <ConstituencyName>Edmonton Manning</ConstituencyName>
+    <ConstituencyProvinceTerritoryName>Alberta</ConstituencyProvinceTerritoryName>
+    <CaucusShortName>CPC</CaucusShortName>
+    <VoteValueName>Nay</VoteValueName>
+    <IsVoteYea>false</IsVoteYea>
+    <IsVoteNay>true</IsVoteNay>
+    <IsVotePaired>false</IsVotePaired>
+    <DecisionResultName>Agreed To</DecisionResultName>
+  </VoteParticipant>
+  <VoteParticipant>
+    <PersonId>12345</PersonId>
+    <ParliamentNumber>44</ParliamentNumber>
+    <SessionNumber>1</SessionNumber>
+    <DecisionDivisionNumber>377</DecisionDivisionNumber>
+    <DecisionEventDateTime>2023-06-14T18:32:00</DecisionEventDateTime>
+    <PersonShortSalutation>Ms.</PersonShortSalutation>
+    <PersonOfficialFirstName>Catherine</PersonOfficialFirstName>
+    <PersonOfficialLastName>McKenna</PersonOfficialLastName>
+    <ConstituencyName>Ottawa Centre</ConstituencyName>
+    <ConstituencyProvinceTerritoryName>Ontario</ConstituencyProvinceTerritoryName>
+    <CaucusShortName>LPC</CaucusShortName>
+    <VoteValueName>Yea</VoteValueName>
+    <IsVoteYea>true</IsVoteYea>
+    <IsVoteNay>false</IsVoteNay>
+    <IsVotePaired>false</IsVotePaired>
+    <DecisionResultName>Agreed To</DecisionResultName>
+  </VoteParticipant>
+  <VoteParticipant>
+    <PersonId>67890</PersonId>
+    <ParliamentNumber>44</ParliamentNumber>
+    <SessionNumber>1</SessionNumber>
+    <DecisionDivisionNumber>377</DecisionDivisionNumber>
+    <DecisionEventDateTime>2023-06-14T18:32:00</DecisionEventDateTime>
+    <PersonShortSalutation>Mr.</PersonShortSalutation>
+    <PersonOfficialFirstName>Alexandre</PersonOfficialFirstName>
+    <PersonOfficialLastName>Boulerice</PersonOfficialLastName>
+    <ConstituencyName>Rosemont—La Petite-Patrie</ConstituencyName>
+    <ConstituencyProvinceTerritoryName>Quebec</ConstituencyProvinceTerritoryName>
+    <CaucusShortName>NDP</CaucusShortName>
+    <VoteValueName>Paired</VoteValueName>
+    <IsVoteYea>false</IsVoteYea>
+    <IsVoteNay>false</IsVoteNay>
+    <IsVotePaired>true</IsVotePaired>
+    <DecisionResultName>Agreed To</DecisionResultName>
+  </VoteParticipant>
+  <VoteParticipant>
+    <PersonId>54321</PersonId>
+    <ParliamentNumber>44</ParliamentNumber>
+    <SessionNumber>1</SessionNumber>
+    <DecisionDivisionNumber>377</DecisionDivisionNumber>
+    <DecisionEventDateTime>2023-06-14T18:32:00</DecisionEventDateTime>
+    <PersonShortSalutation>M.</PersonShortSalutation>
+    <PersonOfficialFirstName>Stéphane</PersonOfficialFirstName>
+    <PersonOfficialLastName>Lauzon</PersonOfficialLastName>
+    <ConstituencyName>Argenteuil—La Petite-Nation</ConstituencyName>
+    <ConstituencyProvinceTerritoryName>Quebec</ConstituencyProvinceTerritoryName>
+    <CaucusShortName>LPC</CaucusShortName>
+    <VoteValueName>Yea</VoteValueName>
+    <IsVoteYea>true</IsVoteYea>
+    <IsVoteNay>false</IsVoteNay>
+    <IsVotePaired>false</IsVotePaired>
+    <DecisionResultName>Agreed To</DecisionResultName>
+  </VoteParticipant>
+</ArrayOfVoteParticipant>
