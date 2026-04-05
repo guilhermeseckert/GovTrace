@@ -1,0 +1,63 @@
+# GovTrace Production Docker Compose
+# Managed by Coolify — all 3 services deployed together
+#
+# Services:
+#   postgres  — PostgreSQL 16 with pg_trgm
+#   web       — TanStack Start SSR app (port 3000)
+#   ingestion — Scheduler + ingestion worker
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${DB_USER:-govtrace}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME:-govtrace}
+    expose:
+      - "5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres-init.sql:/docker-entrypoint-initdb.d/01-extensions.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-govtrace} -d ${DB_NAME:-govtrace}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    environment:
+      DATABASE_URL: postgres://${DB_USER:-govtrace}:${DB_PASSWORD}@postgres:5432/${DB_NAME:-govtrace}
+      NODE_ENV: production
+      PORT: 3000
+    expose:
+      - "3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO", "/dev/null", "--timeout=5", "http://localhost:3000/how-it-works"]
+      interval: 30s
+      timeout: 10s
+      start_period: 60s
+      retries: 5
+    restart: unless-stopped
+
+  ingestion:
+    build:
+      context: .
+      dockerfile: apps/ingestion/Dockerfile
+    environment:
+      DATABASE_URL: postgres://${DB_USER:-govtrace}:${DB_PASSWORD}@postgres:5432/${DB_NAME:-govtrace}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
