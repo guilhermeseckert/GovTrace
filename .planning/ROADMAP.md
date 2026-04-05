@@ -73,7 +73,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 07-01-PLAN.md — Ingestion pipeline: schema, parsers, downloaders, upsert, runner, MP entity matching, bill summaries, scheduler
+- [x] 07-01-PLAN.md — Ingestion pipeline: schema, parsers, downloaders, upsert, runner, MP entity matching, bill summaries, scheduler
 - [ ] 07-02-PLAN.md — Web UI: Votes tab, bill pages, search integration, AI summary voting insights, How It Works 7th dataset
 
 ## Progress

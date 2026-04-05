@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: International Money Tracking
 status: executing
-stopped_at: Completed 06-01-PLAN.md
-last_updated: "2026-04-05T03:30:00.126Z"
+stopped_at: Completed 07-01-PLAN.md
+last_updated: "2026-04-05T05:31:48.777Z"
 last_activity: 2026-04-05
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 6
-  completed_plans: 4
+  completed_plans: 5
   percent: 0
 ---
 
@@ -21,12 +21,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-31)
 
 **Core value:** Anyone can search a name and instantly trace the flow of money and influence across all public government datasets — with clarity a 9-year-old could follow.
-**Current focus:** Phase 06 — debt-vs-spending-dashboard
+**Current focus:** Phase 07 — parliamentary-voting-records
 
 ## Current Position
 
-Phase: 07
-Plan: Not started
+Phase: 07 (parliamentary-voting-records) — EXECUTING
+Plan: 2 of 2
 Status: Ready to execute
 Last activity: 2026-04-05
 
@@ -82,6 +82,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 05-international-aid-ingestion P01 | 6min | 2 tasks | 12 files |
 | Phase 05 P02 | 4 minutes | 2 tasks | 7 files |
 | Phase 06-debt-vs-spending-dashboard P01 | 8 minutes | 2 tasks | 8 files |
+| Phase 07-parliamentary-voting-records P01 | 642s | 3 tasks | 19 files |
 
 ## Accumulated Context
 
@@ -163,6 +164,8 @@ Recent decisions affecting current work:
 - [Phase 05]: IATI identifier last segment used to construct Global Affairs Canada project browser URL in AidTable
 - [Phase 05]: AidTable mirrors GrantsTable pattern for consistency; i18n not extended as tab descriptions use hardcoded strings matching existing pattern
 - [Phase 06-debt-vs-spending-dashboard]: SHA256(series+refDate) as fiscal_snapshots PK for idempotent re-ingestion; SCALAR_FACTOR normalised to millions in parser; annual debt uses latest-month-per-year subquery (avoids partial-year dip); FEDERAL_ELECTION_DATES hardcoded as const
+- [Phase 07-parliamentary-voting-records]: PersonId-anchored mp_profiles as stable ground truth for MP entity matching — prevents same-name MP merging across eras
+- [Phase 07-parliamentary-voting-records]: Bills not added to entity_connections — bills are not entities; PARL-04 cross-reference is query-time via vote_ballots + donations join
 
 ### Pending Todos
 
@@ -175,6 +178,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-05T03:20:41.754Z
-Stopped at: Completed 06-01-PLAN.md
+Last session: 2026-04-05T05:31:48.774Z
+Stopped at: Completed 07-01-PLAN.md
 Resume file: None

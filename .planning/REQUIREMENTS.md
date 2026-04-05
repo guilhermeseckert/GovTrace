@@ -24,11 +24,11 @@ Requirements for v2.0 International Money Tracking milestone.
 
 ### Parliamentary Voting
 
-- [ ] **PARL-01**: Voting records from House of Commons Open Data are ingested for all parliaments since 2001
+- [x] **PARL-01**: Voting records from House of Commons Open Data are ingested for all parliaments since 2001
 - [ ] **PARL-02**: Politician entity profiles show a "Votes" tab listing every bill they voted on (Yea/Nay/Absent)
 - [ ] **PARL-03**: Bills are searchable — search "Bill C-69" and see all MPs who voted, grouped by party and position
 - [ ] **PARL-04**: AI summary for politicians includes voting pattern insights cross-referenced with donors
-- [ ] **PARL-05**: Every bill has an AI-generated plain-language summary explaining what it does — grandpa-readable
+- [x] **PARL-05**: Every bill has an AI-generated plain-language summary explaining what it does — grandpa-readable
 
 ## Out of Scope
 
@@ -51,11 +51,11 @@ Requirements for v2.0 International Money Tracking milestone.
 | DEBT-02 | Phase 6 | Complete |
 | DEBT-03 | Phase 6 | Complete |
 | DEBT-04 | Phase 6 | Complete |
-| PARL-01 | Phase 7 | Pending |
+| PARL-01 | Phase 7 | Complete |
 | PARL-02 | Phase 7 | Pending |
 | PARL-03 | Phase 7 | Pending |
 | PARL-04 | Phase 7 | Pending |
-| PARL-05 | Phase 7 | Pending |
+| PARL-05 | Phase 7 | Complete |
 
 **Coverage:**
 - v2 requirements: 14 total
