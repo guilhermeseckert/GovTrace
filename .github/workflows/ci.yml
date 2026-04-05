@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [main, master]
 
+env:
+  CI_DB_USER: ci_govtrace
+  CI_DB_PASS: ${{ github.run_id }}_${{ github.run_attempt }}
+  CI_DB_NAME: govtrace_ci
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -14,13 +19,13 @@ jobs:
       postgres:
         image: postgres:16-alpine
         env:
-          POSTGRES_USER: govtrace
-          POSTGRES_PASSWORD: govtrace
-          POSTGRES_DB: govtrace
+          POSTGRES_USER: ${{ env.CI_DB_USER }}
+          POSTGRES_PASSWORD: ${{ env.CI_DB_PASS }}
+          POSTGRES_DB: ${{ env.CI_DB_NAME }}
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U govtrace -d govtrace"
+          --health-cmd "pg_isready -U ci_govtrace -d govtrace_ci"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -42,7 +47,7 @@ jobs:
 
       - name: Enable pg_trgm extension
         run: |
-          PGPASSWORD=govtrace psql -h localhost -U govtrace -d govtrace -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
+          PGPASSWORD=${{ env.CI_DB_PASS }} psql -h localhost -U ${{ env.CI_DB_USER }} -d ${{ env.CI_DB_NAME }} -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
 
       - name: Type check (web)
         run: pnpm --filter @govtrace/web exec tsc --noEmit

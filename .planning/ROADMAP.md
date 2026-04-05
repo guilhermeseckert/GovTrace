@@ -118,3 +118,11 @@ Plans:
 
 Plans:
 - [ ] TBD (promote with /gsd:review-backlog when ready)
+
+### Phase 999.4: Swap D3 Charts to Recharts (BACKLOG)
+**Goal**: Replace raw D3 SVG charts (debt dashboard, entity visualizations) with Recharts for built-in hover tooltips, animations, responsive behavior, and better shadcn/ui alignment. Keep D3 only for force-directed network graph and Sankey where Recharts can't help.
+**Requirements**: TBD
+**Plans**: 0 plans
+
+Plans:
+- [ ] TBD (promote with /gsd:review-backlog when ready)
