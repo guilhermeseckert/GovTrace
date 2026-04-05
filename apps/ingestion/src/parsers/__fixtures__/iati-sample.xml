@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<iati-activities generated-datetime="2026-03-13T00:00:00-05:00" version="2.03">
+  <iati-activity last-updated-datetime="2024-01-15T00:00:00-05:00" default-currency="CAD" hierarchy="1" humanitarian="0">
+    <iati-identifier>CA-3-A031268001</iati-identifier>
+    <reporting-org ref="CA-3" type="10">
+      <narrative xml:lang="en">Foreign Affairs, Trade and Development Canada (DFATD)</narrative>
+    </reporting-org>
+    <title>
+      <narrative xml:lang="en">Canadian-Caribbean Cooperation Fund</narrative>
+      <narrative xml:lang="fr">Fonds canadien de coopération pour les Caraïbes</narrative>
+    </title>
+    <description type="1">
+      <narrative xml:lang="en">A fund supporting Caribbean development through various programs and initiatives.</narrative>
+    </description>
+    <participating-org role="1" ref="CA" type="10">
+      <narrative xml:lang="en">Canada</narrative>
+    </participating-org>
+    <participating-org role="3" ref="CA-1" type="10">
+      <narrative xml:lang="en">Canadian International Development Agency</narrative>
+    </participating-org>
+    <participating-org role="4" type="10" crs-channel-code="11000">
+      <narrative xml:lang="en">Public Works and Government Services Canada - Consulting and Audit Canada</narrative>
+    </participating-org>
+    <activity-status code="3" />
+    <activity-date type="2" iso-date="2003-04-07" />
+    <activity-date type="4" iso-date="2016-12-30" />
+    <recipient-country code="HT" percentage="100.00" />
+    <sector vocabulary="1" code="15110" percentage="60.00" />
+    <budget type="1" status="2">
+      <period-start iso-date="2002-04-01" />
+      <period-end iso-date="2003-03-31" />
+      <value value-date="2003-04-07">500000</value>
+    </budget>
+    <budget type="1" status="2">
+      <period-start iso-date="2003-04-01" />
+      <period-end iso-date="2004-03-31" />
+      <value value-date="2004-04-07">750000</value>
+    </budget>
+    <transaction>
+      <transaction-type code="2" />
+      <transaction-date iso-date="2003-04-07" />
+      <value value-date="2003-04-07">17933718.13</value>
+      <flow-type code="10" />
+    </transaction>
+    <transaction>
+      <transaction-type code="3" />
+      <transaction-date iso-date="2004-06-15" />
+      <value value-date="2004-06-15">250000.50</value>
+      <flow-type code="10" />
+    </transaction>
+    <transaction>
+      <transaction-type code="3" />
+      <transaction-date iso-date="2005-03-01" />
+      <value value-date="2005-03-01">-50000</value>
+      <flow-type code="10" />
+    </transaction>
+  </iati-activity>
+  <iati-activity last-updated-datetime="2023-06-01T00:00:00-05:00" default-currency="CAD" hierarchy="1" humanitarian="0">
+    <iati-identifier>CA-3-B099123001</iati-identifier>
+    <reporting-org ref="CA-3" type="10">
+      <narrative xml:lang="en">Foreign Affairs, Trade and Development Canada (DFATD)</narrative>
+    </reporting-org>
+    <title>
+      <narrative xml:lang="fr">Projet de développement régional en Afrique</narrative>
+    </title>
+    <activity-status code="4" />
+    <activity-date type="1" iso-date="2015-01-01" />
+    <activity-date type="3" iso-date="2019-12-31" />
+    <recipient-region percentage="100.00" code="380" vocabulary="1" />
+    <budget type="1" status="2">
+      <period-start iso-date="2015-01-01" />
+      <period-end iso-date="2015-12-31" />
+      <value value-date="2015-01-01">1000000</value>
+    </budget>
+    <transaction>
+      <transaction-type code="2" />
+      <transaction-date iso-date="2015-02-01" />
+      <value value-date="2015-02-01">1000000</value>
+      <flow-type code="10" />
+    </transaction>
+  </iati-activity>
+</iati-activities>

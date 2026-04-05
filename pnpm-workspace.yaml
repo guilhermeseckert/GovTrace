@@ -18,3 +18,4 @@ catalog:
   vitest: ^2.1.0
   adm-zip: ^0.5.10
   '@types/adm-zip': ^0.5.7
+  fast-xml-parser: ^5.5.10

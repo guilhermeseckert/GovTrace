@@ -19,6 +19,7 @@
     "chardet": "catalog:",
     "dotenv": "^17.4.0",
     "drizzle-orm": "catalog:",
+    "fast-xml-parser": "catalog:",
     "iconv-lite": "catalog:",
     "papaparse": "catalog:",
     "pg-boss": "catalog:",

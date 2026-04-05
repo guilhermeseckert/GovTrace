@@ -113,6 +113,38 @@ export const lobbyRegistrations = pgTable('lobby_registrations', {
   index('lobby_registrations_client_entity_id_idx').on(t.clientEntityId),
 ])
 
+// International aid activities from Global Affairs Canada IATI files (DATA-06)
+// Source: https://w05.international.gc.ca/projectbrowser-banqueprojets/iita-iati/
+// Primary key: iati-identifier directly (globally unique and stable by IATI standard)
+export const internationalAid = pgTable('international_aid', {
+  id: text('id').primaryKey(), // iati-identifier, e.g., CA-3-A031268001
+  projectTitle: text('project_title'),
+  description: text('description'),
+  implementerName: text('implementer_name'), // participating-org role="4" — entity to match
+  fundingDepartment: text('funding_department'), // participating-org role="3"
+  recipientCountry: text('recipient_country'), // ISO 3166-1 alpha-2
+  recipientRegion: text('recipient_region'), // DAC region code (if no country)
+  activityStatus: text('activity_status'), // 1=pipeline, 2=active, 3=finalisation, 4=closed, 5=cancelled
+  startDate: date('start_date'), // actual start (type="2"), fallback to planned (type="1")
+  endDate: date('end_date'), // actual end (type="4"), fallback to planned (type="3")
+  totalBudgetCad: numeric('total_budget_cad', { precision: 15, scale: 2 }), // sum of budget type="1"
+  totalDisbursedCad: numeric('total_disbursed_cad', { precision: 15, scale: 2 }), // sum of transaction type="3"
+  totalCommittedCad: numeric('total_committed_cad', { precision: 15, scale: 2 }), // sum of transaction type="2"
+  currency: text('currency').default('CAD'), // default-currency attribute from iati-activity
+  normalizedImplementerName: text('normalized_implementer_name'), // populated by matching pipeline
+  entityId: uuid('entity_id'), // FK to entities.id — set after entity matching
+  sourceFileHash: text('source_file_hash').notNull(),
+  rawData: jsonb('raw_data').notNull(), // key fields only, NOT full XML
+  ingestedAt: timestamp('ingested_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index('international_aid_normalized_implementer_name_idx').on(t.normalizedImplementerName),
+  index('international_aid_entity_id_idx').on(t.entityId),
+  index('international_aid_recipient_country_idx').on(t.recipientCountry),
+  index('international_aid_start_date_idx').on(t.startDate),
+  index('international_aid_activity_status_idx').on(t.activityStatus),
+])
+
 // Lobbyist communication reports (DATA-05)
 export const lobbyCommunications = pgTable('lobby_communications', {
   id: text('id').primaryKey(),
