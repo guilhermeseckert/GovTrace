@@ -145,6 +145,21 @@ export const internationalAid = pgTable('international_aid', {
   index('international_aid_activity_status_idx').on(t.activityStatus),
 ])
 
+// National debt snapshots from Statistics Canada table 10-10-0002-01 (DEBT-01, DEBT-04)
+// Source: https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1010000201
+export const fiscalSnapshots = pgTable('fiscal_snapshots', {
+  id: text('id').primaryKey(), // deterministic: SHA256(series + ref_date)
+  series: text('series').notNull(), // 'federal_net_debt' | 'accumulated_deficit' | 'gross_liabilities'
+  refDate: date('ref_date').notNull(), // YYYY-MM-01 — first of month per StatsCan convention
+  valueMillionsCad: numeric('value_millions_cad', { precision: 15, scale: 2 }),
+  sourceTable: text('source_table').notNull(), // '10-10-0002-01'
+  sourceUrl: text('source_url').notNull(),
+  ingestedAt: timestamp('ingested_at', { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  uniqueIndex('fiscal_snapshots_series_date_idx').on(t.series, t.refDate),
+  index('fiscal_snapshots_ref_date_idx').on(t.refDate),
+])
+
 // Lobbyist communication reports (DATA-05)
 export const lobbyCommunications = pgTable('lobby_communications', {
   id: text('id').primaryKey(),
