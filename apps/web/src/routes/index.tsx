@@ -1,22 +1,16 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { Link } from '@tanstack/react-router'
+import { useQuery } from '@tanstack/react-query'
 import { ArrowRight, FileText, Gift, TrendingUp, Globe, Vote, Users, ExternalLink, BookOpen } from 'lucide-react'
 import { getPlatformStats } from '@/server-fns/stats'
 import { getLandingData } from '@/server-fns/landing'
 import { getDebtHeroStats } from '@/server-fns/dashboard'
 import { HeroSearch } from '@/components/landing/HeroSearch'
+import { Skeleton } from '@/components/ui/skeleton'
 import type { RecentActivity, TopRecipient } from '@/server-fns/landing'
 import type { DebtHeroStats } from '@/server-fns/dashboard'
 
 export const Route = createFileRoute('/')({
-  loader: async () => {
-    const [stats, landing, debtStats] = await Promise.all([
-      getPlatformStats(),
-      getLandingData().catch(() => null),
-      getDebtHeroStats().catch(() => null),
-    ])
-    return { stats, landing, debtStats }
-  },
   component: IndexPage,
 })
 
@@ -210,7 +204,21 @@ function DebtPreview({ debtStats }: { debtStats: DebtHeroStats }) {
 }
 
 function IndexPage() {
-  const { stats, landing, debtStats } = Route.useLoaderData()
+  const { data: stats } = useQuery({
+    queryKey: ['platform-stats'],
+    queryFn: () => getPlatformStats(),
+    staleTime: 1000 * 60 * 5,
+  })
+  const { data: landing } = useQuery({
+    queryKey: ['landing-data'],
+    queryFn: () => getLandingData(),
+    staleTime: 1000 * 60 * 5,
+  })
+  const { data: debtStats } = useQuery({
+    queryKey: ['debt-hero-stats'],
+    queryFn: () => getDebtHeroStats(),
+    staleTime: 1000 * 60 * 60,
+  })
 
   return (
     <main id="main-content">
