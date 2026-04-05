@@ -84,10 +84,12 @@ export const getDebtTimeline = createServerFn({ method: 'GET' }).handler(
       })
     }
 
-    // Join by year — only include years where debt data exists
+    // Join by year — exclude current year (incomplete data causes misleading drop)
+    const currentYear = new Date().getFullYear()
     const debtRows = Array.from(debtByYear) as Array<{ year: number; debt_millions: string }>
     const results: DebtAidDataPoint[] = []
     for (const debt of debtRows) {
+      if (debt.year >= currentYear) continue
       const aid = aidMap.get(debt.year) ?? { committed: 0, disbursed: 0 }
       results.push({
         year: debt.year,
