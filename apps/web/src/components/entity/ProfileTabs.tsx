@@ -8,10 +8,11 @@ type TabCounts = {
   contracts: number
   grants: number
   lobbying: number
+  aid: number
   connections: number
 }
 
-export type TabKey = 'donations' | 'contracts' | 'grants' | 'lobbying' | 'connections' | 'visualizations'
+export type TabKey = 'donations' | 'contracts' | 'grants' | 'lobbying' | 'aid' | 'connections' | 'visualizations'
 
 type ProfileTabsProps = {
   counts: TabCounts
@@ -31,6 +32,7 @@ const TAB_DESCRIPTIONS: Record<TabKey, string> = {
   contracts: 'Federal government contracts awarded to this entity, sourced from the Proactive Disclosure portal on open.canada.ca.',
   grants: 'Federal grants and contributions received by this entity, sourced from the Proactive Disclosure portal on open.canada.ca.',
   lobbying: 'Lobbying registrations and communication reports involving this entity, sourced from the Office of the Commissioner of Lobbying.',
+  aid: 'International Aid projects funded by Global Affairs Canada (IATI Activity Files). Shows overseas development projects this entity implemented or received funding for.',
   connections: 'Pre-computed relationships linking this entity to others across all five datasets — donations, contracts, grants, and lobbying.',
   visualizations: 'Interactive charts showing money flow patterns, relationship networks, and activity over time across all government datasets.',
 }
@@ -40,6 +42,7 @@ const TABS: TabDef[] = [
   { key: 'contracts', label: 'Contracts', count: 0 },
   { key: 'grants', label: 'Grants', count: 0 },
   { key: 'lobbying', label: 'Lobbying', count: 0 },
+  { key: 'aid', label: 'International Aid', count: 0 },
   { key: 'connections', label: 'Connections', count: 0, disclaimer: true },
   { key: 'visualizations', label: 'Visualizations', count: 0, disclaimer: true },
 ]

@@ -71,6 +71,15 @@ const DATA_SOURCES = [
     Icon: MessageSquare,
     iconColor: 'bg-teal-100 text-teal-600 dark:bg-teal-950 dark:text-teal-400',
   },
+  {
+    name: 'International Aid (IATI)',
+    description:
+      'Overseas development aid projects funded by Global Affairs Canada. Shows which organizations implement international aid projects, recipient countries, budgets, and disbursements.',
+    frequency: 'Updated monthly',
+    url: 'https://open.canada.ca/data/en/dataset/2f7e22f0-88f6-430c-9723-547043f898ad',
+    Icon: Heart,
+    iconColor: 'bg-rose-100 text-rose-600 dark:bg-rose-950 dark:text-rose-400',
+  },
 ] as const
 
 const STEPS = [
@@ -146,7 +155,7 @@ const FAQ_ITEMS = [
   {
     question: 'Where does the data come from?',
     answer:
-      'Five public federal datasets: Elections Canada (political donations), open.canada.ca (contracts and grants), and lobbycanada.gc.ca (lobbying registrations and communications). Each record links to the original government source.',
+      'Six public federal datasets: Elections Canada (political donations), open.canada.ca (contracts, grants, and international aid), and lobbycanada.gc.ca (lobbying registrations and communications). Each record links to the original government source.',
   },
   {
     question: 'Who built this?',
