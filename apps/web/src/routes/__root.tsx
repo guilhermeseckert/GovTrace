@@ -108,7 +108,7 @@ function SiteFooter() {
               How it works
             </Link>
             <a
-              href="https://github.com/govtrace"
+              href="https://github.com/guilhermeseckert/GovTrace"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground"
@@ -117,7 +117,7 @@ function SiteFooter() {
               Open source on GitHub
             </a>
             <a
-              href="https://buymeacoffee.com/govtrace"
+              href="https://buymeacoffee.com/guilhermeeckert"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground"

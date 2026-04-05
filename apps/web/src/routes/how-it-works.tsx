@@ -355,7 +355,7 @@ function HowItWorksPage() {
             are funded by community contributions.
           </p>
           <a
-            href="https://buymeacoffee.com/govtrace"
+            href="https://buymeacoffee.com/guilhermeeckert"
             target="_blank"
             rel="noopener noreferrer"
             className="mt-4 inline-flex items-center gap-2 rounded-lg border px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
