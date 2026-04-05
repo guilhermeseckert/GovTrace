@@ -183,7 +183,7 @@ export function DebtVsAidChart({ data }: Props) {
                 <path
                   d={chart.debtPath}
                   fill="none"
-                  stroke="var(--destructive)"
+                  stroke="#dc2626"
                   strokeWidth={2.5}
                   strokeLinejoin="round"
                   strokeLinecap="round"
@@ -193,7 +193,7 @@ export function DebtVsAidChart({ data }: Props) {
                 <path
                   d={chart.aidPath}
                   fill="none"
-                  stroke="var(--chart-2)"
+                  stroke="#2563eb"
                   strokeWidth={2.5}
                   strokeLinejoin="round"
                   strokeLinecap="round"
@@ -265,7 +265,7 @@ export function DebtVsAidChart({ data }: Props) {
                           textAnchor="start"
                           dominantBaseline="middle"
                           fontSize={11}
-                          fill="var(--chart-2)"
+                          fill="#2563eb"
                         >
                           {tick >= 1000 ? `$${(tick / 1000).toFixed(0)}T` : `$${tick}B`}
                         </text>
@@ -278,7 +278,7 @@ export function DebtVsAidChart({ data }: Props) {
                     y={innerHeight / 2}
                     textAnchor="middle"
                     fontSize={11}
-                    fill="var(--chart-2)"
+                    fill="#2563eb"
                   >
                     Aid Committed ($ billions)
                   </text>
@@ -299,14 +299,14 @@ export function DebtVsAidChart({ data }: Props) {
         <span className="flex items-center gap-1.5">
           <span
             className="inline-block h-0.5 w-6 rounded"
-            style={{ backgroundColor: 'var(--destructive)' }}
+            style={{ backgroundColor: '#dc2626' }}
           />
           National Debt
         </span>
         <span className="flex items-center gap-1.5">
           <span
             className="inline-block h-0.5 w-6 rounded"
-            style={{ backgroundColor: 'var(--chart-2)' }}
+            style={{ backgroundColor: '#2563eb' }}
           />
           Overseas Aid Committed
         </span>
