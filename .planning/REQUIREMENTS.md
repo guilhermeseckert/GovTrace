@@ -17,10 +17,10 @@ Requirements for v2.0 International Money Tracking milestone.
 
 ### Debt & Spending
 
-- [ ] **DEBT-01**: Dashboard page shows current national debt alongside total overseas aid spending
-- [ ] **DEBT-02**: Timeline visualization compares annual aid commitments against debt growth with election year markers
-- [ ] **DEBT-03**: Department-level breakdown shows which departments authorize the most international spending
-- [ ] **DEBT-04**: All numbers link to source data (Statistics Canada, Global Affairs, Dept of Finance)
+- [x] **DEBT-01**: Dashboard page shows current national debt alongside total overseas aid spending
+- [x] **DEBT-02**: Timeline visualization compares annual aid commitments against debt growth with election year markers
+- [x] **DEBT-03**: Department-level breakdown shows which departments authorize the most international spending
+- [x] **DEBT-04**: All numbers link to source data (Statistics Canada, Global Affairs, Dept of Finance)
 
 ### Parliamentary Voting
 
@@ -47,10 +47,10 @@ Requirements for v2.0 International Money Tracking milestone.
 | INTL-03 | Phase 5 | Complete |
 | INTL-04 | Phase 5 | Complete |
 | INTL-05 | Phase 5 | Complete |
-| DEBT-01 | Phase 6 | Pending |
-| DEBT-02 | Phase 6 | Pending |
-| DEBT-03 | Phase 6 | Pending |
-| DEBT-04 | Phase 6 | Pending |
+| DEBT-01 | Phase 6 | Complete |
+| DEBT-02 | Phase 6 | Complete |
+| DEBT-03 | Phase 6 | Complete |
+| DEBT-04 | Phase 6 | Complete |
 | PARL-01 | Phase 7 | Pending |
 | PARL-02 | Phase 7 | Pending |
 | PARL-03 | Phase 7 | Pending |

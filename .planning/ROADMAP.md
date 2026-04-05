@@ -57,7 +57,7 @@ Plans:
 **UI hint**: yes
 
 Plans:
-- [ ] 06-01-PLAN.md — Data layer: fiscal_snapshots schema, Stats Canada ingestion pipeline, server functions, election constants
+- [x] 06-01-PLAN.md — Data layer: fiscal_snapshots schema, Stats Canada ingestion pipeline, server functions, election constants
 - [ ] 06-02-PLAN.md — Dashboard page: hero stats, D3 debt-vs-aid chart with election markers, department breakdown
 
 ### Phase 7: Parliamentary Voting Records
@@ -86,7 +86,7 @@ Plans:
 | 4.1 How It Works | v1.0 | 2/2 | Complete | 2026-04-03 |
 | 4.2 Entity Profile Storytelling | v1.0 | 3/3 | Complete | 2026-04-04 |
 | 5. International Aid Ingestion | v2.0 | 1/2 | In Progress|  |
-| 6. Debt vs Spending Dashboard | v2.0 | 0/2 | Not started | - |
+| 6. Debt vs Spending Dashboard | v2.0 | 1/2 | In Progress|  |
 | 7. Parliamentary Voting Records | v2.0 | 0/2 | Not started | - |
 
 ---

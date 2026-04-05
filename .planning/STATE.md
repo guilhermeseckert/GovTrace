@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: International Money Tracking
-status: verifying
-stopped_at: Completed 05-02-PLAN.md
-last_updated: "2026-04-05T01:11:28.652Z"
+status: executing
+stopped_at: Completed 06-01-PLAN.md
+last_updated: "2026-04-05T03:20:41.758Z"
 last_activity: 2026-04-05
 progress:
   total_phases: 5
   completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
+  total_plans: 6
+  completed_plans: 3
   percent: 0
 ---
 
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-31)
 
 **Core value:** Anyone can search a name and instantly trace the flow of money and influence across all public government datasets — with clarity a 9-year-old could follow.
-**Current focus:** Phase 05 — international-aid-ingestion
+**Current focus:** Phase 06 — debt-vs-spending-dashboard
 
 ## Current Position
 
-Phase: 999.1
-Plan: Not started
-Status: Phase complete — ready for verification
+Phase: 06 (debt-vs-spending-dashboard) — EXECUTING
+Plan: 2 of 2
+Status: Ready to execute
 Last activity: 2026-04-05
 
 Progress: [░░░░░░░░░░] 0%
@@ -81,6 +81,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 04.2-entity-profile-storytelling P03 | 1min | 1 tasks | 2 files |
 | Phase 05-international-aid-ingestion P01 | 6min | 2 tasks | 12 files |
 | Phase 05 P02 | 4 minutes | 2 tasks | 7 files |
+| Phase 06-debt-vs-spending-dashboard P01 | 8 minutes | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -161,6 +162,7 @@ Recent decisions affecting current work:
 - [Phase 05-international-aid-ingestion]: isArray callback forces array mode for all repeated IATI elements to prevent single-element collapse
 - [Phase 05]: IATI identifier last segment used to construct Global Affairs Canada project browser URL in AidTable
 - [Phase 05]: AidTable mirrors GrantsTable pattern for consistency; i18n not extended as tab descriptions use hardcoded strings matching existing pattern
+- [Phase 06-debt-vs-spending-dashboard]: SHA256(series+refDate) as fiscal_snapshots PK for idempotent re-ingestion; SCALAR_FACTOR normalised to millions in parser; annual debt uses latest-month-per-year subquery (avoids partial-year dip); FEDERAL_ELECTION_DATES hardcoded as const
 
 ### Pending Todos
 
@@ -173,6 +175,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-05T01:06:45.647Z
-Stopped at: Completed 05-02-PLAN.md
+Last session: 2026-04-05T03:20:41.754Z
+Stopped at: Completed 06-01-PLAN.md
 Resume file: None
