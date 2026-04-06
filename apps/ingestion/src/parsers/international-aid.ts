@@ -16,6 +16,7 @@ export interface IatiActivityRecord {
   totalDisbursedCad: string | null
   totalCommittedCad: string | null
   currency: string
+  sectorCode: string | null
   normalizedImplementerName: string | null
   sourceFileHash: string
   rawData: Record<string, unknown>
@@ -170,6 +171,23 @@ function extractRecipientRegion(regions: unknown[]): string | null {
   return typeof code === 'string' && code.length > 0 ? code : null
 }
 
+/**
+ * Extract the OECD DAC sector code from sector elements.
+ * Filters for vocabulary="1" (OECD DAC 5-digit codes) or no vocabulary attribute (defaults to DAC).
+ * Returns the @_code attribute of the first matching element, or null if none found.
+ */
+function extractSectorCode(sectors: unknown[]): string | null {
+  if (!Array.isArray(sectors) || sectors.length === 0) return null
+  const dacSector = sectors.find((s) => {
+    if (typeof s !== 'object' || s === null) return false
+    const vocab = (s as Record<string, unknown>)['@_vocabulary']
+    return vocab === '1' || vocab === undefined || vocab === null
+  })
+  if (!dacSector) return null
+  const code = (dacSector as Record<string, unknown>)['@_code']
+  return typeof code === 'string' && code.length > 0 ? code : null
+}
+
 type IatiActivityRaw = Record<string, unknown>
 
 function extractActivity(act: IatiActivityRaw, sourceFileHash: string): IatiActivityRecord {
@@ -218,6 +236,10 @@ function extractActivity(act: IatiActivityRaw, sourceFileHash: string): IatiActi
   const recipientCountry = extractRecipientCountry(countries)
   const recipientRegion = recipientCountry ? null : extractRecipientRegion(regions)
 
+  // Sector code — OECD DAC vocabulary="1"
+  const sectors = (act['sector'] as unknown[]) ?? []
+  const sectorCode = extractSectorCode(sectors)
+
   // Budget sums — type="1" (original)
   const budgets = (act['budget'] as unknown[]) ?? []
   const totalBudget = sumBudgetsByType(budgets, '1')
@@ -235,6 +257,7 @@ function extractActivity(act: IatiActivityRaw, sourceFileHash: string): IatiActi
     funder: fundingDepartment,
     country: recipientCountry ?? recipientRegion,
     status: activityStatus,
+    sector: sectorCode,
   }
 
   return {
@@ -252,6 +275,7 @@ function extractActivity(act: IatiActivityRaw, sourceFileHash: string): IatiActi
     totalDisbursedCad: totalDisbursed !== 0 ? totalDisbursed.toFixed(2) : '0.00',
     totalCommittedCad: totalCommitted !== 0 ? totalCommitted.toFixed(2) : null,
     currency,
+    sectorCode,
     normalizedImplementerName,
     sourceFileHash,
     rawData,

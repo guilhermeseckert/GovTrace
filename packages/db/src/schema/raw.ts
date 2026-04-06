@@ -133,6 +133,7 @@ export const internationalAid = pgTable('international_aid', {
   currency: text('currency').default('CAD'), // default-currency attribute from iati-activity
   normalizedImplementerName: text('normalized_implementer_name'), // populated by matching pipeline
   entityId: uuid('entity_id'), // FK to entities.id — set after entity matching
+  sectorCode: text('sector_code'), // OECD DAC 5-digit sector code, e.g. "15110"
   sourceFileHash: text('source_file_hash').notNull(),
   rawData: jsonb('raw_data').notNull(), // key fields only, NOT full XML
   ingestedAt: timestamp('ingested_at', { withTimezone: true }).notNull().defaultNow(),
@@ -143,6 +144,7 @@ export const internationalAid = pgTable('international_aid', {
   index('international_aid_recipient_country_idx').on(t.recipientCountry),
   index('international_aid_start_date_idx').on(t.startDate),
   index('international_aid_activity_status_idx').on(t.activityStatus),
+  index('international_aid_sector_code_idx').on(t.sectorCode),
 ])
 
 // National debt snapshots from Statistics Canada table 10-10-0002-01 (DEBT-01, DEBT-04)
