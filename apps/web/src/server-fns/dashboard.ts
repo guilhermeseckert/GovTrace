@@ -120,7 +120,7 @@ export const getDepartmentBreakdown = createServerFn({ method: 'GET' }).handler(
       projectCount: string
     }
 
-    const rows = await db.execute<DeptRow>(sql`
+    const rows = await db.execute(sql.raw(`
       SELECT
         funding_department AS department,
         SUM(total_committed_cad)::text AS "totalCommitted",
@@ -130,7 +130,7 @@ export const getDepartmentBreakdown = createServerFn({ method: 'GET' }).handler(
       WHERE funding_department IS NOT NULL
       GROUP BY funding_department
       ORDER BY SUM(total_committed_cad) DESC NULLS LAST
-    `)
+    `)) as unknown as DeptRow[]
 
     const deptRows = Array.from(rows)
 
