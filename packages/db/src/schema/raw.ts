@@ -301,3 +301,34 @@ export const hospitalityDisclosures = pgTable('hospitality_disclosures', {
   index('hospitality_disclosures_department_code_idx').on(t.departmentCode),
   index('hospitality_disclosures_start_date_idx').on(t.startDate),
 ])
+
+// Federal press releases from canada.ca and PM RSS feed (NEWS-01)
+// Source: https://www.canada.ca/en/news/advanced-news-search/news-results.html
+//         https://pm.gc.ca/en/news.rss
+// Natural key: SHA256(url) — each press release has a unique URL
+export const pressReleases = pgTable('press_releases', {
+  id: text('id').primaryKey(), // SHA256(url)
+  title: text('title').notNull(),
+  url: text('url').notNull(),
+  publishedDate: date('published_date').notNull(),
+  department: text('department').notNull(), // from listing or dcterms.creator
+  contentType: text('content_type'), // news releases, statements, media advisories, readouts, speeches, backgrounders
+  summary: text('summary'), // from listing description or dcterms.description
+  ministers: text('ministers').array(), // from dcterms.minister meta tag
+  keywords: text('keywords').array(), // from meta keywords tag
+  subjects: text('subjects').array(), // from dcterms.subject tag
+  spatial: text('spatial'), // from dcterms.spatial (region)
+  bodyText: text('body_text'), // full article text for entity extraction
+  mentionedEntities: jsonb('mentioned_entities'), // extracted: [{name, type, entityId?, confidence}]
+  dollarAmounts: jsonb('dollar_amounts'), // extracted: [{amount, context}]
+  sourceUrl: text('source_url').notNull(), // same as url, for provenance
+  sourceFileHash: text('source_file_hash').notNull(),
+  rawData: jsonb('raw_data').notNull(), // all Dublin Core meta tags
+  ingestedAt: timestamp('ingested_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index('press_releases_published_date_idx').on(t.publishedDate),
+  index('press_releases_department_idx').on(t.department),
+  index('press_releases_content_type_idx').on(t.contentType),
+  uniqueIndex('press_releases_url_idx').on(t.url),
+])

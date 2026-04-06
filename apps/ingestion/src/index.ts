@@ -80,6 +80,11 @@ switch (command) {
         await runPublicAccountsIngestion()
         break
       }
+      case 'press-releases': {
+        const { runPressReleasesIngestion } = await import('./runners/press-releases.ts')
+        await runPressReleasesIngestion()
+        break
+      }
       case 'gazette': {
         const { runGazetteIngestion } = await import('./runners/gazette.ts')
         await runGazetteIngestion()
@@ -104,7 +109,7 @@ switch (command) {
       default: {
         console.error(`Unknown source: ${source ?? '(none)'}`)
         console.log(
-          'Available: elections-canada, contracts, grants, lobby-registrations, lobby-communications, international-aid, parliament, senate, fiscal, public-accounts, gic-appointments, travel, hospitality, gazette, all',
+          'Available: elections-canada, contracts, grants, lobby-registrations, lobby-communications, international-aid, parliament, senate, fiscal, public-accounts, gic-appointments, travel, hospitality, gazette, press-releases, all',
         )
         process.exit(1)
       }
@@ -170,7 +175,7 @@ switch (command) {
     console.log('')
     console.log('Ingest sources:')
     console.log(
-      '  elections-canada, contracts, grants, lobby-registrations, lobby-communications, international-aid, parliament, senate, fiscal, public-accounts, gic-appointments, travel, hospitality, gazette, all',
+      '  elections-canada, contracts, grants, lobby-registrations, lobby-communications, international-aid, parliament, senate, fiscal, public-accounts, gic-appointments, travel, hospitality, gazette, press-releases, all',
     )
   }
 }
