@@ -36,7 +36,7 @@ function ActivityRow({ item }: { item: RecentActivity }) {
     <div className="group flex items-center gap-3 rounded-md px-3 py-2.5 transition-colors hover:bg-muted/50">
       <Icon className={`h-4 w-4 shrink-0 ${iconColor}`} />
       <div className="flex-1 min-w-0">
-        <div className="truncate text-sm font-medium">{item.entityName}</div>
+        <div className="truncate text-sm font-medium group-hover:text-primary group-hover:underline">{item.entityName}</div>
         {item.department && (
           <div className="truncate text-xs text-muted-foreground">{item.department}</div>
         )}
@@ -54,7 +54,7 @@ function ActivityRow({ item }: { item: RecentActivity }) {
 
   if (item.entityId) {
     return (
-      <Link to="/entity/$id" params={{ id: item.entityId }}>
+      <Link to="/entity/$id" params={{ id: item.entityId }} className="block cursor-pointer">
         {content}
       </Link>
     )
