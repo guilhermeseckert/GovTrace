@@ -76,6 +76,20 @@ export const en = {
       timeline: 'Timeline',
     },
   },
+  pathfinding: {
+    title: 'Find Path',
+    subtitle: 'Trace connections between any two entities',
+    sourceLabel: 'From',
+    targetLabel: 'To',
+    findButton: 'Find Connections',
+    searching: 'Searching for paths\u2026',
+    noPathsFound: 'No connections found within 3 degrees of separation.',
+    pathsFound: (count: number) => `Found ${count} path${count !== 1 ? 's' : ''}`,
+    hops: (n: number) => `${n} hop${n !== 1 ? 's' : ''}`,
+    swapEntities: 'Swap',
+    ariaLabel: 'Connection paths between entities',
+    navLabel: 'Find Path',
+  },
 } as const
 
 export type TranslationKey = typeof en
