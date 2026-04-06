@@ -12,9 +12,11 @@ type TabCounts = {
   connections: number
   votes: number
   appointments: number
+  travel: number
+  hospitality: number
 }
 
-export type TabKey = 'donations' | 'contracts' | 'grants' | 'lobbying' | 'votes' | 'aid' | 'appointments' | 'connections' | 'visualizations'
+export type TabKey = 'donations' | 'contracts' | 'grants' | 'lobbying' | 'votes' | 'aid' | 'appointments' | 'travel' | 'hospitality' | 'connections' | 'visualizations'
 
 type ProfileTabsProps = {
   counts: TabCounts
@@ -37,6 +39,8 @@ const TAB_DESCRIPTIONS: Record<TabKey, string> = {
   votes: 'House of Commons voting records showing how this politician voted on every division, sourced from ourcommons.ca Open Data.',
   aid: 'International Aid projects funded by Global Affairs Canada (IATI Activity Files). Shows overseas development projects this entity implemented or received funding for.',
   appointments: 'Governor in Council appointments to federal boards, agencies, and Crown corporations, sourced from federal-organizations.canada.ca.',
+  travel: 'Travel expenses for federal officials disclosed under proactive disclosure rules on open.canada.ca. Shows destinations, purpose, and cost breakdowns.',
+  hospitality: 'Hospitality expenses for federal officials disclosed under proactive disclosure rules on open.canada.ca. Shows event details, vendors, and attendee counts.',
   connections: 'Pre-computed relationships linking this entity to others across all five datasets — donations, contracts, grants, and lobbying.',
   visualizations: 'Interactive charts showing money flow patterns, relationship networks, and activity over time across all government datasets.',
 }
@@ -49,6 +53,8 @@ const TABS: TabDef[] = [
   { key: 'votes', label: 'Votes', count: 0 },
   { key: 'aid', label: 'International Aid', count: 0 },
   { key: 'appointments', label: 'Appointments', count: 0 },
+  { key: 'travel', label: 'Travel', count: 0 },
+  { key: 'hospitality', label: 'Hospitality', count: 0 },
   { key: 'connections', label: 'Connections', count: 0, disclaimer: true },
   { key: 'visualizations', label: 'Visualizations', count: 0, disclaimer: true },
 ]

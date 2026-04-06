@@ -2,7 +2,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { count, desc, eq, max, or } from 'drizzle-orm'
 import { getDb } from '@govtrace/db/client'
-import { contracts, donations, grants, internationalAid, lobbyCommunications, lobbyRegistrations } from '@govtrace/db/schema/raw'
+import { contracts, donations, grants, hospitalityDisclosures, internationalAid, lobbyCommunications, lobbyRegistrations, travelDisclosures } from '@govtrace/db/schema/raw'
 import { aiSummaries, entityAliases, entityMatchesLog, entities } from '@govtrace/db/schema/entities'
 import { entityConnections } from '@govtrace/db/schema/connections'
 import { parliamentVoteBallots } from '@govtrace/db/schema/parliament'
@@ -81,6 +81,8 @@ export type EntityProvenance = {
   lobbying: string | null
   aid: string | null
   votes: string | null
+  travel: string | null
+  hospitality: string | null
 }
 
 export const getEntityProvenance = createServerFn({ method: 'GET' })
@@ -88,7 +90,7 @@ export const getEntityProvenance = createServerFn({ method: 'GET' })
   .handler(async ({ data }): Promise<EntityProvenance> => {
     const db = getDb()
 
-    const [donResult, conResult, grResult, lobRegResult, lobCommResult, aidResult, voteResult] =
+    const [donResult, conResult, grResult, lobRegResult, lobCommResult, aidResult, voteResult, travelResult, hospitalityResult] =
       await Promise.all([
         db
           .select({ maxDate: max(donations.ingestedAt) })
@@ -128,6 +130,14 @@ export const getEntityProvenance = createServerFn({ method: 'GET' })
           .select({ maxDate: max(parliamentVoteBallots.ingestedAt) })
           .from(parliamentVoteBallots)
           .where(eq(parliamentVoteBallots.entityId, data.id)),
+        db
+          .select({ maxDate: max(travelDisclosures.ingestedAt) })
+          .from(travelDisclosures)
+          .where(eq(travelDisclosures.entityId, data.id)),
+        db
+          .select({ maxDate: max(hospitalityDisclosures.ingestedAt) })
+          .from(hospitalityDisclosures)
+          .where(eq(hospitalityDisclosures.entityId, data.id)),
       ])
 
     // Pick the most recent lobbying timestamp between registrations and communications
@@ -150,6 +160,8 @@ export const getEntityProvenance = createServerFn({ method: 'GET' })
     const grDate = grResult[0]?.maxDate
     const aidDate = aidResult[0]?.maxDate
     const voteDate = voteResult[0]?.maxDate
+    const travelDate = travelResult[0]?.maxDate
+    const hospitalityDate = hospitalityResult[0]?.maxDate
 
     return {
       donations: donDate ? donDate.toISOString() : null,
@@ -158,6 +170,8 @@ export const getEntityProvenance = createServerFn({ method: 'GET' })
       lobbying: lobbyingDate,
       aid: aidDate ? aidDate.toISOString() : null,
       votes: voteDate ? voteDate.toISOString() : null,
+      travel: travelDate ? travelDate.toISOString() : null,
+      hospitality: hospitalityDate ? hospitalityDate.toISOString() : null,
     }
   })
 
@@ -176,7 +190,7 @@ export const getEntityStats = createServerFn({ method: 'GET' })
       ? eq(donations.recipientName, entity[0].canonicalName)
       : eq(donations.entityId, data.id)
 
-    const [donCount, conCount, grCount, lobCount, connCount, summaryRows, aidCount, voteCount, apptCount] = await Promise.all([
+    const [donCount, conCount, grCount, lobCount, connCount, summaryRows, aidCount, voteCount, apptCount, travelCount, hospitalityCount] = await Promise.all([
       db.select({ c: count() }).from(donations).where(donWhere),
       db.select({ c: count() }).from(contracts).where(eq(contracts.entityId, data.id)),
       db.select({ c: count() }).from(grants).where(eq(grants.entityId, data.id)),
@@ -190,6 +204,8 @@ export const getEntityStats = createServerFn({ method: 'GET' })
       db.select({ c: count() }).from(internationalAid).where(eq(internationalAid.entityId, data.id)),
       db.select({ c: count() }).from(parliamentVoteBallots).where(eq(parliamentVoteBallots.entityId, data.id)),
       db.select({ c: count() }).from(gicAppointments).where(eq(gicAppointments.entityId, data.id)),
+      db.select({ c: count() }).from(travelDisclosures).where(eq(travelDisclosures.entityId, data.id)),
+      db.select({ c: count() }).from(hospitalityDisclosures).where(eq(hospitalityDisclosures.entityId, data.id)),
     ])
 
     return {
@@ -201,6 +217,8 @@ export const getEntityStats = createServerFn({ method: 'GET' })
       aid: Number(aidCount[0]?.c ?? 0),
       votes: Number(voteCount[0]?.c ?? 0),
       appointments: Number(apptCount[0]?.c ?? 0),
+      travel: Number(travelCount[0]?.c ?? 0),
+      hospitality: Number(hospitalityCount[0]?.c ?? 0),
       hasFreshSummary: summaryRows.length > 0 && !summaryRows[0]?.isStale,
     }
   })

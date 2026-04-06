@@ -13,6 +13,8 @@ import { ContractsTable } from '@/components/tables/ContractsTable'
 import { GrantsTable } from '@/components/tables/GrantsTable'
 import { LobbyingTable } from '@/components/tables/LobbyingTable'
 import { AidTable } from '@/components/tables/AidTable'
+import { TravelTable } from '@/components/tables/TravelTable'
+import { HospitalityTable } from '@/components/tables/HospitalityTable'
 import { VotesTable } from '@/components/tables/VotesTable'
 import { ConnectionsTable } from '@/components/tables/ConnectionsTable'
 import { AppointmentsTable } from '@/components/entity/AppointmentsTable'
@@ -143,6 +145,8 @@ function EntityProfilePage() {
               case 'grants': return <GrantsTable entityId={profile.id} />
               case 'lobbying': return <LobbyingTable entityId={profile.id} />
               case 'aid': return <AidTable entityId={profile.id} />
+              case 'travel': return <TravelTable entityId={profile.id} />
+              case 'hospitality': return <HospitalityTable entityId={profile.id} />
               case 'votes': return <VotesTable entityId={profile.id} />
               case 'appointments': return <AppointmentsTable entityId={profile.id} />
               case 'connections': return <ConnectionsTable entityId={profile.id} />
@@ -162,6 +166,8 @@ function EntityProfilePage() {
             {provenance.lobbying && <span>Lobbying {new Date(provenance.lobbying).toISOString().slice(0, 10)}</span>}
             {provenance.aid && <span>International Aid {new Date(provenance.aid).toISOString().slice(0, 10)}</span>}
             {provenance.votes && <span>Votes {new Date(provenance.votes).toISOString().slice(0, 10)}</span>}
+            {provenance.travel && <span>Travel {new Date(provenance.travel).toISOString().slice(0, 10)}</span>}
+            {provenance.hospitality && <span>Hospitality {new Date(provenance.hospitality).toISOString().slice(0, 10)}</span>}
           </div>
         )}
       </div>

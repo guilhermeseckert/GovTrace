@@ -2,7 +2,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { count, desc, eq, or, sql } from 'drizzle-orm'
 import { getDb } from '@govtrace/db/client'
-import { contracts, donations, grants, internationalAid, lobbyCommunications, lobbyRegistrations } from '@govtrace/db/schema/raw'
+import { contracts, donations, grants, hospitalityDisclosures, internationalAid, lobbyCommunications, lobbyRegistrations, travelDisclosures } from '@govtrace/db/schema/raw'
 import { entityConnections } from '@govtrace/db/schema/connections'
 import { entities } from '@govtrace/db/schema/entities'
 import { parliamentBills, parliamentVoteBallots, parliamentVotes, billSummaries } from '@govtrace/db/schema/parliament'
@@ -575,4 +575,86 @@ export const getAppointments = createServerFn({ method: 'GET' })
       .orderBy(desc(gicAppointments.appointmentDate))
 
     return rows
+  })
+
+export const getTravel = createServerFn({ method: 'GET' })
+  .inputValidator(DatasetInputSchema)
+  .handler(async ({ data }) => {
+    const db = getDb()
+    const offset = (data.page - 1) * data.pageSize
+
+    const [rows, totalRows] = await Promise.all([
+      db.select({
+        id: travelDisclosures.id,
+        name: travelDisclosures.name,
+        titleEn: travelDisclosures.titleEn,
+        department: travelDisclosures.department,
+        departmentCode: travelDisclosures.departmentCode,
+        purposeEn: travelDisclosures.purposeEn,
+        destinationEn: travelDisclosures.destinationEn,
+        destination2En: travelDisclosures.destination2En,
+        destinationOtherEn: travelDisclosures.destinationOtherEn,
+        startDate: travelDisclosures.startDate,
+        endDate: travelDisclosures.endDate,
+        airfare: travelDisclosures.airfare,
+        otherTransport: travelDisclosures.otherTransport,
+        lodging: travelDisclosures.lodging,
+        meals: travelDisclosures.meals,
+        otherExpenses: travelDisclosures.otherExpenses,
+        total: travelDisclosures.total,
+      })
+      .from(travelDisclosures)
+      .where(eq(travelDisclosures.entityId, data.entityId))
+      .orderBy(desc(travelDisclosures.startDate))
+      .limit(data.pageSize)
+      .offset(offset),
+
+      db.select({ c: count() }).from(travelDisclosures).where(eq(travelDisclosures.entityId, data.entityId)),
+    ])
+
+    return {
+      rows,
+      total: Number(totalRows[0]?.c ?? 0),
+      page: data.page,
+      pageSize: data.pageSize,
+    }
+  })
+
+export const getHospitality = createServerFn({ method: 'GET' })
+  .inputValidator(DatasetInputSchema)
+  .handler(async ({ data }) => {
+    const db = getDb()
+    const offset = (data.page - 1) * data.pageSize
+
+    const [rows, totalRows] = await Promise.all([
+      db.select({
+        id: hospitalityDisclosures.id,
+        name: hospitalityDisclosures.name,
+        titleEn: hospitalityDisclosures.titleEn,
+        department: hospitalityDisclosures.department,
+        departmentCode: hospitalityDisclosures.departmentCode,
+        descriptionEn: hospitalityDisclosures.descriptionEn,
+        locationEn: hospitalityDisclosures.locationEn,
+        vendorEn: hospitalityDisclosures.vendorEn,
+        startDate: hospitalityDisclosures.startDate,
+        endDate: hospitalityDisclosures.endDate,
+        employeeAttendees: hospitalityDisclosures.employeeAttendees,
+        guestAttendees: hospitalityDisclosures.guestAttendees,
+        total: hospitalityDisclosures.total,
+      })
+      .from(hospitalityDisclosures)
+      .where(eq(hospitalityDisclosures.entityId, data.entityId))
+      .orderBy(desc(hospitalityDisclosures.startDate))
+      .limit(data.pageSize)
+      .offset(offset),
+
+      db.select({ c: count() }).from(hospitalityDisclosures).where(eq(hospitalityDisclosures.entityId, data.entityId)),
+    ])
+
+    return {
+      rows,
+      total: Number(totalRows[0]?.c ?? 0),
+      page: data.page,
+      pageSize: data.pageSize,
+    }
   })
