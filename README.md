@@ -10,19 +10,25 @@ Canada's answer to [OpenSecrets](https://www.opensecrets.org/).
 
 ## Why this exists
 
-Billions of taxpayer dollars flow through government contracts, grants, and international aid every year. Lobbyists meet with officials behind closed doors. Politicians vote on bills that affect the companies donating to their campaigns. All of this data is public, but it's scattered across dozens of government websites in different formats.
+Canada has no single place to follow the money. The data is technically public, but the government makes it incredibly hard to connect the dots:
 
-GovTrace connects these dots so anyone can search a name and see the full picture, with clarity a 9-year-old could follow.
+- **Donations** live on Elections Canada in one format. **Contracts** are on Open Canada in another. **Lobbying** is on a completely separate site. **Parliamentary votes** are on ourcommons.ca. **International aid** is buried in XML files. **Governor in Council appointments** aren't even available as data — you have to scrape individual HTML pages from federal-organizations.canada.ca.
+- **Nothing links together.** A company can donate to a politician, lobby their office, win a contract, and get their former executive appointed to a government board — and no government website will show you that connection. You'd have to manually search 8+ different sites, match names across inconsistent formats, and piece it together yourself.
+- **Formats are inconsistent.** Some datasets are CSV, some JSON, some XML, some are only available as HTML tables. Name formats vary (sometimes "LastName, FirstName", sometimes "FirstName LastName", sometimes abbreviated). Entity matching across these datasets requires fuzzy matching and AI verification.
+- **There's no API for most of it.** Many government data sources require downloading bulk files, scraping web pages, or navigating multi-step download portals.
+
+This is not a technical limitation — it's a transparency gap. GovTrace exists to close it. We pull from every public federal dataset we can find, match entities across all of them using AI, and present the full picture in one searchable interface. The goal: anyone can search a name and see the full story of money and influence, with clarity a 9-year-old could follow.
 
 ## What you can do
 
-- **Search any name** and instantly see all their connections across 7 government datasets
+- **Search any name** and instantly see all their connections across 9 government datasets
 - **Read AI-generated plain-language summaries** that explain relationships in simple English
 - **Trace paths** between any two entities through 2-3 degrees of separation
 - **See where aid money goes** by country, with drill-down to individual projects
 - **Track national debt vs overseas spending** with interactive timeline charts
 - **See how politicians voted** on every bill and cross-reference with their donors
-- **Spot patterns** like donation spikes near contract awards (anomaly detection)
+- **See who gets appointed** to government boards and cross-reference with their donations and lobbying
+- **Spot patterns** like donation spikes near contract awards or appointments after lobbying (anomaly detection)
 - **Download CSV exports** of any dataset for your own analysis
 - **Explore visualizations** including network graphs, money flow diagrams, and activity timelines
 
@@ -38,6 +44,7 @@ GovTrace connects these dots so anyone can search a name and see the full pictur
 | [Global Affairs Canada (IATI)](https://open.canada.ca/) | International aid projects by country | 8,400+ projects |
 | [House of Commons](https://www.ourcommons.ca/) | Parliamentary votes, bills, MP ballots | 1M+ ballots |
 | [Statistics Canada](https://www150.statcan.gc.ca/) | National debt and fiscal snapshots | Monthly |
+| [Federal Organizations](https://federal-organizations.canada.ca/) | Governor in Council appointments (boards, commissions, Crown corps) | Scraped from HTML — no API |
 
 ## Tech Stack
 
@@ -151,7 +158,16 @@ PORT=3000
 - [x] Multi-Hop Path Finding (trace connections 2-3 degrees of separation)
 - [x] Anomaly Flagging (donation spikes, lobbying clusters, outlier detection)
 
-### Backlog
+### Backlog — More Data Sources
+- [ ] Travel & Hospitality Disclosures (where officials travel, who hosts them)
+- [ ] Ethics Commissioner Disclosures (MP financial interests vs their votes)
+- [ ] Senate Votes & Attendance (upper chamber voting records)
+- [ ] Public Accounts of Canada (full government spending by department)
+- [ ] Canada Gazette (regulatory changes after lobbying)
+- [ ] Order Paper Written Questions (what MPs investigate vs who funds them)
+- [ ] Ministerial Briefing Titles (what ministers are briefed on near lobbying)
+
+### Backlog — Features
 - [ ] Newsletter and weekly digest
 - [ ] Ingestion hash-check optimization (skip unchanged files)
 
