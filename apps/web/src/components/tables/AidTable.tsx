@@ -28,6 +28,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { getInternationalAid } from '@/server-fns/datasets'
+import { DownloadCSVButton } from '@/components/tables/DownloadCSVButton'
 import { en } from '@/i18n/en'
 
 type AidRow = {
@@ -310,8 +311,37 @@ export function AidTable({ entityId }: AidTableProps) {
     )
   }
 
+  const aidCsvColumns = [
+    { key: 'projectTitle', header: 'Project Title' },
+    { key: 'description', header: 'Description' },
+    { key: 'implementerName', header: 'Implementing Organization' },
+    { key: 'fundingDepartment', header: 'Funding Department' },
+    { key: 'recipientCountry', header: 'Recipient Country' },
+    { key: 'recipientRegion', header: 'Recipient Region' },
+    { key: 'activityStatus', header: 'Status Code' },
+    { key: 'startDate', header: 'Start Date' },
+    { key: 'endDate', header: 'End Date' },
+    { key: 'totalBudgetCad', header: 'Total Budget (CAD)' },
+    { key: 'totalDisbursedCad', header: 'Total Disbursed (CAD)' },
+    { key: 'totalCommittedCad', header: 'Total Committed (CAD)' },
+    { key: 'currency', header: 'Currency' },
+  ]
+
   return (
     <div className="space-y-4">
+      <div className="flex justify-end">
+        <DownloadCSVButton
+          fetchAllRows={async () => {
+            const result = await getInternationalAid({
+              data: { entityId, page: 1, pageSize: 10000, sortDir: 'desc' },
+            })
+            return (result.rows as Record<string, unknown>[]).map(({ rawData: _, id: __, ...rest }) => rest)
+          }}
+          filename={`govtrace-aid-${entityId.slice(0, 8)}.csv`}
+          columns={aidCsvColumns}
+        />
+      </div>
+
       {/* Desktop table */}
       <div className="hidden rounded-md border md:block">
         <Table>

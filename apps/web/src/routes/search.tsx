@@ -4,6 +4,7 @@ import { searchEntities } from '@/server-fns/search'
 import { SearchBar } from '@/components/search/SearchBar'
 import { SearchResults } from '@/components/search/SearchResults'
 import { SearchFilters } from '@/components/search/SearchFilters'
+import { DownloadCSVButton } from '@/components/tables/DownloadCSVButton'
 
 const SearchParamsSchema = z.object({
   q: z.string().default(''),
@@ -83,6 +84,33 @@ function SearchPage() {
 
         {/* Results */}
         <div className="flex-1 min-w-0">
+          {results.length > 0 && (
+            <div className="mb-3 flex justify-end">
+              <DownloadCSVButton
+                fetchAllRows={async () =>
+                  results.map((r) => ({
+                    name: r.canonicalName,
+                    type: r.entityType,
+                    province: r.province ?? '',
+                    donations: r.counts.donations,
+                    contracts: r.counts.contracts,
+                    grants: r.counts.grants,
+                    lobbying: r.counts.lobbying,
+                  }))
+                }
+                filename={`govtrace-search-${q.replaceAll(/[^a-z0-9-]/gi, '-').toLowerCase().slice(0, 40)}.csv`}
+                columns={[
+                  { key: 'name', header: 'Name' },
+                  { key: 'type', header: 'Type' },
+                  { key: 'province', header: 'Province' },
+                  { key: 'donations', header: 'Donation Records' },
+                  { key: 'contracts', header: 'Contract Records' },
+                  { key: 'grants', header: 'Grant Records' },
+                  { key: 'lobbying', header: 'Lobbying Records' },
+                ]}
+              />
+            </div>
+          )}
           <SearchResults results={results} />
         </div>
       </div>
