@@ -7,7 +7,7 @@
 #   ingestion — Scheduler + ingestion worker
 
 services:
-  postgres:
+  govtrace-db:
     image: postgres:16-alpine
     environment:
       POSTGRES_USER: ${DB_USER:-govtrace}
@@ -19,7 +19,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./docker/postgres-init.sql:/docker-entrypoint-initdb.d/01-extensions.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-govtrace} -d ${DB_NAME:-govtrace}"]
+      test: ["CMD-SHELL", "pg_isready -U govtrace -d govtrace"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -30,7 +30,7 @@ services:
       context: .
       dockerfile: apps/web/Dockerfile
     environment:
-      DATABASE_URL: postgres://${DB_USER:-govtrace}:${DB_PASSWORD}@postgres:5432/${DB_NAME:-govtrace}
+      DATABASE_URL: postgres://${DB_USER:-govtrace}:${DB_PASSWORD}@govtrace-db:5432/${DB_NAME:-govtrace}
       NODE_ENV: production
       PORT: 3000
     expose:
@@ -46,7 +46,7 @@ services:
       - traefik.http.routers.govtrace.tls.certresolver=letsencrypt
       - traefik.http.services.govtrace.loadbalancer.server.port=3000
     depends_on:
-      postgres:
+      govtrace-db:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "-qO", "/dev/null", "--timeout=5", "http://localhost:3000/how-it-works"]
@@ -61,11 +61,11 @@ services:
       context: .
       dockerfile: apps/ingestion/Dockerfile
     environment:
-      DATABASE_URL: postgres://${DB_USER:-govtrace}:${DB_PASSWORD}@postgres:5432/${DB_NAME:-govtrace}
+      DATABASE_URL: postgres://${DB_USER:-govtrace}:${DB_PASSWORD}@govtrace-db:5432/${DB_NAME:-govtrace}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
       NODE_ENV: production
     depends_on:
-      postgres:
+      govtrace-db:
         condition: service_healthy
     restart: unless-stopped
 
