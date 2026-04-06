@@ -260,18 +260,36 @@ export async function runPressReleasesIngestion(): Promise<void> {
     // =========================================================
     console.log('\n=== Phase D: Entity matching for minister names ===')
 
+    // Strip honorifics and normalize minister names for matching
+    function normalizeMinisterName(name: string): string {
+      return name
+        .replace(/^(The\s+)?(Right\s+)?Hon(ourable|\.)\s+/i, '')
+        .replace(/^L['']hon(orable|\.)\s+/i, '')
+        .replace(/^Minister\s+/i, '')
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // strip accents
+        .toLowerCase()
+        .trim()
+    }
+
     // Collect all unique minister names from this batch
     const allMinisterNames = new Set<string>()
+    const ministerNameMap = new Map<string, string>() // normalized -> original
     for (const record of parsedRecords) {
       for (const minister of record.ministers) {
-        if (minister) allMinisterNames.add(minister.toLowerCase().trim())
+        if (minister) {
+          const normalized = normalizeMinisterName(minister)
+          allMinisterNames.add(normalized)
+          ministerNameMap.set(normalized, minister)
+        }
       }
     }
 
     if (allMinisterNames.size > 0) {
-      // Query entities table for politician entities matching minister names
+      // Two-pass matching: exact normalized match, then fuzzy pg_trgm
       const ministerNamesArr = Array.from(allMinisterNames)
-      const entityRows = await db
+
+      // Pass 1: Exact normalized_name match
+      const exactRows = await db
         .select({
           id: entities.id,
           canonicalName: entities.canonicalName,
@@ -282,16 +300,35 @@ export async function runPressReleasesIngestion(): Promise<void> {
           sql`entity_type = 'politician' AND normalized_name = ANY(ARRAY[${sql.join(ministerNamesArr.map((n) => sql`${n}`), sql`, `)}])`,
         )
 
-      const entityByNormalized = new Map(entityRows.map((e) => [e.normalizedName, e]))
-      stats.entityMatchesFound = entityRows.length
+      const entityByNormalized = new Map(exactRows.map((e) => [e.normalizedName, e]))
+      console.log(`  Pass 1 (exact): ${exactRows.length} matches for ${allMinisterNames.size} names`)
 
-      console.log(`  Found ${entityRows.length} entity matches for ${allMinisterNames.size} unique minister names`)
+      // Pass 2: Fuzzy pg_trgm for unmatched names
+      const unmatchedNames = ministerNamesArr.filter((n) => !entityByNormalized.has(n))
+      if (unmatchedNames.length > 0) {
+        for (const name of unmatchedNames) {
+          const fuzzyRows = await db.execute<{ id: string; canonical_name: string; normalized_name: string; sim: number }>(
+            sql`SELECT id, canonical_name, normalized_name, similarity(normalized_name, ${name}) as sim
+                FROM entities
+                WHERE entity_type = 'politician' AND similarity(normalized_name, ${name}) > 0.4
+                ORDER BY sim DESC LIMIT 1`,
+          )
+          const best = Array.from(fuzzyRows)[0]
+          if (best) {
+            entityByNormalized.set(name, { id: best.id, canonicalName: best.canonical_name, normalizedName: best.normalized_name })
+          }
+        }
+        const fuzzyMatched = unmatchedNames.filter((n) => entityByNormalized.has(n)).length
+        console.log(`  Pass 2 (fuzzy): ${fuzzyMatched} additional matches for ${unmatchedNames.length} remaining names`)
+      }
+
+      stats.entityMatchesFound = entityByNormalized.size
 
       // Update mentionedEntities with entityId where matched
       for (const record of parsedRecords) {
         const updatedEntities: MentionedEntity[] = record.mentionedEntities.map((mention) => {
           if (mention.type === 'politician') {
-            const normalized = mention.name.toLowerCase().trim()
+            const normalized = normalizeMinisterName(mention.name)
             const matched = entityByNormalized.get(normalized)
             if (matched) {
               return { ...mention, entityId: matched.id }
