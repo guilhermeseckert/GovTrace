@@ -8,6 +8,13 @@
       "when": 1775016728666,
       "tag": "0000_tidy_tusk",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1775449386915,
+      "tag": "0001_goofy_the_professor",
+      "breakpoints": true
     }
   ]
 }
