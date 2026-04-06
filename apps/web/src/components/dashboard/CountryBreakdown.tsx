@@ -1,4 +1,5 @@
-import { ExternalLink } from 'lucide-react'
+import { useState } from 'react'
+import { ExternalLink, ChevronDown, ChevronUp } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import type { CountrySpendingRow } from '@/server-fns/dashboard'
 import { getFlag } from '@/lib/country-codes'
@@ -37,7 +38,14 @@ type Props = {
 }
 
 export function CountryBreakdown({ data }: Props) {
-  const displayed = data.slice(0, MAX_DISPLAY)
+  const [expanded, setExpanded] = useState(false)
+  const [search, setSearch] = useState('')
+
+  const displayed = expanded
+    ? (search
+        ? data.filter((r) => r.countryName.toLowerCase().includes(search.toLowerCase()))
+        : data)
+    : data.slice(0, MAX_DISPLAY)
   const remaining = data.length - MAX_DISPLAY
 
   const maxPct = displayed.length > 0 ? Math.max(...displayed.map((r) => r.pctOfTotal)) : 100
@@ -92,10 +100,38 @@ export function CountryBreakdown({ data }: Props) {
         })}
       </div>
 
-      {remaining > 0 && (
-        <p className="text-xs text-muted-foreground">
+      {remaining > 0 && !expanded && (
+        <button
+          type="button"
+          onClick={() => setExpanded(true)}
+          className="flex items-center gap-1 text-xs text-primary hover:underline cursor-pointer"
+        >
+          <ChevronDown className="h-3 w-3" />
           and {remaining} more {remaining === 1 ? 'country' : 'countries'}
-        </p>
+        </button>
+      )}
+
+      {expanded && (
+        <div className="space-y-2">
+          <input
+            type="text"
+            placeholder="Search countries..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full rounded-md border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+          />
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <span>{displayed.length} {displayed.length === 1 ? 'country' : 'countries'}</span>
+            <button
+              type="button"
+              onClick={() => { setExpanded(false); setSearch('') }}
+              className="flex items-center gap-1 text-primary hover:underline cursor-pointer"
+            >
+              <ChevronUp className="h-3 w-3" />
+              Show less
+            </button>
+          </div>
+        </div>
       )}
 
       {/* Source link */}

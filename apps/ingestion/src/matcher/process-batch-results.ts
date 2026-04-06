@@ -5,7 +5,7 @@ import { entityAliases, entityMatchesLog } from '@govtrace/db/schema/entities'
 import { normalizeName } from '../normalizer/normalize.ts'
 import type { AIVerdict } from './ai-verify.ts'
 
-const HAIKU_MODEL = 'claude-haiku-3-5'
+const HAIKU_MODEL = 'claude-haiku-4-5-20251001'
 
 export interface BatchProcessResult {
   batchId: string

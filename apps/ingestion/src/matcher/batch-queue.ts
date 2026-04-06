@@ -8,7 +8,7 @@ const CIRCUIT_BREAKER_LIMIT = 10_000
 // Claude Batch API per-request limit
 const MAX_BATCH_SIZE = 5_000
 
-const HAIKU_MODEL = 'claude-haiku-3-5'
+const HAIKU_MODEL = 'claude-haiku-4-5-20251001'
 
 export interface BatchSubmitResult {
   batchId: string
@@ -47,7 +47,7 @@ export async function submitMatchingBatch(force = false): Promise<BatchSubmitRes
   if (candidates.length > CIRCUIT_BREAKER_LIMIT && !force) {
     throw new CircuitBreakerError(
       `Circuit breaker triggered: ${candidates.length} candidates exceed limit of ${CIRCUIT_BREAKER_LIMIT}.\n` +
-      `Estimated cost at claude-haiku-3-5 rates (~250 tokens/request, $0.25/million input tokens):\n` +
+      `Estimated cost at claude-haiku-4-5-20251001 rates (~250 tokens/request, $0.25/million input tokens):\n` +
       `  ~$${((candidates.length * 250) / 1_000_000 * 0.25).toFixed(2)} USD\n` +
       `Run with force=true to override, or process one year of Elections Canada first to calibrate costs.`,
     )

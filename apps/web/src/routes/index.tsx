@@ -77,7 +77,7 @@ function TopList({ items, title, icon }: { items: TopRecipient[]; title: string;
           const content = (
             <div className="group rounded-md px-3 py-2 transition-colors hover:bg-muted/50">
               <div className="mb-1 flex items-center justify-between gap-2">
-                <span className="truncate text-sm font-medium">{item.name}</span>
+                <span className="truncate text-sm font-medium group-hover:text-primary group-hover:underline">{item.name}</span>
                 <span className="shrink-0 tabular-nums text-sm">{formatAmount(item.totalValue)}</span>
               </div>
               <div className="h-1.5 w-full rounded-full bg-muted">
@@ -94,7 +94,7 @@ function TopList({ items, title, icon }: { items: TopRecipient[]; title: string;
 
           if (item.entityId) {
             return (
-              <Link key={item.entityId} to="/entity/$id" params={{ id: item.entityId }}>
+              <Link key={item.entityId} to="/entity/$id" params={{ id: item.entityId }} className="block cursor-pointer">
                 {content}
               </Link>
             )

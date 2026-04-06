@@ -1,7 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk'
 
-const HAIKU_MODEL = 'claude-haiku-3-5'
-const SONNET_MODEL = 'claude-sonnet-4-5'
+const HAIKU_MODEL = 'claude-haiku-4-5-20251001'
+const SONNET_MODEL = 'claude-sonnet-4-5-20250514'
 
 export type AIVerdict = 'match' | 'no_match' | 'uncertain'
 
@@ -18,8 +18,8 @@ export interface AIVerificationResult {
  * For large batches, use submitMatchingBatch() which uses the Batch API.
  *
  * Model selection per STACK.md:
- * - claude-haiku-3-5: high volume medium-confidence matches (cost-sensitive)
- * - claude-sonnet-4-5: ambiguous cases where haiku returns 'uncertain'
+ * - claude-haiku-4-5-20251001: high volume medium-confidence matches (cost-sensitive)
+ * - claude-sonnet-4-5-20250514: ambiguous cases where haiku returns 'uncertain'
  */
 export async function verifyMatchWithAI(
   nameA: string,

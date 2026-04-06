@@ -12,10 +12,12 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as PatternsRouteImport } from './routes/patterns'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
+import { Route as FindPathRouteImport } from './routes/find-path'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as EntityIdRouteImport } from './routes/entity/$id'
 import { Route as BillIdRouteImport } from './routes/bill/$id'
+import { Route as AidCountryCodeRouteImport } from './routes/aid/country/$code'
 
 const SearchRoute = SearchRouteImport.update({
   id: '/search',
@@ -30,6 +32,11 @@ const PatternsRoute = PatternsRouteImport.update({
 const HowItWorksRoute = HowItWorksRouteImport.update({
   id: '/how-it-works',
   path: '/how-it-works',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FindPathRoute = FindPathRouteImport.update({
+  id: '/find-path',
+  path: '/find-path',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -52,73 +59,92 @@ const BillIdRoute = BillIdRouteImport.update({
   path: '/bill/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AidCountryCodeRoute = AidCountryCodeRouteImport.update({
+  id: '/aid/country/$code',
+  path: '/aid/country/$code',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/find-path': typeof FindPathRoute
   '/how-it-works': typeof HowItWorksRoute
   '/patterns': typeof PatternsRoute
   '/search': typeof SearchRoute
   '/bill/$id': typeof BillIdRoute
   '/entity/$id': typeof EntityIdRoute
+  '/aid/country/$code': typeof AidCountryCodeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/find-path': typeof FindPathRoute
   '/how-it-works': typeof HowItWorksRoute
   '/patterns': typeof PatternsRoute
   '/search': typeof SearchRoute
   '/bill/$id': typeof BillIdRoute
   '/entity/$id': typeof EntityIdRoute
+  '/aid/country/$code': typeof AidCountryCodeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/find-path': typeof FindPathRoute
   '/how-it-works': typeof HowItWorksRoute
   '/patterns': typeof PatternsRoute
   '/search': typeof SearchRoute
   '/bill/$id': typeof BillIdRoute
   '/entity/$id': typeof EntityIdRoute
+  '/aid/country/$code': typeof AidCountryCodeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/dashboard'
+    | '/find-path'
     | '/how-it-works'
     | '/patterns'
     | '/search'
     | '/bill/$id'
     | '/entity/$id'
+    | '/aid/country/$code'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/dashboard'
+    | '/find-path'
     | '/how-it-works'
     | '/patterns'
     | '/search'
     | '/bill/$id'
     | '/entity/$id'
+    | '/aid/country/$code'
   id:
     | '__root__'
     | '/'
     | '/dashboard'
+    | '/find-path'
     | '/how-it-works'
     | '/patterns'
     | '/search'
     | '/bill/$id'
     | '/entity/$id'
+    | '/aid/country/$code'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
+  FindPathRoute: typeof FindPathRoute
   HowItWorksRoute: typeof HowItWorksRoute
   PatternsRoute: typeof PatternsRoute
   SearchRoute: typeof SearchRoute
   BillIdRoute: typeof BillIdRoute
   EntityIdRoute: typeof EntityIdRoute
+  AidCountryCodeRoute: typeof AidCountryCodeRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -130,6 +156,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SearchRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/patterns': {
+      id: '/patterns'
+      path: '/patterns'
+      fullPath: '/patterns'
+      preLoaderRoute: typeof PatternsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/how-it-works': {
       id: '/how-it-works'
       path: '/how-it-works'
@@ -137,18 +170,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HowItWorksRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/find-path': {
+      id: '/find-path'
+      path: '/find-path'
+      fullPath: '/find-path'
+      preLoaderRoute: typeof FindPathRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/patterns': {
-      id: '/patterns'
-      path: '/patterns'
-      fullPath: '/patterns'
-      preLoaderRoute: typeof PatternsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -172,17 +205,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BillIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/aid/country/$code': {
+      id: '/aid/country/$code'
+      path: '/aid/country/$code'
+      fullPath: '/aid/country/$code'
+      preLoaderRoute: typeof AidCountryCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
+  FindPathRoute: FindPathRoute,
   HowItWorksRoute: HowItWorksRoute,
   PatternsRoute: PatternsRoute,
   SearchRoute: SearchRoute,
   BillIdRoute: BillIdRoute,
   EntityIdRoute: EntityIdRoute,
+  AidCountryCodeRoute: AidCountryCodeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

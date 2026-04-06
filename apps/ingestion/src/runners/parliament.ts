@@ -39,7 +39,7 @@ import { findDeterministicMatch, createNewEntity } from '../matcher/deterministi
 import { findFuzzyMatches, storeHighConfidenceMatch } from '../matcher/fuzzy.ts'
 import { verifyMatchWithAI } from '../matcher/ai-verify.ts'
 
-const HAIKU_MODEL = 'claude-haiku-3-5'
+const HAIKU_MODEL = 'claude-haiku-4-5-20251001'
 
 // Parser for Members of Parliament XML (same structure as VoteParticipant XML)
 const membersParser = new XMLParser({

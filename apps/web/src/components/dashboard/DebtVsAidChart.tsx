@@ -62,13 +62,13 @@ export function DebtVsAidChart({ data }: Props) {
     >
       <ResponsiveContainer width="100%" height={400}>
         <ComposedChart data={data} margin={{ top: 30, right: 70, bottom: 10, left: 80 }}>
-          <CartesianGrid strokeDasharray="4 2" stroke="var(--border)" strokeOpacity={0.5} />
+          <CartesianGrid strokeDasharray="4 2" stroke="hsl(var(--border))" strokeOpacity={0.5} />
 
           <XAxis
             dataKey="year"
-            tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
-            tickLine={{ stroke: 'var(--border)' }}
-            axisLine={{ stroke: 'var(--border)' }}
+            tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+            tickLine={{ stroke: 'hsl(var(--border))' }}
+            axisLine={{ stroke: 'hsl(var(--border))' }}
           />
 
           {/* Left Y-axis — national debt */}
@@ -76,15 +76,15 @@ export function DebtVsAidChart({ data }: Props) {
             yAxisId="debt"
             orientation="left"
             tickFormatter={formatBillions}
-            tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
-            tickLine={{ stroke: 'var(--border)' }}
-            axisLine={{ stroke: 'var(--border)' }}
+            tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+            tickLine={{ stroke: 'hsl(var(--border))' }}
+            axisLine={{ stroke: 'hsl(var(--border))' }}
             label={{
               value: 'National Debt ($ billions)',
               angle: -90,
               position: 'insideLeft',
               offset: -60,
-              style: { fontSize: 11, fill: 'var(--muted-foreground)' },
+              style: { fontSize: 11, fill: 'hsl(var(--muted-foreground))' },
             }}
           />
 
@@ -115,9 +115,9 @@ export function DebtVsAidChart({ data }: Props) {
             contentStyle={{
               fontSize: 12,
               borderRadius: '6px',
-              border: '1px solid var(--border)',
-              backgroundColor: 'var(--background)',
-              color: 'var(--foreground)',
+              border: '1px solid hsl(var(--border))',
+              backgroundColor: 'hsl(var(--background))',
+              color: 'hsl(var(--foreground))',
             }}
           />
 
@@ -126,14 +126,14 @@ export function DebtVsAidChart({ data }: Props) {
             <ReferenceLine
               key={`election-${e.year}`}
               x={e.year}
-              stroke="var(--muted-foreground)"
+              stroke="hsl(var(--muted-foreground))"
               strokeDasharray="4 2"
               strokeOpacity={0.6}
               label={{
                 value: String(e.year),
                 position: 'top',
                 fontSize: 9,
-                fill: 'var(--muted-foreground)',
+                fill: 'hsl(var(--muted-foreground))',
                 angle: -45,
               }}
             />
