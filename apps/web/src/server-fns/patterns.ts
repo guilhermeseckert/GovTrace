@@ -2,7 +2,6 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { eq, sql } from 'drizzle-orm'
 import { getDb } from '@govtrace/db/client'
-import { entityConnections } from '@govtrace/db/schema/connections'
 import { entities } from '@govtrace/db/schema/entities'
 import { formatAmount } from '@/lib/connection-labels'
 
@@ -22,7 +21,41 @@ export const getPatternCallouts = createServerFn({ method: 'GET' })
   .handler(async ({ data }): Promise<PatternCallout[]> => {
     const db = getDb()
 
-    // Fetch entity name for use in questions
+    // First: check for persisted pattern flags — prefer these over real-time detection
+    const persistedFlags = await db.execute<{
+      id: string
+      title: string
+      description: string
+      entity_id: string
+      related_entity_id: string | null
+    }>(sql`
+      SELECT
+        id,
+        title,
+        description,
+        entity_id,
+        related_entity_id
+      FROM pattern_flags
+      WHERE entity_id = ${data.entityId}
+        AND is_active = true
+      ORDER BY
+        CASE severity WHEN 'high' THEN 1 WHEN 'medium' THEN 2 ELSE 3 END,
+        detected_at DESC
+      LIMIT ${MAX_CALLOUTS}
+    `)
+
+    const persistedRows = Array.from(persistedFlags)
+
+    if (persistedRows.length > 0) {
+      return persistedRows.map((row) => ({
+        id: row.id,
+        question: row.title,
+        whyItMatters: row.description,
+        sourceEntityId: row.related_entity_id ?? row.entity_id,
+      }))
+    }
+
+    // Fallback: real-time detection for multi-dept and multi-party (cheap queries, no raw table joins)
     const entityRow = await db
       .select({ canonicalName: entities.canonicalName })
       .from(entities)
@@ -40,7 +73,6 @@ export const getPatternCallouts = createServerFn({ method: 'GET' })
 
     const callouts: PatternCallout[] = []
 
-    // Add monetary patterns first (high-value, multi-dept), then temporal, then multi-party
     if (highValue) callouts.push(highValue)
     if (multiDept) callouts.push(multiDept)
     if (temporal) callouts.push(temporal)
@@ -178,3 +210,4 @@ async function detectMultiPartyDonor(
     sourceEntityId: entityId,
   }
 }
+

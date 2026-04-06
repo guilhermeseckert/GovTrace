@@ -55,6 +55,13 @@ export function PatternCallouts({ entityId }: PatternCalloutsProps) {
           )}
         </div>
       ))}
+      <Link
+        to="/patterns"
+        search={{ entity: entityId }}
+        className="inline-block text-xs font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+      >
+        View all patterns for this entity
+      </Link>
     </div>
   )
 }

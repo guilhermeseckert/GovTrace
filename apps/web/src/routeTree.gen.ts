@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SearchRouteImport } from './routes/search'
+import { Route as PatternsRouteImport } from './routes/patterns'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
@@ -19,6 +20,11 @@ import { Route as BillIdRouteImport } from './routes/bill/$id'
 const SearchRoute = SearchRouteImport.update({
   id: '/search',
   path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PatternsRoute = PatternsRouteImport.update({
+  id: '/patterns',
+  path: '/patterns',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HowItWorksRoute = HowItWorksRouteImport.update({
@@ -51,6 +57,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/patterns': typeof PatternsRoute
   '/search': typeof SearchRoute
   '/bill/$id': typeof BillIdRoute
   '/entity/$id': typeof EntityIdRoute
@@ -59,6 +66,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/patterns': typeof PatternsRoute
   '/search': typeof SearchRoute
   '/bill/$id': typeof BillIdRoute
   '/entity/$id': typeof EntityIdRoute
@@ -68,6 +76,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/patterns': typeof PatternsRoute
   '/search': typeof SearchRoute
   '/bill/$id': typeof BillIdRoute
   '/entity/$id': typeof EntityIdRoute
@@ -78,6 +87,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/how-it-works'
+    | '/patterns'
     | '/search'
     | '/bill/$id'
     | '/entity/$id'
@@ -86,6 +96,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/how-it-works'
+    | '/patterns'
     | '/search'
     | '/bill/$id'
     | '/entity/$id'
@@ -94,6 +105,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/how-it-works'
+    | '/patterns'
     | '/search'
     | '/bill/$id'
     | '/entity/$id'
@@ -103,6 +115,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
   HowItWorksRoute: typeof HowItWorksRoute
+  PatternsRoute: typeof PatternsRoute
   SearchRoute: typeof SearchRoute
   BillIdRoute: typeof BillIdRoute
   EntityIdRoute: typeof EntityIdRoute
@@ -129,6 +142,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/patterns': {
+      id: '/patterns'
+      path: '/patterns'
+      fullPath: '/patterns'
+      preLoaderRoute: typeof PatternsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -159,6 +179,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
   HowItWorksRoute: HowItWorksRoute,
+  PatternsRoute: PatternsRoute,
   SearchRoute: SearchRoute,
   BillIdRoute: BillIdRoute,
   EntityIdRoute: EntityIdRoute,
