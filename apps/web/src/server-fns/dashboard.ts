@@ -2,6 +2,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { sql, sum, count, desc, isNotNull, and } from 'drizzle-orm'
 import { getDb } from '@govtrace/db/client'
 import { fiscalSnapshots, internationalAid } from '@govtrace/db/schema/raw'
+import { cached } from '@/lib/cache'
 
 export type DebtAidDataPoint = {
   year: number
@@ -39,7 +40,7 @@ const AID_SOURCE_URL =
 // ---------------------------------------------------------------------------
 
 export const getDebtTimeline = createServerFn({ method: 'GET' }).handler(
-  async (): Promise<DebtAidDataPoint[]> => {
+  (): Promise<DebtAidDataPoint[]> => cached('debt-timeline', async () => {
     const db = getDb()
 
     // Debt by year — max value per year (latest month's reading)
@@ -98,7 +99,7 @@ export const getDebtTimeline = createServerFn({ method: 'GET' }).handler(
     }
 
     return results
-  },
+  }),
 )
 
 // ---------------------------------------------------------------------------
@@ -106,7 +107,7 @@ export const getDebtTimeline = createServerFn({ method: 'GET' }).handler(
 // ---------------------------------------------------------------------------
 
 export const getDepartmentBreakdown = createServerFn({ method: 'GET' }).handler(
-  async (): Promise<DeptSpendingRow[]> => {
+  (): Promise<DeptSpendingRow[]> => cached('dept-breakdown', async () => {
     const db = getDb()
 
     const rows = await db
@@ -136,7 +137,7 @@ export const getDepartmentBreakdown = createServerFn({ method: 'GET' }).handler(
         pctOfTotal: grandTotal > 0 ? Math.round((committed / grandTotal) * 10000) / 100 : 0,
       }
     })
-  },
+  }),
 )
 
 // ---------------------------------------------------------------------------
@@ -144,7 +145,7 @@ export const getDepartmentBreakdown = createServerFn({ method: 'GET' }).handler(
 // ---------------------------------------------------------------------------
 
 export const getDebtHeroStats = createServerFn({ method: 'GET' }).handler(
-  async (): Promise<DebtHeroStats> => {
+  (): Promise<DebtHeroStats> => cached('debt-hero-stats', async () => {
     const db = getDb()
 
     const latestDebt = await db
@@ -182,5 +183,5 @@ export const getDebtHeroStats = createServerFn({ method: 'GET' }).handler(
       sourceDebtUrl: DEBT_SOURCE_URL,
       sourceAidUrl: AID_SOURCE_URL,
     }
-  },
+  }),
 )

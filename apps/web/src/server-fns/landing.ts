@@ -1,6 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 import { sql } from 'drizzle-orm'
 import { getDb } from '@govtrace/db/client'
+import { cached } from '@/lib/cache'
 
 export type RecentActivity = {
   type: 'contract' | 'grant' | 'donation'
@@ -26,7 +27,7 @@ export type LandingData = {
 }
 
 export const getLandingData = createServerFn({ method: 'GET' })
-  .handler(async (): Promise<LandingData> => {
+  .handler((): Promise<LandingData> => cached('landing-data', async () => {
     const db = getDb()
 
     const [recentContracts, recentGrants, topContractors, topGrantRecipients] = await Promise.all([
@@ -121,4 +122,4 @@ export const getLandingData = createServerFn({ method: 'GET' })
         contractCount: Number(r.cnt),
       })),
     }
-  })
+  }))
