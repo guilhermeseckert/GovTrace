@@ -1,12 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
+milestone: v2.0
+milestone_name: International Money Tracking
 status: verifying
-stopped_at: Completed quick/260406-15u-public-accounts-of-canada-ingest-detaile
-last_updated: "2026-04-06T07:01:26Z"
-last_activity: "2026-04-06 - Completed quick task 260406-15u: Public Accounts of Canada Ingestion + Dashboard"
+stopped_at: Completed quick/260406-nuq-government-press-releases-scrape-canada-
+last_updated: "2026-04-06T23:34:12.636Z"
+last_activity: "2026-04-06 - Completed quick task 260405-tck: International Aid Country & Theme Breakdown"
 progress:
+  total_phases: 21
+  completed_phases: 3
+  total_plans: 6
+  completed_plans: 6
   percent: 0
 ---
 
@@ -165,6 +169,7 @@ Recent decisions affecting current work:
 - [Phase 07-parliamentary-voting-records]: Bills not added to entity_connections — bills are not entities; PARL-04 cross-reference is query-time via vote_ballots + donations join
 - [Phase 07-parliamentary-voting-records]: PROMPT_VERSION -v3 invalidates existing politician AI summaries to regenerate with PARL-04 voting pattern context
 - [Phase 07-parliamentary-voting-records]: DivisionCard MP list collapsed by default — bills have up to 338 ballots which would create poor UX if all expanded
+- [Phase quick]: Two-source press release ingestion: canada.ca HTML scraping (listings + detail pages) + PM RSS feed, deduplicated by URL
 
 ### Pending Todos
 
@@ -188,6 +193,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-06T06:30:31.970Z
-Stopped at: Completed quick/260406-079-senate-votes-and-attendance-ingest-senat
+Last session: 2026-04-06T23:34:08.287Z
+Stopped at: Completed quick/260406-nuq-government-press-releases-scrape-canada-
 Resume file: None
