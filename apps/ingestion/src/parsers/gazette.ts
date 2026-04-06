@@ -220,6 +220,12 @@ export function parseGazetteIndex(html: string, issueUrl: string): ParsedGazette
   const publicationDate = extractDateFromUrl(issueUrl) ?? new Date().toISOString().slice(0, 10)
   const gazettePart = extractPartFromUrl(issueUrl)
 
+  // Reject soft 404 pages from gazette.gc.ca (they return HTTP 200)
+  if (html.includes('Error 404') || html.includes("couldn't find that Web page")) {
+    console.warn(`  [gazette-parser] Skipping soft 404 page: ${issueUrl}`)
+    return []
+  }
+
   let $: ReturnType<typeof load>
   try {
     $ = load(html)

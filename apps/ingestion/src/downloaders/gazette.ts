@@ -49,18 +49,23 @@ function buildCandidateUrls(year: number): string[] {
 
 /**
  * Probes a URL to see if an issue exists at that date.
- * Returns the URL if HTTP 200, null otherwise.
+ * gazette.gc.ca returns HTTP 200 for non-existent pages (soft 404),
+ * so we must fetch the body and check for "Error 404" in the content.
+ * Real issue pages contain "Canada Gazette, Part II".
  */
 async function probeUrl(url: string): Promise<string | null> {
   try {
     const response = await fetch(url, {
-      method: 'HEAD',
       headers: {
         'User-Agent': USER_AGENT,
         Accept: 'text/html',
       },
     })
-    return response.ok ? url : null
+    if (!response.ok) return null
+    const html = await response.text()
+    // Soft 404 detection — gazette.gc.ca returns 200 with error page
+    if (html.includes('Error 404') || !html.includes('Canada Gazette')) return null
+    return url
   } catch {
     return null
   }
