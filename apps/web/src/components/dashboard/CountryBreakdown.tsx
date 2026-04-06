@@ -1,4 +1,5 @@
 import { ExternalLink } from 'lucide-react'
+import { Link } from '@tanstack/react-router'
 import type { CountrySpendingRow } from '@/server-fns/dashboard'
 import { getFlag } from '@/lib/country-codes'
 
@@ -59,27 +60,34 @@ export function CountryBreakdown({ data }: Props) {
           const flag = getFlag(row.countryCode)
           const label = flag ? `${flag} ${row.countryName}` : row.countryName
           return (
-            <div key={row.countryCode} className="space-y-1">
-              <div className="flex items-center justify-between gap-2 text-sm">
-                <span className="min-w-0 truncate font-medium" title={row.countryName}>
-                  {label}
-                </span>
-                <div className="flex shrink-0 items-center gap-3 tabular-nums text-muted-foreground">
-                  <span>{formatCurrency(row.totalCommittedCad)}</span>
-                  <span className="w-12 text-right text-xs">{row.pctOfTotal.toFixed(1)}%</span>
-                  <span className="hidden w-20 text-right text-xs sm:block">
-                    {row.projectCount.toLocaleString()} projects
+            <Link
+              key={row.countryCode}
+              to="/aid/country/$code"
+              params={{ code: row.countryCode }}
+              className="block rounded-md px-2 py-1 -mx-2 transition-colors hover:bg-muted/50 cursor-pointer"
+            >
+              <div className="space-y-1">
+                <div className="flex items-center justify-between gap-2 text-sm">
+                  <span className="min-w-0 truncate font-medium" title={row.countryName}>
+                    {label}
                   </span>
+                  <div className="flex shrink-0 items-center gap-3 tabular-nums text-muted-foreground">
+                    <span>{formatCurrency(row.totalCommittedCad)}</span>
+                    <span className="w-12 text-right text-xs">{row.pctOfTotal.toFixed(1)}%</span>
+                    <span className="hidden w-20 text-right text-xs sm:block">
+                      {row.projectCount.toLocaleString()} projects
+                    </span>
+                  </div>
+                </div>
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-secondary">
+                  <div
+                    className="h-full rounded-full bg-primary transition-all duration-500"
+                    style={{ width: `${barWidth}%` }}
+                    aria-label={`${row.pctOfTotal.toFixed(1)}% of total aid committed to ${row.countryName}`}
+                  />
                 </div>
               </div>
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-secondary">
-                <div
-                  className="h-full rounded-full bg-primary transition-all duration-500"
-                  style={{ width: `${barWidth}%` }}
-                  aria-label={`${row.pctOfTotal.toFixed(1)}% of total aid committed to ${row.countryName}`}
-                />
-              </div>
-            </div>
+            </Link>
           )
         })}
       </div>

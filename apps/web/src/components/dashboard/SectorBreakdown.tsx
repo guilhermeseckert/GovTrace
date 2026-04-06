@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { ExternalLink } from 'lucide-react'
 import type { SectorSpendingRow } from '@/server-fns/dashboard'
 
@@ -35,10 +36,10 @@ type Props = {
 }
 
 export function SectorBreakdown({ data }: Props) {
-  const displayed = data.slice(0, MAX_DISPLAY)
-  const remaining = data.length - MAX_DISPLAY
+  const [expanded, setExpanded] = useState(false)
+  const [search, setSearch] = useState('')
 
-  const maxPct = displayed.length > 0 ? Math.max(...displayed.map((r) => r.pctOfTotal)) : 100
+  const remaining = data.length - MAX_DISPLAY
 
   if (data.length === 0) {
     return (
@@ -50,8 +51,29 @@ export function SectorBreakdown({ data }: Props) {
     )
   }
 
+  // When collapsed show top 10; when expanded, filter by search
+  const displayed = expanded
+    ? data.filter((r) =>
+        r.theme.toLowerCase().includes(search.toLowerCase()),
+      )
+    : data.slice(0, MAX_DISPLAY)
+
+  const maxPct =
+    displayed.length > 0 ? Math.max(...displayed.map((r) => r.pctOfTotal)) : 100
+
   return (
     <div className="space-y-4">
+      {/* Search input — only when expanded */}
+      {expanded && (
+        <input
+          type="text"
+          placeholder="Search sectors..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="mb-3 w-full rounded-md border bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+        />
+      )}
+
       <div className="space-y-2">
         {displayed.map((row) => {
           const barWidth = maxPct > 0 ? (row.pctOfTotal / maxPct) * 100 : 0
@@ -81,10 +103,34 @@ export function SectorBreakdown({ data }: Props) {
         })}
       </div>
 
-      {remaining > 0 && (
-        <p className="text-xs text-muted-foreground">
+      {/* Collapse footer — shown when expanded */}
+      {expanded && (
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span>
+            {displayed.length} of {data.length} sectors
+          </span>
+          <button
+            type="button"
+            onClick={() => {
+              setExpanded(false)
+              setSearch('')
+            }}
+            className="text-xs text-primary hover:underline cursor-pointer"
+          >
+            Show less
+          </button>
+        </div>
+      )}
+
+      {/* Overflow count — shown when collapsed and there are more */}
+      {!expanded && remaining > 0 && (
+        <button
+          type="button"
+          onClick={() => setExpanded(true)}
+          className="text-xs text-primary hover:underline cursor-pointer"
+        >
           and {remaining} more {remaining === 1 ? 'sector' : 'sectors'}
-        </p>
+        </button>
       )}
 
       {/* Source link */}
