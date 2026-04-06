@@ -27,6 +27,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { getLobbying } from '@/server-fns/datasets'
+import { DownloadCSVButton } from '@/components/tables/DownloadCSVButton'
 import { en } from '@/i18n/en'
 
 // Unified row shape for display — merges registrations and communications
@@ -235,8 +236,46 @@ export function LobbyingTable({ entityId }: LobbyingTableProps) {
     )
   }
 
+  const lobbyCsvColumns = [
+    { key: 'type', header: 'Record Type' },
+    { key: 'registrantName', header: 'Registrant Name' },
+    { key: 'subjectMatter', header: 'Subject Matter' },
+    { key: 'date', header: 'Date' },
+    { key: 'officialName', header: 'Public Official' },
+    { key: 'department', header: 'Department' },
+  ]
+
   return (
     <div className="space-y-4">
+      <div className="flex justify-end">
+        <DownloadCSVButton
+          fetchAllRows={async () => {
+            const result = await getLobbying({
+              data: { entityId, page: 1, pageSize: 10000, sortDir: 'desc' },
+            })
+            const registrations = result.rows.registrations.map((r) => ({
+              type: 'registration',
+              registrantName: r.lobbyistName,
+              subjectMatter: r.subjectMatter,
+              date: r.registrationDate,
+              officialName: null,
+              department: null,
+            }))
+            const communications = result.rows.communications.map((c) => ({
+              type: 'communication',
+              registrantName: c.lobbyistName,
+              subjectMatter: c.subjectMatter,
+              date: c.communicationDate,
+              officialName: c.publicOfficialName,
+              department: c.department ?? null,
+            }))
+            return [...registrations, ...communications] as Record<string, unknown>[]
+          }}
+          filename={`govtrace-lobbying-${entityId.slice(0, 8)}.csv`}
+          columns={lobbyCsvColumns}
+        />
+      </div>
+
       {/* Desktop table */}
       <div className="hidden rounded-md border md:block">
         <Table>

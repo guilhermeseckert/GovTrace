@@ -33,6 +33,8 @@ export const en = {
     empty: 'No {dataset} records found for this entity.',
     rowsPerPage: 'Rows per page',
     of: 'of',
+    downloadCsv: 'Download CSV',
+    downloading: 'Downloading...',
   },
   common: {
     error: 'Unable to load data. Try refreshing the page. If this keeps happening, the government data source may be temporarily unavailable.',

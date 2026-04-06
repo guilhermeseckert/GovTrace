@@ -27,6 +27,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { getDonations } from '@/server-fns/datasets'
+import { DownloadCSVButton } from '@/components/tables/DownloadCSVButton'
 import { en } from '@/i18n/en'
 
 type DonationRow = {
@@ -213,8 +214,31 @@ export function DonationsTable({ entityId }: DonationsTableProps) {
     )
   }
 
+  const donationCsvColumns = [
+    { key: 'contributorName', header: 'Contributor Name' },
+    { key: 'amount', header: 'Amount (CAD)' },
+    { key: 'donationDate', header: 'Donation Date' },
+    { key: 'recipientName', header: 'Recipient Name' },
+    { key: 'recipientType', header: 'Recipient Type' },
+    { key: 'province', header: 'Province' },
+    { key: 'electionYear', header: 'Election Year' },
+  ]
+
   return (
     <div className="space-y-4">
+      <div className="flex justify-end">
+        <DownloadCSVButton
+          fetchAllRows={async () => {
+            const result = await getDonations({
+              data: { entityId, page: 1, pageSize: 10000, sortDir: 'desc' },
+            })
+            return (result.rows as Record<string, unknown>[]).map(({ rawData: _, id: __, ...rest }) => rest)
+          }}
+          filename={`govtrace-donations-${entityId.slice(0, 8)}.csv`}
+          columns={donationCsvColumns}
+        />
+      </div>
+
       {/* Desktop table */}
       <div className="hidden rounded-md border md:block">
         <Table>

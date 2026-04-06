@@ -27,6 +27,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { getContracts } from '@/server-fns/datasets'
+import { DownloadCSVButton } from '@/components/tables/DownloadCSVButton'
 import { en } from '@/i18n/en'
 
 type ContractRow = {
@@ -249,8 +250,35 @@ export function ContractsTable({ entityId }: ContractsTableProps) {
     )
   }
 
+  const contractCsvColumns = [
+    { key: 'vendorName', header: 'Vendor Name' },
+    { key: 'value', header: 'Contract Value (CAD)' },
+    { key: 'originalValue', header: 'Original Value (CAD)' },
+    { key: 'department', header: 'Department' },
+    { key: 'description', header: 'Description' },
+    { key: 'awardDate', header: 'Award Date' },
+    { key: 'startDate', header: 'Start Date' },
+    { key: 'endDate', header: 'End Date' },
+    { key: 'procurementMethod', header: 'Procurement Method' },
+    { key: 'province', header: 'Province' },
+    { key: 'contractId', header: 'Contract ID' },
+  ]
+
   return (
     <div className="space-y-4">
+      <div className="flex justify-end">
+        <DownloadCSVButton
+          fetchAllRows={async () => {
+            const result = await getContracts({
+              data: { entityId, page: 1, pageSize: 10000, sortDir: 'desc' },
+            })
+            return (result.rows as Record<string, unknown>[]).map(({ rawData: _, id: __, ...rest }) => rest)
+          }}
+          filename={`govtrace-contracts-${entityId.slice(0, 8)}.csv`}
+          columns={contractCsvColumns}
+        />
+      </div>
+
       {/* Desktop table */}
       <div className="hidden rounded-md border md:block">
         <Table>

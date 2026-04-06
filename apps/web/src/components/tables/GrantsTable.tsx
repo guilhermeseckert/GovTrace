@@ -27,6 +27,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { getGrants } from '@/server-fns/datasets'
+import { DownloadCSVButton } from '@/components/tables/DownloadCSVButton'
 import { en } from '@/i18n/en'
 
 type GrantRow = {
@@ -242,8 +243,36 @@ export function GrantsTable({ entityId }: GrantsTableProps) {
     )
   }
 
+  const grantCsvColumns = [
+    { key: 'recipientName', header: 'Recipient Name' },
+    { key: 'recipientLegalName', header: 'Recipient Legal Name' },
+    { key: 'amount', header: 'Amount (CAD)' },
+    { key: 'department', header: 'Department' },
+    { key: 'programName', header: 'Program Name' },
+    { key: 'description', header: 'Description' },
+    { key: 'agreementDate', header: 'Agreement Date' },
+    { key: 'startDate', header: 'Start Date' },
+    { key: 'endDate', header: 'End Date' },
+    { key: 'province', header: 'Province' },
+    { key: 'city', header: 'City' },
+    { key: 'grantType', header: 'Grant Type' },
+  ]
+
   return (
     <div className="space-y-4">
+      <div className="flex justify-end">
+        <DownloadCSVButton
+          fetchAllRows={async () => {
+            const result = await getGrants({
+              data: { entityId, page: 1, pageSize: 10000, sortDir: 'desc' },
+            })
+            return (result.rows as Record<string, unknown>[]).map(({ rawData: _, id: __, ...rest }) => rest)
+          }}
+          filename={`govtrace-grants-${entityId.slice(0, 8)}.csv`}
+          columns={grantCsvColumns}
+        />
+      </div>
+
       {/* Desktop table */}
       <div className="hidden rounded-md border md:block">
         <Table>

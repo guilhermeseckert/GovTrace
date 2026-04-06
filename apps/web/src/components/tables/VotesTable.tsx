@@ -21,6 +21,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { getVotingRecord } from '@/server-fns/datasets'
+import { DownloadCSVButton } from '@/components/tables/DownloadCSVButton'
 
 type VoteRow = {
   voteDate: string
@@ -208,8 +209,34 @@ export function VotesTable({ entityId }: VotesTableProps) {
 
   const rows = data.rows as VoteRow[]
 
+  const votesCsvColumns = [
+    { key: 'voteDate', header: 'Vote Date' },
+    { key: 'billNumber', header: 'Bill Number' },
+    { key: 'subject', header: 'Subject' },
+    { key: 'shortTitleEn', header: 'Bill Title' },
+    { key: 'ballotValue', header: 'Vote' },
+    { key: 'resultName', header: 'Result' },
+    { key: 'parlSessionCode', header: 'Parliament Session' },
+    { key: 'parliamentNumber', header: 'Parliament Number' },
+    { key: 'sessionNumber', header: 'Session Number' },
+    { key: 'divisionNumber', header: 'Division Number' },
+  ]
+
   return (
     <div className="space-y-4">
+      <div className="flex justify-end">
+        <DownloadCSVButton
+          fetchAllRows={async () => {
+            const result = await getVotingRecord({
+              data: { entityId, page: 1, pageSize: 10000 },
+            })
+            return result.rows as Record<string, unknown>[]
+          }}
+          filename={`govtrace-votes-${entityId.slice(0, 8)}.csv`}
+          columns={votesCsvColumns}
+        />
+      </div>
+
       {/* Desktop table */}
       <div className="hidden rounded-md border md:block">
         <Table>

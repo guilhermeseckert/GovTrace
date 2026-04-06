@@ -10,7 +10,7 @@ import { parliamentBills, parliamentVoteBallots, parliamentVotes, billSummaries 
 const DatasetInputSchema = z.object({
   entityId: z.string().uuid(),
   page: z.number().int().min(1).default(1),
-  pageSize: z.number().int().min(10).max(50).default(25),
+  pageSize: z.number().int().min(10).max(10000).default(25),
   sortBy: z.string().optional(),
   sortDir: z.enum(['asc', 'desc']).default('desc'),
 })
@@ -344,6 +344,7 @@ export const getInternationalAid = createServerFn({ method: 'GET' })
 const VotingRecordInputSchema = z.object({
   entityId: z.string().uuid(),
   page: z.number().int().min(1).default(1),
+  pageSize: z.number().int().min(1).max(10000).optional(),
 })
 
 const PAGE_SIZE = 25
@@ -354,7 +355,8 @@ export const getVotingRecord = createServerFn({ method: 'GET' })
   .inputValidator(VotingRecordInputSchema)
   .handler(async ({ data }) => {
     const db = getDb()
-    const offset = (data.page - 1) * PAGE_SIZE
+    const effectivePageSize = data.pageSize ?? PAGE_SIZE
+    const offset = (data.page - 1) * effectivePageSize
 
     const [rows, totalRows] = await Promise.all([
       db
@@ -376,7 +378,7 @@ export const getVotingRecord = createServerFn({ method: 'GET' })
         .leftJoin(parliamentBills, eq(parliamentVotes.billId, parliamentBills.id))
         .where(eq(parliamentVoteBallots.entityId, data.entityId))
         .orderBy(desc(parliamentVotes.voteDate))
-        .limit(PAGE_SIZE)
+        .limit(effectivePageSize)
         .offset(offset),
 
       db
@@ -389,7 +391,7 @@ export const getVotingRecord = createServerFn({ method: 'GET' })
       rows,
       total: Number(totalRows[0]?.c ?? 0),
       page: data.page,
-      pageSize: PAGE_SIZE,
+      pageSize: effectivePageSize,
     }
   })
 

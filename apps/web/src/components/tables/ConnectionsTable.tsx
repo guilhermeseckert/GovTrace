@@ -30,6 +30,7 @@ import {
 } from '@/components/ui/select'
 import { getConnections } from '@/server-fns/datasets'
 import { CONNECTION_LABELS, formatAmount } from '@/lib/connection-labels'
+import { DownloadCSVButton } from '@/components/tables/DownloadCSVButton'
 import { en } from '@/i18n/en'
 
 type ConnectionRow = {
@@ -200,8 +201,33 @@ export function ConnectionsTable({ entityId }: ConnectionsTableProps) {
     )
   }
 
+  const connectionsCsvColumns = [
+    { key: 'connectedEntityName', header: 'Connected Entity' },
+    { key: 'connectedEntityType', header: 'Entity Type' },
+    { key: 'connectionType', header: 'Relationship' },
+    { key: 'totalValue', header: 'Total Value (CAD)' },
+    { key: 'transactionCount', header: 'Transaction Count' },
+    { key: 'firstSeen', header: 'First Seen' },
+    { key: 'lastSeen', header: 'Last Seen' },
+    { key: 'sourceTable', header: 'Source Dataset' },
+    { key: 'connectedEntityId', header: 'Entity ID' },
+  ]
+
   return (
     <div className="space-y-4">
+      <div className="flex justify-end">
+        <DownloadCSVButton
+          fetchAllRows={async () => {
+            const result = await getConnections({
+              data: { entityId, page: 1, pageSize: 10000, sortDir: 'desc' },
+            })
+            return (result.rows as Record<string, unknown>[]).map(({ id: _, ...rest }) => rest)
+          }}
+          filename={`govtrace-connections-${entityId.slice(0, 8)}.csv`}
+          columns={connectionsCsvColumns}
+        />
+      </div>
+
       {/* Desktop table */}
       <div className="hidden rounded-md border md:block">
         <Table>
