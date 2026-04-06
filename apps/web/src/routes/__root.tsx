@@ -1,5 +1,5 @@
 import { createRootRoute, HeadContent, Link, Outlet, Scripts, useMatches } from '@tanstack/react-router'
-import { Sun, Moon, MapPin, Search, ExternalLink, BookOpen, Heart, BarChart2, GitBranch } from 'lucide-react'
+import { Sun, Moon, MapPin, Search, ExternalLink, BookOpen, Heart, BarChart2, GitBranch, Flag } from 'lucide-react'
 import { ThemeProvider, useTheme } from '@/components/layout/ThemeProvider'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { SkipToContent } from '@/components/layout/SkipToContent'
@@ -83,6 +83,10 @@ function SiteHeader() {
           <NavLink to="/find-path">
             <GitBranch className="h-3.5 w-3.5" />
             Find Path
+          </NavLink>
+          <NavLink to="/patterns">
+            <Flag className="h-3.5 w-3.5" />
+            Patterns
           </NavLink>
           <NavLink to="/search">
             <Search className="h-3.5 w-3.5" />

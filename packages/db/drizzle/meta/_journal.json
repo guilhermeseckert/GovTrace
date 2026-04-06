@@ -22,6 +22,13 @@
       "when": 1775445211904,
       "tag": "0002_dizzy_shiver_man",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1775449386915,
+      "tag": "0003_goofy_the_professor",
+      "breakpoints": true
     }
   ]
 }
