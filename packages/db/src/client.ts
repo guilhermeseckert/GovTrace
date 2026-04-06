@@ -25,9 +25,17 @@ export function getDb() {
   const url = process.env['DATABASE_URL']
   if (!url) throw new Error('DATABASE_URL environment variable is required')
 
-  const client = postgres(url, { max: 10 })
+  const client = postgres(url, {
+    max: 10,
+    idle_timeout: 30,
+    connect_timeout: 10,
+  })
   globalDb.__govtrace_sql = client
   globalDb.__govtrace_db = drizzle(client, { schema })
+
+  // Warm up the connection pool — first query pays TCP handshake cost
+  client`SELECT 1`.catch(() => {})
+
   return globalDb.__govtrace_db
 }
 
