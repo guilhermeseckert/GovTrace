@@ -226,6 +226,76 @@ async function detectOutlierContributions(db: DbInstance): Promise<void> {
   }
 }
 
+const DONATION_HIGH_SEVERITY_AMOUNT = 1000
+const APPOINTMENT_SHORT_WINDOW_DAYS = 90
+
+// --- Detection algorithm 4: donation before appointment ---
+async function detectDonationBeforeAppointment(db: DbInstance): Promise<void> {
+  const rows = await db.execute<{
+    entity_id: string
+    donation_id: string
+    appointment_id: string
+    donation_amount: string
+    donation_date: string
+    recipient_name: string
+    appointment_date: string
+    organization_name: string
+    position_title: string
+    days_before: string
+  }>(sql`
+    SELECT
+      d.entity_id,
+      d.id AS donation_id,
+      ga.id AS appointment_id,
+      d.amount::text AS donation_amount,
+      d.donation_date::text AS donation_date,
+      d.recipient_name,
+      ga.appointment_date::text AS appointment_date,
+      ga.organization_name,
+      ga.position_title,
+      (ga.appointment_date - d.donation_date)::text AS days_before
+    FROM donations d
+    JOIN gic_appointments ga ON ga.entity_id = d.entity_id
+    WHERE d.entity_id IS NOT NULL
+      AND d.donation_date < ga.appointment_date
+      AND (ga.appointment_date - d.donation_date) <= 365
+      AND ga.is_vacant = false
+    ORDER BY d.amount::numeric DESC
+    LIMIT 500
+  `)
+
+  for (const row of Array.from(rows)) {
+    const amount = Number(row.donation_amount)
+    const daysBefore = Number(row.days_before)
+    const isHighSeverity = amount > DONATION_HIGH_SEVERITY_AMOUNT && daysBefore <= APPOINTMENT_SHORT_WINDOW_DAYS
+    const severity = isHighSeverity ? 'high' : 'medium'
+
+    const title = `Donated ${formatCad(amount)} to ${row.recipient_name} ${String(daysBefore)} days before appointment to ${row.organization_name}`
+    const description = [
+      `A donation of ${formatCad(amount)} was made to ${row.recipient_name} on ${row.donation_date},`,
+      `${String(daysBefore)} days before an appointment to ${row.organization_name} as ${row.position_title} on ${row.appointment_date}.`,
+      CAUSATION_CAVEAT,
+    ].join(' ')
+
+    try {
+      await db.insert(patternFlags).values({
+        entityId: row.entity_id,
+        patternType: 'donation_before_appointment',
+        severity,
+        title,
+        description,
+        evidenceRecordIds: [row.donation_id, row.appointment_id],
+        evidenceTables: ['donations', 'gic_appointments'],
+        timeWindowStart: row.donation_date,
+        timeWindowEnd: row.appointment_date,
+        detectedValue: row.donation_amount,
+      })
+    } catch {
+      // Skip duplicates silently
+    }
+  }
+}
+
 // --- Server function: run all detection algorithms ---
 export const detectPatterns = createServerFn({ method: 'POST' })
   .handler(async (): Promise<{ inserted: number }> => {
@@ -238,6 +308,7 @@ export const detectPatterns = createServerFn({ method: 'POST' })
     await detectDonationSpikes(db)
     await detectLobbyingClusters(db)
     await detectOutlierContributions(db)
+    await detectDonationBeforeAppointment(db)
 
     const after = await db.execute<{ count: string }>(
       sql`SELECT COUNT(*)::text AS count FROM pattern_flags`

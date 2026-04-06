@@ -6,6 +6,7 @@ import { contracts, donations, grants, internationalAid, lobbyCommunications, lo
 import { entityConnections } from '@govtrace/db/schema/connections'
 import { entities } from '@govtrace/db/schema/entities'
 import { parliamentBills, parliamentVoteBallots, parliamentVotes, billSummaries } from '@govtrace/db/schema/parliament'
+import { gicAppointments } from '@govtrace/db/schema/appointments'
 
 const DatasetInputSchema = z.object({
   entityId: z.string().uuid(),
@@ -548,4 +549,30 @@ export const getBillSummary = createServerFn({ method: 'GET' })
       model: row.model,
       generatedAt: row.generatedAt,
     }
+  })
+
+export const getAppointments = createServerFn({ method: 'GET' })
+  .inputValidator(z.object({ entityId: z.string().uuid() }))
+  .handler(async ({ data }) => {
+    const db = getDb()
+
+    const rows = await db
+      .select({
+        id: gicAppointments.id,
+        appointeeName: gicAppointments.appointeeName,
+        positionTitle: gicAppointments.positionTitle,
+        organizationName: gicAppointments.organizationName,
+        organizationCode: gicAppointments.organizationCode,
+        appointmentType: gicAppointments.appointmentType,
+        tenureType: gicAppointments.tenureType,
+        appointmentDate: gicAppointments.appointmentDate,
+        expiryDate: gicAppointments.expiryDate,
+        isVacant: gicAppointments.isVacant,
+        sourceUrl: gicAppointments.sourceUrl,
+      })
+      .from(gicAppointments)
+      .where(eq(gicAppointments.entityId, data.entityId))
+      .orderBy(desc(gicAppointments.appointmentDate))
+
+    return rows
   })

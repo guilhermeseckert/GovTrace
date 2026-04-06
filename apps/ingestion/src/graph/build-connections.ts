@@ -8,6 +8,7 @@ export interface ConnectionBuildResult {
   lobbyistToOfficial: number
   lobbyistClientToOfficial: number
   aidRecipientToDepartment: number
+  appointeeToOrganization: number
   total: number
 }
 
@@ -15,7 +16,8 @@ export async function buildEntityConnections(): Promise<ConnectionBuildResult> {
   const db = getDb()
   const result: ConnectionBuildResult = {
     donorToParty: 0, vendorToDepartment: 0, grantRecipientToDepartment: 0,
-    lobbyistToOfficial: 0, lobbyistClientToOfficial: 0, aidRecipientToDepartment: 0, total: 0,
+    lobbyistToOfficial: 0, lobbyistClientToOfficial: 0, aidRecipientToDepartment: 0,
+    appointeeToOrganization: 0, total: 0,
   }
 
   console.log('Building entity_connections table...')
@@ -195,6 +197,37 @@ export async function buildEntityConnections(): Promise<ConnectionBuildResult> {
       computed_at = NOW()
   `))
   console.log('  lobbyist_to_official: done')
+
+  // GIC APPOINTMENTS: appointee entity → organization entity
+  console.log('  Building appointee → organization connections...')
+  await db.execute(sql.raw(`
+    INSERT INTO entity_connections (
+      entity_a_id, entity_b_id, connection_type,
+      transaction_count, first_seen, last_seen,
+      source_table, is_stale, computed_at
+    )
+    SELECT
+      ga.entity_id,
+      e.id,
+      'appointee_to_organization',
+      1,
+      ga.appointment_date,
+      ga.expiry_date,
+      'gic_appointments',
+      false,
+      NOW()
+    FROM gic_appointments ga
+    JOIN entities e ON e.normalized_name = LOWER(TRIM(ga.organization_name))
+    WHERE ga.entity_id IS NOT NULL
+      AND ga.is_vacant = false
+    ON CONFLICT (entity_a_id, entity_b_id, connection_type)
+    DO UPDATE SET
+      first_seen = EXCLUDED.first_seen,
+      last_seen = EXCLUDED.last_seen,
+      is_stale = false,
+      computed_at = NOW()
+  `))
+  console.log('  appointee_to_organization: done')
 
   // Step 3: Delete stale
   await db.execute(sql.raw(`DELETE FROM entity_connections WHERE is_stale = true`))

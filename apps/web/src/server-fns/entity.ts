@@ -6,6 +6,7 @@ import { contracts, donations, grants, internationalAid, lobbyCommunications, lo
 import { aiSummaries, entityAliases, entityMatchesLog, entities } from '@govtrace/db/schema/entities'
 import { entityConnections } from '@govtrace/db/schema/connections'
 import { parliamentVoteBallots } from '@govtrace/db/schema/parliament'
+import { gicAppointments } from '@govtrace/db/schema/appointments'
 
 const EntityIdSchema = z.object({ id: z.string().uuid() })
 
@@ -175,7 +176,7 @@ export const getEntityStats = createServerFn({ method: 'GET' })
       ? eq(donations.recipientName, entity[0].canonicalName)
       : eq(donations.entityId, data.id)
 
-    const [donCount, conCount, grCount, lobCount, connCount, summaryRows, aidCount, voteCount] = await Promise.all([
+    const [donCount, conCount, grCount, lobCount, connCount, summaryRows, aidCount, voteCount, apptCount] = await Promise.all([
       db.select({ c: count() }).from(donations).where(donWhere),
       db.select({ c: count() }).from(contracts).where(eq(contracts.entityId, data.id)),
       db.select({ c: count() }).from(grants).where(eq(grants.entityId, data.id)),
@@ -188,6 +189,7 @@ export const getEntityStats = createServerFn({ method: 'GET' })
       db.select({ isStale: aiSummaries.isStale }).from(aiSummaries).where(eq(aiSummaries.entityId, data.id)).limit(1),
       db.select({ c: count() }).from(internationalAid).where(eq(internationalAid.entityId, data.id)),
       db.select({ c: count() }).from(parliamentVoteBallots).where(eq(parliamentVoteBallots.entityId, data.id)),
+      db.select({ c: count() }).from(gicAppointments).where(eq(gicAppointments.entityId, data.id)),
     ])
 
     return {
@@ -198,6 +200,7 @@ export const getEntityStats = createServerFn({ method: 'GET' })
       connections: Number(connCount[0]?.c ?? 0),
       aid: Number(aidCount[0]?.c ?? 0),
       votes: Number(voteCount[0]?.c ?? 0),
+      appointments: Number(apptCount[0]?.c ?? 0),
       hasFreshSummary: summaryRows.length > 0 && !summaryRows[0]?.isStale,
     }
   })

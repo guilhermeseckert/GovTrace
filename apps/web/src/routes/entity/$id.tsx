@@ -15,6 +15,7 @@ import { LobbyingTable } from '@/components/tables/LobbyingTable'
 import { AidTable } from '@/components/tables/AidTable'
 import { VotesTable } from '@/components/tables/VotesTable'
 import { ConnectionsTable } from '@/components/tables/ConnectionsTable'
+import { AppointmentsTable } from '@/components/entity/AppointmentsTable'
 import { NetworkGraph } from '@/components/visualizations/NetworkGraph'
 import { MoneyFlowSankey } from '@/components/visualizations/MoneyFlowSankey'
 import { ActivityTimeline } from '@/components/visualizations/ActivityTimeline'
@@ -143,6 +144,7 @@ function EntityProfilePage() {
               case 'lobbying': return <LobbyingTable entityId={profile.id} />
               case 'aid': return <AidTable entityId={profile.id} />
               case 'votes': return <VotesTable entityId={profile.id} />
+              case 'appointments': return <AppointmentsTable entityId={profile.id} />
               case 'connections': return <ConnectionsTable entityId={profile.id} />
               case 'visualizations': return <VisualizationsPanel entityId={profile.id} />
               default: return null
