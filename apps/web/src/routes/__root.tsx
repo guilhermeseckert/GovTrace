@@ -1,5 +1,5 @@
 import { createRootRoute, HeadContent, Link, Outlet, Scripts, useMatches } from '@tanstack/react-router'
-import { Sun, Moon, MapPin, Search, ExternalLink, BookOpen, Heart, BarChart2, GitBranch, Flag, ScrollText } from 'lucide-react'
+import { Sun, Moon, MapPin, Search, ExternalLink, BookOpen, Heart, BarChart2, GitBranch, Flag, ScrollText, Newspaper } from 'lucide-react'
 import { ThemeProvider, useTheme } from '@/components/layout/ThemeProvider'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { SkipToContent } from '@/components/layout/SkipToContent'
@@ -91,6 +91,10 @@ function SiteHeader() {
           <NavLink to="/regulations">
             <ScrollText className="h-3.5 w-3.5" />
             Regulations
+          </NavLink>
+          <NavLink to="/news">
+            <Newspaper className="h-3.5 w-3.5" />
+            News
           </NavLink>
           <NavLink to="/search">
             <Search className="h-3.5 w-3.5" />

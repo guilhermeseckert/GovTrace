@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SearchRouteImport } from './routes/search'
+import { Route as NewsRouteImport } from './routes/news'
 import { Route as RegulationsRouteImport } from './routes/regulations'
 import { Route as PatternsRouteImport } from './routes/patterns'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
@@ -23,6 +24,11 @@ import { Route as AidCountryCodeRouteImport } from './routes/aid/country/$code'
 const SearchRoute = SearchRouteImport.update({
   id: '/search',
   path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NewsRoute = NewsRouteImport.update({
+  id: '/news',
+  path: '/news',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RegulationsRoute = RegulationsRouteImport.update({
@@ -76,6 +82,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/find-path': typeof FindPathRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/news': typeof NewsRoute
   '/patterns': typeof PatternsRoute
   '/regulations': typeof RegulationsRoute
   '/search': typeof SearchRoute
@@ -88,6 +95,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/find-path': typeof FindPathRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/news': typeof NewsRoute
   '/patterns': typeof PatternsRoute
   '/regulations': typeof RegulationsRoute
   '/search': typeof SearchRoute
@@ -101,6 +109,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/find-path': typeof FindPathRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/news': typeof NewsRoute
   '/patterns': typeof PatternsRoute
   '/regulations': typeof RegulationsRoute
   '/search': typeof SearchRoute
@@ -115,6 +124,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/find-path'
     | '/how-it-works'
+    | '/news'
     | '/patterns'
     | '/regulations'
     | '/search'
@@ -127,6 +137,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/find-path'
     | '/how-it-works'
+    | '/news'
     | '/patterns'
     | '/regulations'
     | '/search'
@@ -139,6 +150,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/find-path'
     | '/how-it-works'
+    | '/news'
     | '/patterns'
     | '/regulations'
     | '/search'
@@ -152,6 +164,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   FindPathRoute: typeof FindPathRoute
   HowItWorksRoute: typeof HowItWorksRoute
+  NewsRoute: typeof NewsRoute
   PatternsRoute: typeof PatternsRoute
   RegulationsRoute: typeof RegulationsRoute
   SearchRoute: typeof SearchRoute
@@ -174,6 +187,13 @@ declare module '@tanstack/react-router' {
       path: '/regulations'
       fullPath: '/regulations'
       preLoaderRoute: typeof RegulationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/news': {
+      id: '/news'
+      path: '/news'
+      fullPath: '/news'
+      preLoaderRoute: typeof NewsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/patterns': {
@@ -240,6 +260,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   FindPathRoute: FindPathRoute,
   HowItWorksRoute: HowItWorksRoute,
+  NewsRoute: NewsRoute,
   PatternsRoute: PatternsRoute,
   RegulationsRoute: RegulationsRoute,
   SearchRoute: SearchRoute,
