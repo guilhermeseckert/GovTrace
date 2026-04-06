@@ -1,5 +1,23 @@
 import { pgTable, text, integer, numeric, date, timestamp, jsonb, uuid, index, uniqueIndex } from 'drizzle-orm/pg-core'
 
+// Public Accounts of Canada — Expenditures by Standard Object (DATA-09)
+// Source: https://open.canada.ca/data/dataset/a35cf382-690c-4221-a971-cf0fd189a46f
+// Natural key: SHA256(fy_ef + ':' + org_id + ':' + sobj_en) — deterministic for idempotent re-ingestion
+export const departmentExpenditures = pgTable('department_expenditures', {
+  id: text('id').primaryKey(), // SHA256(fy_ef + ':' + org_id + ':' + sobj_en)
+  fiscalYear: text('fiscal_year').notNull(), // "2024-25" (April–March)
+  orgId: integer('org_id').notNull(), // GC InfoBase numeric org identifier (stable across renames)
+  orgName: text('org_name').notNull(), // English department name as of that fiscal year
+  standardObject: text('standard_object').notNull(), // spending category (13 values)
+  expenditures: numeric('expenditures', { precision: 15, scale: 2 }).notNull(), // dollars; can be negative (revenues)
+  sourceFileHash: text('source_file_hash').notNull(),
+  ingestedAt: timestamp('ingested_at', { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  uniqueIndex('dept_exp_fy_org_sobj_idx').on(t.fiscalYear, t.orgId, t.standardObject),
+  index('dept_exp_fiscal_year_idx').on(t.fiscalYear),
+  index('dept_exp_org_name_idx').on(t.orgName),
+])
+
 // Elections Canada political contributions (DATA-01)
 // Source: https://www.elections.ca/fin/oda/od_cntrbtn_audt_e.zip
 // Natural key: hash of (contributor_name, amount, date, riding_code, recipient_id) — D-08
