@@ -42,11 +42,11 @@ export const getDebtTimeline = createServerFn({ method: 'GET' }).handler(
   async (): Promise<DebtAidDataPoint[]> => {
     const db = getDb()
 
-    // Debt by year — get max value per year (latest month's reading)
+    // Debt by year — max value per year (latest month's reading)
     const debtByYear = await db
       .select({
-        year: sql<number>`EXTRACT(YEAR FROM ${fiscalSnapshots.refDate})`.mapWith(Number),
-        debtMillions: sql<string>`MAX(${fiscalSnapshots.valueMillionsCad})`,
+        year: sql`EXTRACT(YEAR FROM ${fiscalSnapshots.refDate})`,
+        debtMillions: sql`MAX(${fiscalSnapshots.valueMillionsCad})`,
       })
       .from(fiscalSnapshots)
       .where(
@@ -58,34 +58,38 @@ export const getDebtTimeline = createServerFn({ method: 'GET' }).handler(
       .groupBy(sql`EXTRACT(YEAR FROM ${fiscalSnapshots.refDate})`)
       .orderBy(sql`EXTRACT(YEAR FROM ${fiscalSnapshots.refDate})`)
 
-    // Aid by year — Drizzle ORM
+    // Aid by year
     const aidByYear = await db
       .select({
-        year: sql<number>`EXTRACT(YEAR FROM ${internationalAid.startDate})`.mapWith(Number),
-        committedBillions: sql<number>`ROUND(SUM(${internationalAid.totalCommittedCad}) / 1e9, 3)`.mapWith(Number),
-        disbursedBillions: sql<number>`ROUND(SUM(${internationalAid.totalDisbursedCad}) / 1e9, 3)`.mapWith(Number),
+        year: sql`EXTRACT(YEAR FROM ${internationalAid.startDate})`,
+        committed: sql`ROUND(SUM(${internationalAid.totalCommittedCad}) / 1e9, 3)`,
+        disbursed: sql`ROUND(SUM(${internationalAid.totalDisbursedCad}) / 1e9, 3)`,
       })
       .from(internationalAid)
       .where(isNotNull(internationalAid.startDate))
       .groupBy(sql`EXTRACT(YEAR FROM ${internationalAid.startDate})`)
       .orderBy(sql`EXTRACT(YEAR FROM ${internationalAid.startDate})`)
 
+    // Build aid lookup
     const aidMap = new Map<number, { committed: number; disbursed: number }>()
     for (const row of aidByYear) {
-      aidMap.set(row.year, {
-        committed: Number(row.committedBillions ?? 0),
-        disbursed: Number(row.disbursedBillions ?? 0),
+      const yr = Number(row.year)
+      aidMap.set(yr, {
+        committed: Number(row.committed ?? 0),
+        disbursed: Number(row.disbursed ?? 0),
       })
     }
 
+    // Join by year — exclude current year (incomplete data)
     const currentYear = new Date().getFullYear()
     const results: DebtAidDataPoint[] = []
     for (const debt of debtByYear) {
-      if (debt.year >= currentYear) continue
-      const aid = aidMap.get(debt.year) ?? { committed: 0, disbursed: 0 }
+      const yr = Number(debt.year)
+      if (yr >= currentYear) continue
+      const aid = aidMap.get(yr) ?? { committed: 0, disbursed: 0 }
       results.push({
-        year: debt.year,
-        debtBillionsCad: Number(debt.debtMillions ?? '0') / 1000,
+        year: yr,
+        debtBillionsCad: Number(debt.debtMillions ?? 0) / 1000,
         aidCommittedBillionsCad: aid.committed,
         aidDisbursedBillionsCad: aid.disbursed,
         sourceDebtUrl: DEBT_SOURCE_URL,
@@ -98,7 +102,7 @@ export const getDebtTimeline = createServerFn({ method: 'GET' }).handler(
 )
 
 // ---------------------------------------------------------------------------
-// getDepartmentBreakdown — DEBT-03 (pure Drizzle ORM)
+// getDepartmentBreakdown — DEBT-03
 // ---------------------------------------------------------------------------
 
 export const getDepartmentBreakdown = createServerFn({ method: 'GET' }).handler(
@@ -136,7 +140,7 @@ export const getDepartmentBreakdown = createServerFn({ method: 'GET' }).handler(
 )
 
 // ---------------------------------------------------------------------------
-// getDebtHeroStats — DEBT-01, DEBT-04 (pure Drizzle ORM)
+// getDebtHeroStats — DEBT-01, DEBT-04
 // ---------------------------------------------------------------------------
 
 export const getDebtHeroStats = createServerFn({ method: 'GET' }).handler(
@@ -160,13 +164,13 @@ export const getDebtHeroStats = createServerFn({ method: 'GET' }).handler(
 
     const totalAid = await db
       .select({
-        totalBillions: sql<number>`ROUND(SUM(${internationalAid.totalCommittedCad}) / 1e9, 3)`.mapWith(Number),
+        total: sql`ROUND(SUM(${internationalAid.totalCommittedCad}) / 1e9, 3)`,
       })
       .from(internationalAid)
 
     const debtMillions = Number(latestDebt[0]?.valueMillions ?? 0)
     const debtBillions = debtMillions / 1000
-    const aidBillions = Number(totalAid[0]?.totalBillions ?? 0)
+    const aidBillions = Number(totalAid[0]?.total ?? 0)
     const aidAsPercent =
       debtBillions > 0 ? Math.round((aidBillions / debtBillions) * 10000) / 100 : 0
 
