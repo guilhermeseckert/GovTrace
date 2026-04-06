@@ -1,16 +1,12 @@
 ---
 gsd_state_version: 1.0
-milestone: v2.0
-milestone_name: International Money Tracking
+milestone: v1.0
+milestone_name: milestone
 status: verifying
-stopped_at: Completed quick/260405-wym
-last_updated: "2026-04-06T06:00:43.792Z"
+stopped_at: Completed quick/260406-079-senate-votes-and-attendance-ingest-senat
+last_updated: "2026-04-06T06:30:31.972Z"
 last_activity: "2026-04-06 - Completed quick task 260405-tck: International Aid Country & Theme Breakdown"
 progress:
-  total_phases: 18
-  completed_phases: 3
-  total_plans: 6
-  completed_plans: 6
   percent: 0
 ---
 
@@ -187,9 +183,10 @@ None yet.
 | 260405-tck | International Aid Country & Theme Breakdown | 2026-04-06 | b6773b2 | [260405-tck-international-aid-country-theme-breakdow](./quick/260405-tck-international-aid-country-theme-breakdow/) |
 | 260405-tm4 | Swap D3 DebtVsAidChart to Recharts | 2026-04-05 | 976e041 | [260405-tm4-swap-d3-charts-to-recharts](./quick/260405-tm4-swap-d3-charts-to-recharts/) |
 | 260405-wym | Travel and Hospitality Disclosures Ingestion | 2026-04-06 | 82602aa | [260405-wym-travel-and-hospitality-disclosures-inges](./quick/260405-wym-travel-and-hospitality-disclosures-inges/) |
+| 260406-079 | Senate Votes and Attendance Ingestion | 2026-04-06 | 075bc3c | [260406-079-senate-votes-and-attendance-ingest-senat](./quick/260406-079-senate-votes-and-attendance-ingest-senat/) |
 
 ## Session Continuity
 
-Last session: 2026-04-06T06:00:43.788Z
-Stopped at: Completed quick/260405-wym
+Last session: 2026-04-06T06:30:31.970Z
+Stopped at: Completed quick/260406-079-senate-votes-and-attendance-ingest-senat
 Resume file: None
