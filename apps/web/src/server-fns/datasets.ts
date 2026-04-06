@@ -373,6 +373,7 @@ export const getVotingRecord = createServerFn({ method: 'GET' })
           parlSessionCode: parliamentVotes.parlSessionCode,
           parliamentNumber: parliamentVotes.parliamentNumber,
           sessionNumber: parliamentVotes.sessionNumber,
+          chamber: parliamentVotes.chamber,
         })
         .from(parliamentVoteBallots)
         .innerJoin(parliamentVotes, eq(parliamentVoteBallots.voteId, parliamentVotes.id))
@@ -450,6 +451,7 @@ export const getBillVotes = createServerFn({ method: 'GET' })
           parlSessionCode: parliamentVotes.parlSessionCode,
           parliamentNumber: parliamentVotes.parliamentNumber,
           sessionNumber: parliamentVotes.sessionNumber,
+          chamber: parliamentVotes.chamber,
           ballotId: parliamentVoteBallots.id,
           firstName: parliamentVoteBallots.firstName,
           lastName: parliamentVoteBallots.lastName,
@@ -479,6 +481,7 @@ export const getBillVotes = createServerFn({ method: 'GET' })
         parlSessionCode: string
         parliamentNumber: number
         sessionNumber: number
+        chamber: string
         ballots: Array<{
           firstName: string
           lastName: string
@@ -511,6 +514,7 @@ export const getBillVotes = createServerFn({ method: 'GET' })
           parlSessionCode: row.parlSessionCode,
           parliamentNumber: row.parliamentNumber,
           sessionNumber: row.sessionNumber,
+          chamber: row.chamber,
           ballots: [ballot],
         })
       }

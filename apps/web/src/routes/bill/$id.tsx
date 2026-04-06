@@ -38,6 +38,9 @@ const BALLOT_CONFIG = {
   Paired: {
     className: 'bg-gray-100 text-gray-600 dark:bg-gray-900 dark:text-gray-400',
   },
+  Abstention: {
+    className: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-400',
+  },
 } as const
 
 function getBallotClassName(value: string): string {
@@ -94,6 +97,7 @@ type DivisionCardProps = {
     parlSessionCode: string
     parliamentNumber: number
     sessionNumber: number
+    chamber: string
     ballots: Ballot[]
   }
 }
@@ -102,9 +106,13 @@ function DivisionCard({ division }: DivisionCardProps) {
   const [expanded, setExpanded] = useState(false)
   const byParty = groupByParty(division.ballots)
 
-  const sourceUrl = `https://www.ourcommons.ca/members/en/votes/${division.parliamentNumber}/${division.sessionNumber}/${division.divisionNumber}`
+  const sourceUrl = division.chamber === 'senate'
+    ? `https://sencanada.ca/en/in-the-chamber/votes/details/${division.divisionNumber}/${division.parlSessionCode}`
+    : `https://www.ourcommons.ca/members/en/votes/${division.parliamentNumber}/${division.sessionNumber}/${division.divisionNumber}`
 
-  const resultClassName = division.resultName === 'Agreed To'
+  const sourceLabel = division.chamber === 'senate' ? 'sencanada.ca' : 'ourcommons.ca'
+
+  const resultClassName = division.resultName === 'Agreed To' || division.resultName === 'Adopted'
     ? 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400'
     : 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400'
 
@@ -116,6 +124,9 @@ function DivisionCard({ division }: DivisionCardProps) {
           <div>
             <p className="text-sm text-muted-foreground">
               Division {division.divisionNumber} &middot; {String(division.voteDate).slice(0, 10)}
+              {division.chamber === 'senate' && (
+                <Badge variant="outline" className="ml-2 px-1 py-0 text-[10px]">Senate</Badge>
+              )}
             </p>
             <p className="mt-0.5 font-medium">{division.subject}</p>
           </div>
@@ -142,7 +153,7 @@ function DivisionCard({ division }: DivisionCardProps) {
             className="ml-auto flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
           >
             <ExternalLink className="h-3 w-3" />
-            ourcommons.ca
+            {sourceLabel}
           </a>
         </div>
       </div>
@@ -154,7 +165,7 @@ function DivisionCard({ division }: DivisionCardProps) {
           onClick={() => setExpanded((v) => !v)}
           className="flex w-full items-center justify-between px-5 py-3 text-sm font-medium hover:bg-muted/50 transition-colors"
         >
-          <span>MP Votes ({division.ballots.length})</span>
+          <span>{division.chamber === 'senate' ? 'Senator' : 'MP'} Votes ({division.ballots.length})</span>
           {expanded ? (
             <ChevronDown className="h-4 w-4 text-muted-foreground" />
           ) : (

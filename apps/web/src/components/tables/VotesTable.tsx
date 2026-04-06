@@ -35,6 +35,7 @@ type VoteRow = {
   parlSessionCode: string
   parliamentNumber: number
   sessionNumber: number
+  chamber: string
 }
 
 const BALLOT_CONFIG = {
@@ -50,6 +51,10 @@ const BALLOT_CONFIG = {
     className: 'bg-gray-100 text-gray-600 dark:bg-gray-900 dark:text-gray-400',
     label: 'Paired',
   },
+  Abstention: {
+    className: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-400',
+    label: 'Abstention',
+  },
 } as const
 
 function getBallotConfig(value: string) {
@@ -59,8 +64,11 @@ function getBallotConfig(value: string) {
   }
 }
 
-function getOurCommonsUrl(parliamentNumber: number, sessionNumber: number, divisionNumber: number): string {
-  return `https://www.ourcommons.ca/members/en/votes/${parliamentNumber}/${sessionNumber}/${divisionNumber}`
+function getVoteSourceUrl(row: VoteRow): string {
+  if (row.chamber === 'senate') {
+    return `https://sencanada.ca/en/in-the-chamber/votes/details/${row.divisionNumber}/${row.parlSessionCode}`
+  }
+  return `https://www.ourcommons.ca/members/en/votes/${row.parliamentNumber}/${row.sessionNumber}/${row.divisionNumber}`
 }
 
 const columns: ColumnDef<VoteRow>[] = [
@@ -130,8 +138,13 @@ const columns: ColumnDef<VoteRow>[] = [
     accessorKey: 'parlSessionCode',
     header: 'Parliament',
     cell: ({ row }) => (
-      <span className="text-sm tabular-nums text-muted-foreground">
-        {row.original.parlSessionCode}
+      <span className="flex items-center gap-1">
+        <span className="text-sm tabular-nums text-muted-foreground">
+          {row.original.parlSessionCode}
+        </span>
+        {row.original.chamber === 'senate' && (
+          <Badge variant="outline" className="ml-1 px-1 py-0 text-[10px]">Senate</Badge>
+        )}
       </span>
     ),
   },
@@ -139,11 +152,7 @@ const columns: ColumnDef<VoteRow>[] = [
     id: 'source',
     header: 'Source',
     cell: ({ row }) => {
-      const url = getOurCommonsUrl(
-        row.original.parliamentNumber,
-        row.original.sessionNumber,
-        row.original.divisionNumber,
-      )
+      const url = getVoteSourceUrl(row.original)
       return (
         <a
           href={url}
@@ -274,7 +283,7 @@ export function VotesTable({ entityId }: VotesTableProps) {
           const billLabel = row.shortTitleEn
             ? `${row.billNumber ?? ''} — ${row.shortTitleEn}`
             : (row.billNumber ? `${row.billNumber} — ${row.subject}` : row.subject)
-          const sourceUrl = getOurCommonsUrl(row.parliamentNumber, row.sessionNumber, row.divisionNumber)
+          const sourceUrl = getVoteSourceUrl(row)
 
           return (
             <div
@@ -308,6 +317,9 @@ export function VotesTable({ entityId }: VotesTableProps) {
                 <span>{row.resultName}</span>
                 <span>&middot;</span>
                 <span>{row.parlSessionCode}</span>
+                {row.chamber === 'senate' && (
+                  <Badge variant="outline" className="px-1 py-0 text-[10px]">Senate</Badge>
+                )}
               </div>
               <a
                 href={sourceUrl}
