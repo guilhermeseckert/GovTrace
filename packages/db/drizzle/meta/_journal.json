@@ -43,6 +43,13 @@
       "when": 1775454926495,
       "tag": "0005_furry_strong_guy",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1775456366334,
+      "tag": "0006_senate-chamber",
+      "breakpoints": true
     }
   ]
 }

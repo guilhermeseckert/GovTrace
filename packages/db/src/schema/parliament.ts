@@ -44,10 +44,12 @@ export const parliamentBills = pgTable('parliament_bills', {
 ])
 
 // Division-level vote summaries (one row per division)
-// Source: https://www.ourcommons.ca/members/en/votes/xml?parlSession={parliament}-{session}
-// PK: "{parliament}-{session}-{divisionNumber}" e.g. "44-1-377"
+// Source: https://www.ourcommons.ca/members/en/votes/xml?parlSession={parliament}-{session} (House)
+//         https://sencanada.ca/en/in-the-chamber/votes/{parl}-{session} (Senate, HTML)
+// PK: "{parliament}-{session}-{divisionNumber}" (House) or "senate-{parl}-{session}-{voteId}" (Senate)
 export const parliamentVotes = pgTable('parliament_votes', {
   id: text('id').primaryKey(), // "{parliament}-{session}-{divisionNumber}"
+  chamber: text('chamber').notNull().default('house'), // 'house' | 'senate'
   parliamentNumber: integer('parliament_number').notNull(),
   sessionNumber: integer('session_number').notNull(),
   parlSessionCode: text('parl_session_code').notNull(), // "44-1"
@@ -55,10 +57,11 @@ export const parliamentVotes = pgTable('parliament_votes', {
   voteDate: date('vote_date').notNull(),
   voteDateTime: timestamp('vote_date_time', { withTimezone: true }),
   subject: text('subject').notNull(), // DecisionDivisionSubject
-  resultName: text('result_name').notNull(), // "Agreed To" / "Negatived"
+  resultName: text('result_name').notNull(), // "Agreed To" / "Negatived" (House) | "Adopted" / "Defeated" (Senate)
   yeasTotal: integer('yeas_total').notNull().default(0),
   naysTotal: integer('nays_total').notNull().default(0),
   pairedTotal: integer('paired_total').notNull().default(0),
+  abstentionsTotal: integer('abstentions_total').notNull().default(0), // Senate only
   documentTypeName: text('document_type_name'), // "Legislative Process", "Supply", etc.
   billId: text('bill_id').references(() => parliamentBills.id), // nullable FK to bills
   billNumber: text('bill_number'), // denormalized for fast queries
@@ -70,15 +73,18 @@ export const parliamentVotes = pgTable('parliament_votes', {
   uniqueIndex('parliament_votes_session_division_idx').on(t.parlSessionCode, t.divisionNumber),
   index('parliament_votes_vote_date_idx').on(t.voteDate),
   index('parliament_votes_bill_id_idx').on(t.billId),
+  index('parliament_votes_chamber_idx').on(t.chamber),
 ])
 
-// Individual MP ballot rows (1.8–2.4M rows total for full history)
-// Source: https://www.ourcommons.ca/members/en/votes/{parliament}/{session}/{voteNumber}/xml
-// PK: "{parliament}-{session}-{divisionNumber}-{personId}" e.g. "44-1-377-89156"
+// Individual MP/Senator ballot rows (1.8–2.4M rows for House + ~56K for Senate)
+// Source: https://www.ourcommons.ca/members/en/votes/{parliament}/{session}/{voteNumber}/xml (House)
+//         https://sencanada.ca/en/in-the-chamber/votes/details/{voteId}/{parl}-{session} (Senate, HTML)
+// PK: "{parliament}-{session}-{divisionNumber}-{personId}" (House) or "{senate-voteId}-{senatorId}" (Senate)
 export const parliamentVoteBallots = pgTable('parliament_vote_ballots', {
   id: text('id').primaryKey(), // "{voteId}-{personId}"
   voteId: text('vote_id').notNull().references(() => parliamentVotes.id),
-  personId: integer('person_id').notNull(), // ourcommons.ca PersonId — stable per person
+  chamber: text('chamber').notNull().default('house'), // 'house' | 'senate'
+  personId: integer('person_id').notNull(), // ourcommons.ca PersonId (House) or sencanada.ca senatorId (Senate)
   entityId: uuid('entity_id'), // FK to entities.id — set after matching
   parliamentNumber: integer('parliament_number').notNull(),
   sessionNumber: integer('session_number').notNull(),
@@ -87,11 +93,12 @@ export const parliamentVoteBallots = pgTable('parliament_vote_ballots', {
   lastName: text('last_name').notNull(),
   constituency: text('constituency'),
   province: text('province'),
-  caucusShortName: text('caucus_short_name'), // "CPC", "LPC", "NDP", "BQ", "GPC", "IND"
-  ballotValue: text('ballot_value').notNull(), // "Yea", "Nay", "Paired"
+  caucusShortName: text('caucus_short_name'), // "CPC", "LPC", "NDP", "BQ", "GPC", "IND" (House) | "C", "ISG", "CSG", "PSG" (Senate)
+  ballotValue: text('ballot_value').notNull(), // "Yea", "Nay", "Paired" (House) | "Yea", "Nay", "Abstention" (Senate)
   isYea: boolean('is_yea').notNull().default(false),
   isNay: boolean('is_nay').notNull().default(false),
   isPaired: boolean('is_paired').notNull().default(false),
+  isAbstention: boolean('is_abstention').notNull().default(false), // Senate only
   ingestedAt: timestamp('ingested_at', { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
   index('parliament_vote_ballots_vote_id_idx').on(t.voteId),
@@ -99,6 +106,7 @@ export const parliamentVoteBallots = pgTable('parliament_vote_ballots', {
   index('parliament_vote_ballots_person_id_idx').on(t.personId),
   index('parliament_vote_ballots_caucus_idx').on(t.caucusShortName),
   index('parliament_vote_ballots_ballot_value_idx').on(t.ballotValue),
+  index('parliament_vote_ballots_chamber_idx').on(t.chamber),
 ])
 
 // MP profiles — PersonId anchor for entity matching
@@ -116,6 +124,26 @@ export const mpProfiles = pgTable('mp_profiles', {
 }, (t) => [
   index('mp_profiles_entity_id_idx').on(t.entityId),
   index('mp_profiles_normalized_name_idx').on(t.normalizedName),
+])
+
+// Senator profiles — senatorId anchor for entity matching
+// senatorId is the stable integer ID from sencanada.ca URL paths (e.g. /senator/207812/)
+// Parallel to mp_profiles; senators serve up to age 75 so may appear across 20+ years of votes
+export const senatorProfiles = pgTable('senator_profiles', {
+  senatorId: integer('senator_id').primaryKey(), // from sencanada.ca URL — stable per person
+  entityId: uuid('entity_id'), // matched entity (may be null if unmatched)
+  canonicalFirstName: text('canonical_first_name').notNull(),
+  canonicalLastName: text('canonical_last_name').notNull(),
+  normalizedName: text('normalized_name'),
+  province: text('province'),
+  groupAffiliation: text('group_affiliation'), // C, ISG, CSG, PSG, Non-affiliated
+  matchMethod: text('match_method'), // 'deterministic', 'fuzzy', 'ai_verified', 'new_entity'
+  matchConfidence: real('match_confidence'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index('senator_profiles_entity_id_idx').on(t.entityId),
+  index('senator_profiles_normalized_name_idx').on(t.normalizedName),
 ])
 
 // AI-generated bill summaries (parallel to ai_summaries for entities)
