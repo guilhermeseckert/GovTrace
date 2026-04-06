@@ -1,35 +1,34 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { useQuery } from '@tanstack/react-query'
 import { getDebtTimeline, getDepartmentBreakdown, getDebtHeroStats } from '@/server-fns/dashboard'
 import { DebtHeroStats } from '@/components/dashboard/DebtHeroStats'
 import { DebtVsAidChart } from '@/components/dashboard/DebtVsAidChart'
 import { DepartmentBreakdown } from '@/components/dashboard/DepartmentBreakdown'
-
-// ---------------------------------------------------------------------------
-// Route
-// ---------------------------------------------------------------------------
+import { Skeleton } from '@/components/ui/skeleton'
 
 export const Route = createFileRoute('/dashboard')({
-  loader: async () => {
-    const [timeline, departments, heroStats] = await Promise.all([
-      getDebtTimeline(),
-      getDepartmentBreakdown(),
-      getDebtHeroStats(),
-    ])
-    return { timeline, departments, heroStats }
-  },
   component: DashboardPage,
 })
 
-// ---------------------------------------------------------------------------
-// Page
-// ---------------------------------------------------------------------------
-
 function DashboardPage() {
-  const { timeline, departments, heroStats } = Route.useLoaderData()
+  const { data: heroStats } = useQuery({
+    queryKey: ['debt-hero-stats'],
+    queryFn: () => getDebtHeroStats(),
+    staleTime: 1000 * 60 * 60,
+  })
+  const { data: timeline } = useQuery({
+    queryKey: ['debt-timeline'],
+    queryFn: () => getDebtTimeline(),
+    staleTime: 1000 * 60 * 60,
+  })
+  const { data: departments } = useQuery({
+    queryKey: ['dept-breakdown'],
+    queryFn: () => getDepartmentBreakdown(),
+    staleTime: 1000 * 60 * 60,
+  })
 
   return (
     <main id="main-content" className="mx-auto max-w-6xl space-y-10 px-4 py-10">
-      {/* Page header */}
       <div className="space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">
           Debt vs Overseas Spending
@@ -40,31 +39,43 @@ function DashboardPage() {
         </p>
       </div>
 
-      {/* Section 1: Hero stats */}
       <section aria-labelledby="hero-stats-heading">
         <h2 id="hero-stats-heading" className="mb-4 text-lg font-semibold">
           At a Glance
         </h2>
-        <DebtHeroStats stats={heroStats} />
+        {heroStats ? (
+          <DebtHeroStats stats={heroStats} />
+        ) : (
+          <div className="grid gap-4 md:grid-cols-3">
+            <Skeleton className="h-32 rounded-xl" />
+            <Skeleton className="h-32 rounded-xl" />
+            <Skeleton className="h-32 rounded-xl" />
+          </div>
+        )}
       </section>
 
-      {/* Section 2: Time-series chart */}
       <section aria-labelledby="chart-heading">
         <h2 id="chart-heading" className="mb-4 text-lg font-semibold">
           Debt and Aid Over Time
         </h2>
-        <DebtVsAidChart data={timeline} />
+        {timeline ? (
+          <DebtVsAidChart data={timeline} />
+        ) : (
+          <Skeleton className="h-[400px] rounded-lg" />
+        )}
       </section>
 
-      {/* Section 3: Department breakdown */}
       <section aria-labelledby="dept-heading">
         <h2 id="dept-heading" className="mb-4 text-lg font-semibold">
           Spending by Department
         </h2>
-        <DepartmentBreakdown data={departments} />
+        {departments ? (
+          <DepartmentBreakdown data={departments} />
+        ) : (
+          <Skeleton className="h-48 rounded-lg" />
+        )}
       </section>
 
-      {/* Footnotes */}
       <footer className="border-t pt-6">
         <h2 className="mb-2 text-sm font-semibold text-muted-foreground">
           Data Notes
