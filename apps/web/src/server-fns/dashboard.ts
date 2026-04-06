@@ -1,5 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
-import { sql, sum, count, desc, isNotNull, and, ne } from 'drizzle-orm'
+import { sql, sum, count, desc, isNotNull, and } from 'drizzle-orm'
 import { getDb } from '@govtrace/db/client'
 import { fiscalSnapshots, internationalAid } from '@govtrace/db/schema/raw'
 
@@ -45,8 +45,8 @@ export const getDebtTimeline = createServerFn({ method: 'GET' }).handler(
     // Debt by year — get max value per year (latest month's reading)
     const debtByYear = await db
       .select({
-        year: sql<number>`EXTRACT(YEAR FROM ${fiscalSnapshots.refDate})::int`,
-        debtMillions: sql<string>`MAX(${fiscalSnapshots.valueMillionsCad})::text`,
+        year: sql<number>`EXTRACT(YEAR FROM ${fiscalSnapshots.refDate})`.mapWith(Number),
+        debtMillions: sql<string>`MAX(${fiscalSnapshots.valueMillionsCad})`,
       })
       .from(fiscalSnapshots)
       .where(
@@ -61,9 +61,9 @@ export const getDebtTimeline = createServerFn({ method: 'GET' }).handler(
     // Aid by year — Drizzle ORM
     const aidByYear = await db
       .select({
-        year: sql<number>`EXTRACT(YEAR FROM ${internationalAid.startDate})::int`,
-        committedBillions: sql<number>`ROUND(SUM(${internationalAid.totalCommittedCad}) / 1e9, 3)`,
-        disbursedBillions: sql<number>`ROUND(SUM(${internationalAid.totalDisbursedCad}) / 1e9, 3)`,
+        year: sql<number>`EXTRACT(YEAR FROM ${internationalAid.startDate})`.mapWith(Number),
+        committedBillions: sql<number>`ROUND(SUM(${internationalAid.totalCommittedCad}) / 1e9, 3)`.mapWith(Number),
+        disbursedBillions: sql<number>`ROUND(SUM(${internationalAid.totalDisbursedCad}) / 1e9, 3)`.mapWith(Number),
       })
       .from(internationalAid)
       .where(isNotNull(internationalAid.startDate))
@@ -85,7 +85,7 @@ export const getDebtTimeline = createServerFn({ method: 'GET' }).handler(
       const aid = aidMap.get(debt.year) ?? { committed: 0, disbursed: 0 }
       results.push({
         year: debt.year,
-        debtBillionsCad: Number(debt.debtMillions ?? 0) / 1000,
+        debtBillionsCad: Number(debt.debtMillions ?? '0') / 1000,
         aidCommittedBillionsCad: aid.committed,
         aidDisbursedBillionsCad: aid.disbursed,
         sourceDebtUrl: DEBT_SOURCE_URL,
@@ -160,7 +160,7 @@ export const getDebtHeroStats = createServerFn({ method: 'GET' }).handler(
 
     const totalAid = await db
       .select({
-        totalBillions: sql<number>`ROUND(SUM(${internationalAid.totalCommittedCad}) / 1e9, 3)`,
+        totalBillions: sql<number>`ROUND(SUM(${internationalAid.totalCommittedCad}) / 1e9, 3)`.mapWith(Number),
       })
       .from(internationalAid)
 
