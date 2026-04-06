@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SearchRouteImport } from './routes/search'
+import { Route as RegulationsRouteImport } from './routes/regulations'
 import { Route as PatternsRouteImport } from './routes/patterns'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as FindPathRouteImport } from './routes/find-path'
@@ -22,6 +23,11 @@ import { Route as AidCountryCodeRouteImport } from './routes/aid/country/$code'
 const SearchRoute = SearchRouteImport.update({
   id: '/search',
   path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegulationsRoute = RegulationsRouteImport.update({
+  id: '/regulations',
+  path: '/regulations',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PatternsRoute = PatternsRouteImport.update({
@@ -71,6 +77,7 @@ export interface FileRoutesByFullPath {
   '/find-path': typeof FindPathRoute
   '/how-it-works': typeof HowItWorksRoute
   '/patterns': typeof PatternsRoute
+  '/regulations': typeof RegulationsRoute
   '/search': typeof SearchRoute
   '/bill/$id': typeof BillIdRoute
   '/entity/$id': typeof EntityIdRoute
@@ -82,6 +89,7 @@ export interface FileRoutesByTo {
   '/find-path': typeof FindPathRoute
   '/how-it-works': typeof HowItWorksRoute
   '/patterns': typeof PatternsRoute
+  '/regulations': typeof RegulationsRoute
   '/search': typeof SearchRoute
   '/bill/$id': typeof BillIdRoute
   '/entity/$id': typeof EntityIdRoute
@@ -94,6 +102,7 @@ export interface FileRoutesById {
   '/find-path': typeof FindPathRoute
   '/how-it-works': typeof HowItWorksRoute
   '/patterns': typeof PatternsRoute
+  '/regulations': typeof RegulationsRoute
   '/search': typeof SearchRoute
   '/bill/$id': typeof BillIdRoute
   '/entity/$id': typeof EntityIdRoute
@@ -107,6 +116,7 @@ export interface FileRouteTypes {
     | '/find-path'
     | '/how-it-works'
     | '/patterns'
+    | '/regulations'
     | '/search'
     | '/bill/$id'
     | '/entity/$id'
@@ -118,6 +128,7 @@ export interface FileRouteTypes {
     | '/find-path'
     | '/how-it-works'
     | '/patterns'
+    | '/regulations'
     | '/search'
     | '/bill/$id'
     | '/entity/$id'
@@ -129,6 +140,7 @@ export interface FileRouteTypes {
     | '/find-path'
     | '/how-it-works'
     | '/patterns'
+    | '/regulations'
     | '/search'
     | '/bill/$id'
     | '/entity/$id'
@@ -141,6 +153,7 @@ export interface RootRouteChildren {
   FindPathRoute: typeof FindPathRoute
   HowItWorksRoute: typeof HowItWorksRoute
   PatternsRoute: typeof PatternsRoute
+  RegulationsRoute: typeof RegulationsRoute
   SearchRoute: typeof SearchRoute
   BillIdRoute: typeof BillIdRoute
   EntityIdRoute: typeof EntityIdRoute
@@ -154,6 +167,13 @@ declare module '@tanstack/react-router' {
       path: '/search'
       fullPath: '/search'
       preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/regulations': {
+      id: '/regulations'
+      path: '/regulations'
+      fullPath: '/regulations'
+      preLoaderRoute: typeof RegulationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/patterns': {
@@ -221,6 +241,7 @@ const rootRouteChildren: RootRouteChildren = {
   FindPathRoute: FindPathRoute,
   HowItWorksRoute: HowItWorksRoute,
   PatternsRoute: PatternsRoute,
+  RegulationsRoute: RegulationsRoute,
   SearchRoute: SearchRoute,
   BillIdRoute: BillIdRoute,
   EntityIdRoute: EntityIdRoute,
