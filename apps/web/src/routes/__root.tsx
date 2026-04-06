@@ -108,33 +108,35 @@ function SiteFooter() {
               donations, contracts, lobbying, and grants.
             </p>
           </div>
-          <div className="space-y-2 text-xs text-muted-foreground">
+          <div className="flex flex-col gap-2 text-xs text-muted-foreground">
             <p>All data under Open Government Licence — Canada</p>
             <p>Connections shown do not imply wrongdoing</p>
-            <Link
-              to="/how-it-works"
-              className="inline-flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground"
-            >
-              How it works
-            </Link>
-            <a
-              href="https://github.com/guilhermeseckert/GovTrace"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground"
-            >
-              <ExternalLink className="h-3.5 w-3.5" />
-              Open source on GitHub
-            </a>
-            <a
-              href="https://buymeacoffee.com/guilhermeeckert"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground"
-            >
-              <Heart className="h-3.5 w-3.5" />
-              Support GovTrace
-            </a>
+            <div className="flex flex-col gap-1.5 pt-1">
+              <Link
+                to="/how-it-works"
+                className="flex w-fit items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground"
+              >
+                How it works
+              </Link>
+              <a
+                href="https://github.com/guilhermeseckert/GovTrace"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex w-fit items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+                Open source on GitHub
+              </a>
+              <a
+                href="https://buymeacoffee.com/guilhermeeckert"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex w-fit items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground"
+              >
+                <Heart className="h-3.5 w-3.5" />
+                Support GovTrace
+              </a>
+            </div>
           </div>
         </div>
       </div>
