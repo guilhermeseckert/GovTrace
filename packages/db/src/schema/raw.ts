@@ -1,5 +1,30 @@
 import { pgTable, text, integer, numeric, date, timestamp, jsonb, uuid, index, uniqueIndex } from 'drizzle-orm/pg-core'
 
+// Canada Gazette Part II final regulations (DATA-10)
+// Source: https://gazette.gc.ca/rp-pr/p2/{YYYY}/{YYYY-MM-DD}/html/index-eng.html
+// Natural key: SHA256(sorNumber + 'II' + publicationDate) when SOR present, SHA256(title + 'II' + publicationDate) as fallback
+export const gazetteRegulations = pgTable('gazette_regulations', {
+  id: text('id').primaryKey(), // SHA256(sorNumber + 'II' + publicationDate) or SHA256(title + 'II' + publicationDate)
+  sorNumber: text('sor_number'), // e.g., 'SOR/2026-42', 'SI/2026-15' — nullable for entries without SOR
+  title: text('title').notNull(), // Regulation title from gazette
+  gazettePart: text('gazette_part').notNull(), // 'I' or 'II'
+  publicationDate: date('publication_date').notNull(), // Date published in gazette
+  registrationDate: date('registration_date'), // Date registered (Part II only)
+  responsibleDepartment: text('responsible_department'), // e.g., 'Environment and Climate Change Canada'
+  enablingAct: text('enabling_act'), // e.g., 'Canadian Environmental Protection Act, 1999'
+  gazetteUrl: text('gazette_url').notNull(), // Full URL to regulation on gazette.gc.ca
+  lobbyingSubjectCategories: text('lobbying_subject_categories').array(), // Mapped to lobbying subject_matter categories
+  sourceFileHash: text('source_file_hash').notNull(),
+  rawData: jsonb('raw_data').notNull(),
+  ingestedAt: timestamp('ingested_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index('gazette_regulations_publication_date_idx').on(t.publicationDate),
+  index('gazette_regulations_responsible_department_idx').on(t.responsibleDepartment),
+  index('gazette_regulations_gazette_part_idx').on(t.gazettePart),
+  index('gazette_regulations_sor_number_idx').on(t.sorNumber),
+])
+
 // Public Accounts of Canada — Expenditures by Standard Object (DATA-09)
 // Source: https://open.canada.ca/data/dataset/a35cf382-690c-4221-a971-cf0fd189a46f
 // Natural key: SHA256(fy_ef + ':' + org_id + ':' + sobj_en) — deterministic for idempotent re-ingestion
