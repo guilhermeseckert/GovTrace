@@ -6,12 +6,14 @@ import {
   getDebtHeroStats,
   getCountryBreakdown,
   getSectorBreakdown,
+  getSpendingByCategory,
 } from '@/server-fns/dashboard'
 import { DebtHeroStats } from '@/components/dashboard/DebtHeroStats'
 import { DebtVsAidChart } from '@/components/dashboard/DebtVsAidChart'
 import { DepartmentBreakdown } from '@/components/dashboard/DepartmentBreakdown'
 import { CountryBreakdown } from '@/components/dashboard/CountryBreakdown'
 import { SectorBreakdown } from '@/components/dashboard/SectorBreakdown'
+import { SpendingByCategory } from '@/components/dashboard/SpendingByCategory'
 import { Skeleton } from '@/components/ui/skeleton'
 
 export const Route = createFileRoute('/dashboard')({
@@ -42,6 +44,11 @@ function DashboardPage() {
   const { data: sectors } = useQuery({
     queryKey: ['sector-breakdown'],
     queryFn: () => getSectorBreakdown(),
+    staleTime: 1000 * 60 * 60,
+  })
+  const { data: spendingByCategory } = useQuery({
+    queryKey: ['spending-by-category'],
+    queryFn: () => getSpendingByCategory(),
     staleTime: 1000 * 60 * 60,
   })
 
@@ -80,6 +87,20 @@ function DashboardPage() {
           <DebtVsAidChart data={timeline} />
         ) : (
           <Skeleton className="h-[400px] rounded-lg" />
+        )}
+      </section>
+
+      <section aria-labelledby="spending-category-heading">
+        <h2 id="spending-category-heading" className="mb-1 text-lg font-semibold">
+          Federal Spending by Category
+        </h2>
+        <p className="mb-4 text-sm text-muted-foreground">
+          How the government allocates its budget across standard expenditure objects (latest fiscal year).
+        </p>
+        {spendingByCategory ? (
+          <SpendingByCategory data={spendingByCategory} />
+        ) : (
+          <Skeleton className="h-64 rounded-lg" />
         )}
       </section>
 

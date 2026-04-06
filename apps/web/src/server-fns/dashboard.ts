@@ -2,7 +2,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { sql, sum, count, desc, isNotNull, and, eq, ilike, or } from 'drizzle-orm'
 import { z } from 'zod'
 import { getDb } from '@govtrace/db/client'
-import { fiscalSnapshots, internationalAid } from '@govtrace/db/schema/raw'
+import { fiscalSnapshots, internationalAid, departmentExpenditures } from '@govtrace/db/schema/raw'
 import { cached } from '@/lib/cache'
 import { getCountryName, getSectorTheme } from '@/lib/country-codes'
 
@@ -415,3 +415,47 @@ export const getCountryAidProjects = createServerFn({ method: 'GET' })
     }
     return fetchData()
   })
+
+// ---------------------------------------------------------------------------
+// SpendingCategoryRow — department_expenditures breakdown by standard object
+// ---------------------------------------------------------------------------
+
+export type SpendingCategoryRow = {
+  category: string
+  amount: number // dollars (can be negative for revenue categories)
+}
+
+// ---------------------------------------------------------------------------
+// getSpendingByCategory — federal spending by standard object (latest fiscal year)
+// ---------------------------------------------------------------------------
+
+export const getSpendingByCategory = createServerFn({ method: 'GET' }).handler(
+  (): Promise<SpendingCategoryRow[]> => cached('spending-by-category', async () => {
+    const db = getDb()
+
+    // Get latest fiscal year available
+    const latestYearResult = await db
+      .select({ fiscalYear: departmentExpenditures.fiscalYear })
+      .from(departmentExpenditures)
+      .orderBy(desc(departmentExpenditures.fiscalYear))
+      .limit(1)
+
+    const latestFiscalYear = latestYearResult[0]?.fiscalYear
+    if (!latestFiscalYear) return []
+
+    const rows = await db
+      .select({
+        standardObject: departmentExpenditures.standardObject,
+        total: sum(departmentExpenditures.expenditures),
+      })
+      .from(departmentExpenditures)
+      .where(sql`${departmentExpenditures.fiscalYear} = ${latestFiscalYear}`)
+      .groupBy(departmentExpenditures.standardObject)
+      .orderBy(desc(sum(departmentExpenditures.expenditures)))
+
+    return rows.map((r) => ({
+      category: r.standardObject ?? '',
+      amount: Number(r.total ?? 0),
+    }))
+  }),
+)
