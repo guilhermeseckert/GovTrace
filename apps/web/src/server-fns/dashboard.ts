@@ -42,15 +42,21 @@ export const getDebtTimeline = createServerFn({ method: 'GET' }).handler(
   async (): Promise<DebtAidDataPoint[]> => {
     const db = getDb()
 
-    // Debt by year — DISTINCT ON needs raw SQL (Drizzle doesn't support it)
-    const debtByYear = await db.execute<{ year: number; debt_millions: string }>(
-      sql`SELECT DISTINCT ON (EXTRACT(YEAR FROM ref_date))
-        EXTRACT(YEAR FROM ref_date)::int AS year,
-        value_millions_cad::text AS debt_millions
-      FROM fiscal_snapshots
-      WHERE series = 'accumulated_deficit' AND value_millions_cad IS NOT NULL
-      ORDER BY EXTRACT(YEAR FROM ref_date), ref_date DESC`,
-    )
+    // Debt by year — get max value per year (latest month's reading)
+    const debtByYear = await db
+      .select({
+        year: sql<number>`EXTRACT(YEAR FROM ${fiscalSnapshots.refDate})::int`,
+        debtMillions: sql<string>`MAX(${fiscalSnapshots.valueMillionsCad})::text`,
+      })
+      .from(fiscalSnapshots)
+      .where(
+        and(
+          sql`${fiscalSnapshots.series} = 'accumulated_deficit'`,
+          isNotNull(fiscalSnapshots.valueMillionsCad),
+        ),
+      )
+      .groupBy(sql`EXTRACT(YEAR FROM ${fiscalSnapshots.refDate})`)
+      .orderBy(sql`EXTRACT(YEAR FROM ${fiscalSnapshots.refDate})`)
 
     // Aid by year — Drizzle ORM
     const aidByYear = await db
@@ -73,14 +79,13 @@ export const getDebtTimeline = createServerFn({ method: 'GET' }).handler(
     }
 
     const currentYear = new Date().getFullYear()
-    const debtRows = Array.from(debtByYear) as Array<{ year: number; debt_millions: string }>
     const results: DebtAidDataPoint[] = []
-    for (const debt of debtRows) {
+    for (const debt of debtByYear) {
       if (debt.year >= currentYear) continue
       const aid = aidMap.get(debt.year) ?? { committed: 0, disbursed: 0 }
       results.push({
         year: debt.year,
-        debtBillionsCad: Number(debt.debt_millions ?? 0) / 1000,
+        debtBillionsCad: Number(debt.debtMillions ?? 0) / 1000,
         aidCommittedBillionsCad: aid.committed,
         aidDisbursedBillionsCad: aid.disbursed,
         sourceDebtUrl: DEBT_SOURCE_URL,
