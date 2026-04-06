@@ -36,6 +36,13 @@
       "when": 1775453259136,
       "tag": "0004_curious_blue_blade",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1775454926495,
+      "tag": "0005_furry_strong_guy",
+      "breakpoints": true
     }
   ]
 }

@@ -188,3 +188,73 @@ export const lobbyCommunications = pgTable('lobby_communications', {
   index('lobby_communications_normalized_official_name_idx').on(t.normalizedOfficialName),
   index('lobby_communications_communication_date_idx').on(t.communicationDate),
 ])
+
+// Federal travel expense disclosures from open.canada.ca (DATA-07)
+// Dataset: 009f9a49-c2d9-4d29-a6d4-1a228da335ce
+// Natural key: SHA256(ref_number + owner_org) — ref_number is unique per department only
+export const travelDisclosures = pgTable('travel_disclosures', {
+  id: text('id').primaryKey(), // SHA256(ref_number + owner_org)
+  refNumber: text('ref_number').notNull(),
+  disclosureGroup: text('disclosure_group'), // 'MPSES' or 'SLE'
+  name: text('name').notNull(), // traveller name
+  titleEn: text('title_en'), // position title (English)
+  department: text('department').notNull(), // English portion of owner_org_title
+  departmentCode: text('department_code'), // owner_org acronym
+  purposeEn: text('purpose_en'),
+  destinationEn: text('destination_en'),
+  destination2En: text('destination_2_en'),
+  destinationOtherEn: text('destination_other_en'),
+  startDate: date('start_date'),
+  endDate: date('end_date'),
+  airfare: numeric('airfare', { precision: 12, scale: 2 }),
+  otherTransport: numeric('other_transport', { precision: 12, scale: 2 }),
+  lodging: numeric('lodging', { precision: 12, scale: 2 }),
+  meals: numeric('meals', { precision: 12, scale: 2 }),
+  otherExpenses: numeric('other_expenses', { precision: 12, scale: 2 }),
+  total: numeric('total', { precision: 12, scale: 2 }).notNull(),
+  normalizedName: text('normalized_name'), // populated by matching pipeline
+  entityId: uuid('entity_id'), // FK to entities.id — set after entity matching
+  sourceFileHash: text('source_file_hash').notNull(),
+  rawData: jsonb('raw_data').notNull(),
+  ingestedAt: timestamp('ingested_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index('travel_disclosures_normalized_name_idx').on(t.normalizedName),
+  index('travel_disclosures_entity_id_idx').on(t.entityId),
+  index('travel_disclosures_department_idx').on(t.department),
+  index('travel_disclosures_department_code_idx').on(t.departmentCode),
+  index('travel_disclosures_start_date_idx').on(t.startDate),
+])
+
+// Federal hospitality expense disclosures from open.canada.ca (DATA-08)
+// Dataset: b9f51ef4-4605-4ef2-8231-62a2edda1b54
+// Natural key: SHA256(ref_number + owner_org) — ref_number is unique per department only
+export const hospitalityDisclosures = pgTable('hospitality_disclosures', {
+  id: text('id').primaryKey(), // SHA256(ref_number + owner_org)
+  refNumber: text('ref_number').notNull(),
+  disclosureGroup: text('disclosure_group'), // 'MPSES' or 'SLE'
+  name: text('name').notNull(), // host official name
+  titleEn: text('title_en'), // position title (English)
+  department: text('department').notNull(), // English portion of owner_org_title
+  departmentCode: text('department_code'), // owner_org acronym
+  descriptionEn: text('description_en'),
+  locationEn: text('location_en'),
+  vendorEn: text('vendor_en'),
+  startDate: date('start_date'),
+  endDate: date('end_date'),
+  employeeAttendees: integer('employee_attendees'),
+  guestAttendees: integer('guest_attendees'),
+  total: numeric('total', { precision: 12, scale: 2 }).notNull(),
+  normalizedName: text('normalized_name'), // populated by matching pipeline
+  entityId: uuid('entity_id'), // FK to entities.id — set after entity matching
+  sourceFileHash: text('source_file_hash').notNull(),
+  rawData: jsonb('raw_data').notNull(),
+  ingestedAt: timestamp('ingested_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index('hospitality_disclosures_normalized_name_idx').on(t.normalizedName),
+  index('hospitality_disclosures_entity_id_idx').on(t.entityId),
+  index('hospitality_disclosures_department_idx').on(t.department),
+  index('hospitality_disclosures_department_code_idx').on(t.departmentCode),
+  index('hospitality_disclosures_start_date_idx').on(t.startDate),
+])
