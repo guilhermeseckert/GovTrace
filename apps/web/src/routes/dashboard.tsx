@@ -1,9 +1,17 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
-import { getDebtTimeline, getDepartmentBreakdown, getDebtHeroStats } from '@/server-fns/dashboard'
+import {
+  getDebtTimeline,
+  getDepartmentBreakdown,
+  getDebtHeroStats,
+  getCountryBreakdown,
+  getSectorBreakdown,
+} from '@/server-fns/dashboard'
 import { DebtHeroStats } from '@/components/dashboard/DebtHeroStats'
 import { DebtVsAidChart } from '@/components/dashboard/DebtVsAidChart'
 import { DepartmentBreakdown } from '@/components/dashboard/DepartmentBreakdown'
+import { CountryBreakdown } from '@/components/dashboard/CountryBreakdown'
+import { SectorBreakdown } from '@/components/dashboard/SectorBreakdown'
 import { Skeleton } from '@/components/ui/skeleton'
 
 export const Route = createFileRoute('/dashboard')({
@@ -24,6 +32,16 @@ function DashboardPage() {
   const { data: departments } = useQuery({
     queryKey: ['dept-breakdown'],
     queryFn: () => getDepartmentBreakdown(),
+    staleTime: 1000 * 60 * 60,
+  })
+  const { data: countries } = useQuery({
+    queryKey: ['country-breakdown'],
+    queryFn: () => getCountryBreakdown(),
+    staleTime: 1000 * 60 * 60,
+  })
+  const { data: sectors } = useQuery({
+    queryKey: ['sector-breakdown'],
+    queryFn: () => getSectorBreakdown(),
     staleTime: 1000 * 60 * 60,
   })
 
@@ -71,6 +89,28 @@ function DashboardPage() {
         </h2>
         {departments ? (
           <DepartmentBreakdown data={departments} />
+        ) : (
+          <Skeleton className="h-48 rounded-lg" />
+        )}
+      </section>
+
+      <section aria-labelledby="country-heading">
+        <h2 id="country-heading" className="mb-4 text-lg font-semibold">
+          Aid by Recipient Country
+        </h2>
+        {countries ? (
+          <CountryBreakdown data={countries} />
+        ) : (
+          <Skeleton className="h-64 rounded-lg" />
+        )}
+      </section>
+
+      <section aria-labelledby="sector-heading">
+        <h2 id="sector-heading" className="mb-4 text-lg font-semibold">
+          Aid by Theme
+        </h2>
+        {sectors ? (
+          <SectorBreakdown data={sectors} />
         ) : (
           <Skeleton className="h-48 rounded-lg" />
         )}

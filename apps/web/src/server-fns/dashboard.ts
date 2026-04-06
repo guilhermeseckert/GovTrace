@@ -3,6 +3,7 @@ import { sql, sum, count, desc, isNotNull, and } from 'drizzle-orm'
 import { getDb } from '@govtrace/db/client'
 import { fiscalSnapshots, internationalAid } from '@govtrace/db/schema/raw'
 import { cached } from '@/lib/cache'
+import { getCountryName, getSectorTheme } from '@/lib/country-codes'
 
 export type DebtAidDataPoint = {
   year: number
@@ -15,6 +16,23 @@ export type DebtAidDataPoint = {
 
 export type DeptSpendingRow = {
   department: string
+  totalCommittedCad: number
+  totalDisbursedCad: number
+  projectCount: number
+  pctOfTotal: number
+}
+
+export type CountrySpendingRow = {
+  countryCode: string
+  countryName: string
+  totalCommittedCad: number
+  totalDisbursedCad: number
+  projectCount: number
+  pctOfTotal: number
+}
+
+export type SectorSpendingRow = {
+  theme: string
   totalCommittedCad: number
   totalDisbursedCad: number
   projectCount: number
@@ -183,5 +201,100 @@ export const getDebtHeroStats = createServerFn({ method: 'GET' }).handler(
       sourceDebtUrl: DEBT_SOURCE_URL,
       sourceAidUrl: AID_SOURCE_URL,
     }
+  }),
+)
+
+// ---------------------------------------------------------------------------
+// getCountryBreakdown — where does Canadian aid go by recipient country?
+// ---------------------------------------------------------------------------
+
+export const getCountryBreakdown = createServerFn({ method: 'GET' }).handler(
+  (): Promise<CountrySpendingRow[]> => cached('country-breakdown', async () => {
+    const db = getDb()
+
+    const rows = await db
+      .select({
+        recipientCountry: internationalAid.recipientCountry,
+        totalCommitted: sum(internationalAid.totalCommittedCad),
+        totalDisbursed: sum(internationalAid.totalDisbursedCad),
+        projectCount: count(),
+      })
+      .from(internationalAid)
+      .where(isNotNull(internationalAid.recipientCountry))
+      .groupBy(internationalAid.recipientCountry)
+      .orderBy(desc(sum(internationalAid.totalCommittedCad)))
+
+    const grandTotal = rows.reduce(
+      (s, r) => s + Number(r.totalCommitted ?? 0),
+      0,
+    )
+
+    return rows.map((r) => {
+      const code = r.recipientCountry ?? ''
+      const committed = Number(r.totalCommitted ?? 0)
+      return {
+        countryCode: code,
+        countryName: getCountryName(code),
+        totalCommittedCad: committed,
+        totalDisbursedCad: Number(r.totalDisbursed ?? 0),
+        projectCount: Number(r.projectCount),
+        pctOfTotal: grandTotal > 0 ? Math.round((committed / grandTotal) * 10000) / 100 : 0,
+      }
+    })
+  }),
+)
+
+// ---------------------------------------------------------------------------
+// getSectorBreakdown — which thematic areas does Canadian aid target?
+// ---------------------------------------------------------------------------
+
+export const getSectorBreakdown = createServerFn({ method: 'GET' }).handler(
+  (): Promise<SectorSpendingRow[]> => cached('sector-breakdown', async () => {
+    const db = getDb()
+
+    const rows = await db
+      .select({
+        sectorCode: internationalAid.sectorCode,
+        totalCommitted: sum(internationalAid.totalCommittedCad),
+        totalDisbursed: sum(internationalAid.totalDisbursedCad),
+        projectCount: count(),
+      })
+      .from(internationalAid)
+      .where(isNotNull(internationalAid.sectorCode))
+      .groupBy(internationalAid.sectorCode)
+      .orderBy(desc(sum(internationalAid.totalCommittedCad)))
+
+    // Merge rows with the same theme (multiple 5-digit codes can map to the same theme)
+    const themeMap = new Map<
+      string,
+      { totalCommittedCad: number; totalDisbursedCad: number; projectCount: number }
+    >()
+
+    for (const r of rows) {
+      const theme = getSectorTheme(r.sectorCode ?? '')
+      const existing = themeMap.get(theme)
+      if (existing) {
+        existing.totalCommittedCad += Number(r.totalCommitted ?? 0)
+        existing.totalDisbursedCad += Number(r.totalDisbursed ?? 0)
+        existing.projectCount += Number(r.projectCount)
+      } else {
+        themeMap.set(theme, {
+          totalCommittedCad: Number(r.totalCommitted ?? 0),
+          totalDisbursedCad: Number(r.totalDisbursed ?? 0),
+          projectCount: Number(r.projectCount),
+        })
+      }
+    }
+
+    const merged = Array.from(themeMap.entries())
+      .map(([theme, values]) => ({ theme, ...values }))
+      .sort((a, b) => b.totalCommittedCad - a.totalCommittedCad)
+
+    const grandTotal = merged.reduce((s, r) => s + r.totalCommittedCad, 0)
+
+    return merged.map((r) => ({
+      ...r,
+      pctOfTotal: grandTotal > 0 ? Math.round((r.totalCommittedCad / grandTotal) * 10000) / 100 : 0,
+    }))
   }),
 )
