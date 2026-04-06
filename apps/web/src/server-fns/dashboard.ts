@@ -1,5 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
-import { sql, sum, count, desc, isNotNull, and } from 'drizzle-orm'
+import { sql, sum, count, desc, isNotNull, and, eq, ilike, or } from 'drizzle-orm'
+import { z } from 'zod'
 import { getDb } from '@govtrace/db/client'
 import { fiscalSnapshots, internationalAid } from '@govtrace/db/schema/raw'
 import { cached } from '@/lib/cache'
@@ -298,3 +299,119 @@ export const getSectorBreakdown = createServerFn({ method: 'GET' }).handler(
     }))
   }),
 )
+
+// ---------------------------------------------------------------------------
+// CountryAidProjectRow — project record for the country drill-down page
+// ---------------------------------------------------------------------------
+
+export type CountryAidProjectRow = {
+  id: string
+  projectTitle: string | null
+  description: string | null
+  implementerName: string | null
+  fundingDepartment: string | null
+  activityStatus: string | null
+  recipientCountry: string | null
+  recipientRegion: string | null
+  startDate: string | null
+  endDate: string | null
+  totalBudgetCad: string | null
+  totalDisbursedCad: string | null
+  totalCommittedCad: string | null
+  currency: string | null
+  rawData: unknown
+}
+
+export type CountryAidProjectsResult = {
+  rows: CountryAidProjectRow[]
+  total: number
+  totalCommittedCad: number
+  totalDisbursedCad: number
+}
+
+const CountryAidProjectsInputSchema = z.object({
+  countryCode: z.string().min(2).max(3),
+  search: z.string().optional(),
+  page: z.number().int().min(1).default(1),
+  pageSize: z.number().int().min(1).max(100).default(25),
+})
+
+// ---------------------------------------------------------------------------
+// getCountryAidProjects — all projects for a specific recipient country
+// ---------------------------------------------------------------------------
+
+export const getCountryAidProjects = createServerFn({ method: 'GET' })
+  .inputValidator(CountryAidProjectsInputSchema)
+  .handler(async ({ data }): Promise<CountryAidProjectsResult> => {
+    const { countryCode, search, page, pageSize } = data
+    const offset = (page - 1) * pageSize
+
+    const fetchData = async (): Promise<CountryAidProjectsResult> => {
+      const db = getDb()
+
+      const baseCondition = search
+        ? and(
+            eq(internationalAid.recipientCountry, countryCode),
+            or(
+              ilike(internationalAid.projectTitle, `%${search}%`),
+              ilike(internationalAid.implementerName, `%${search}%`),
+            ),
+          )
+        : eq(internationalAid.recipientCountry, countryCode)
+
+      const [rows, totalsResult, countResult] = await Promise.all([
+        db
+          .select({
+            id: internationalAid.id,
+            projectTitle: internationalAid.projectTitle,
+            description: internationalAid.description,
+            implementerName: internationalAid.implementerName,
+            fundingDepartment: internationalAid.fundingDepartment,
+            activityStatus: internationalAid.activityStatus,
+            recipientCountry: internationalAid.recipientCountry,
+            recipientRegion: internationalAid.recipientRegion,
+            startDate: internationalAid.startDate,
+            endDate: internationalAid.endDate,
+            totalBudgetCad: internationalAid.totalBudgetCad,
+            totalDisbursedCad: internationalAid.totalDisbursedCad,
+            totalCommittedCad: internationalAid.totalCommittedCad,
+            currency: internationalAid.currency,
+            rawData: internationalAid.rawData,
+          })
+          .from(internationalAid)
+          .where(baseCondition)
+          .orderBy(desc(internationalAid.totalCommittedCad))
+          .limit(pageSize)
+          .offset(offset),
+
+        db
+          .select({
+            totalCommitted: sum(internationalAid.totalCommittedCad),
+            totalDisbursed: sum(internationalAid.totalDisbursedCad),
+          })
+          .from(internationalAid)
+          .where(baseCondition),
+
+        db
+          .select({ c: count() })
+          .from(internationalAid)
+          .where(baseCondition),
+      ])
+
+      return {
+        rows: rows.map((r) => ({
+          ...r,
+          currency: r.currency ?? 'CAD',
+        })),
+        total: Number(countResult[0]?.c ?? 0),
+        totalCommittedCad: Number(totalsResult[0]?.totalCommitted ?? 0),
+        totalDisbursedCad: Number(totalsResult[0]?.totalDisbursed ?? 0),
+      }
+    }
+
+    // Only cache non-search queries
+    if (!search) {
+      return cached(`country-aid-${countryCode}`, fetchData)
+    }
+    return fetchData()
+  })
