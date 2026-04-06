@@ -9,6 +9,7 @@
     "./schema/connections": "./src/schema/connections.ts",
     "./schema/jobs": "./src/schema/jobs.ts",
     "./schema/parliament": "./src/schema/parliament.ts",
+    "./schema/appointments": "./src/schema/appointments.ts",
     "./client": "./src/client.ts"
   },
   "scripts": {

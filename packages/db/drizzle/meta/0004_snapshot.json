@@ -1,9 +1,215 @@
 {
-  "id": "58640d82-343d-49ab-9366-97129a067a85",
-  "prevId": "6e53caf7-c4d2-41ee-adc4-6a5439272d2d",
+  "id": "3b9a6a88-cd77-4448-9485-f42d8a777a39",
+  "prevId": "58640d82-343d-49ab-9366-97129a067a85",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
+    "public.gic_appointments": {
+      "name": "gic_appointments",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "appointee_name": {
+          "name": "appointee_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "normalized_appointee_name": {
+          "name": "normalized_appointee_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "position_title": {
+          "name": "position_title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "organization_name": {
+          "name": "organization_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "organization_code": {
+          "name": "organization_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "appointment_type": {
+          "name": "appointment_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tenure_type": {
+          "name": "tenure_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "appointment_date": {
+          "name": "appointment_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "expiry_date": {
+          "name": "expiry_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_vacant": {
+          "name": "is_vacant",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "entity_id": {
+          "name": "entity_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "source_url": {
+          "name": "source_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source_file_hash": {
+          "name": "source_file_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "raw_data": {
+          "name": "raw_data",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ingested_at": {
+          "name": "ingested_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "gic_appointments_normalized_appointee_name_idx": {
+          "name": "gic_appointments_normalized_appointee_name_idx",
+          "columns": [
+            {
+              "expression": "normalized_appointee_name",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "gic_appointments_entity_id_idx": {
+          "name": "gic_appointments_entity_id_idx",
+          "columns": [
+            {
+              "expression": "entity_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "gic_appointments_organization_code_idx": {
+          "name": "gic_appointments_organization_code_idx",
+          "columns": [
+            {
+              "expression": "organization_code",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "gic_appointments_appointment_date_idx": {
+          "name": "gic_appointments_appointment_date_idx",
+          "columns": [
+            {
+              "expression": "appointment_date",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "gic_appointments_org_name_title_idx": {
+          "name": "gic_appointments_org_name_title_idx",
+          "columns": [
+            {
+              "expression": "organization_code",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "appointee_name",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "position_title",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.entity_connections": {
       "name": "entity_connections",
       "schema": "",
@@ -2650,6 +2856,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "sector_code": {
+          "name": "sector_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "source_file_hash": {
           "name": "source_file_hash",
           "type": "text",
@@ -2743,6 +2955,21 @@
           "columns": [
             {
               "expression": "activity_status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "international_aid_sector_code_idx": {
+          "name": "international_aid_sector_code_idx",
+          "columns": [
+            {
+              "expression": "sector_code",
               "isExpression": false,
               "asc": true,
               "nulls": "last"

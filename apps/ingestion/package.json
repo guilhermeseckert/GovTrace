@@ -17,6 +17,7 @@
     "@govtrace/db": "workspace:*",
     "adm-zip": "catalog:",
     "chardet": "catalog:",
+    "cheerio": "^1.2.0",
     "dotenv": "^17.4.0",
     "drizzle-orm": "catalog:",
     "fast-xml-parser": "catalog:",

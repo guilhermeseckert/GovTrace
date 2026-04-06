@@ -50,6 +50,11 @@ switch (command) {
         await runParliamentIngestion()
         break
       }
+      case 'gic-appointments': {
+        const { runGicAppointmentsIngestion } = await import('./runners/gic-appointments.ts')
+        await runGicAppointmentsIngestion()
+        break
+      }
       case 'fiscal': {
         const { runFiscalIngestion } = await import('./runners/ingest-fiscal.ts')
         await runFiscalIngestion()
@@ -74,7 +79,7 @@ switch (command) {
       default: {
         console.error(`Unknown source: ${source ?? '(none)'}`)
         console.log(
-          'Available: elections-canada, contracts, grants, lobby-registrations, lobby-communications, international-aid, parliament, fiscal, all',
+          'Available: elections-canada, contracts, grants, lobby-registrations, lobby-communications, international-aid, parliament, fiscal, gic-appointments, all',
         )
         process.exit(1)
       }
@@ -140,7 +145,7 @@ switch (command) {
     console.log('')
     console.log('Ingest sources:')
     console.log(
-      '  elections-canada, contracts, grants, lobby-registrations, lobby-communications, all',
+      '  elections-canada, contracts, grants, lobby-registrations, lobby-communications, international-aid, parliament, fiscal, gic-appointments, all',
     )
   }
 }
