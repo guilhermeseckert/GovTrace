@@ -50,6 +50,11 @@ switch (command) {
         await runParliamentIngestion()
         break
       }
+      case 'senate': {
+        const { runSenateIngestion } = await import('./runners/senate.ts')
+        await runSenateIngestion()
+        break
+      }
       case 'gic-appointments': {
         const { runGicAppointmentsIngestion } = await import('./runners/gic-appointments.ts')
         await runGicAppointmentsIngestion()
@@ -155,7 +160,7 @@ switch (command) {
     console.log('')
     console.log('Ingest sources:')
     console.log(
-      '  elections-canada, contracts, grants, lobby-registrations, lobby-communications, international-aid, parliament, fiscal, gic-appointments, all',
+      '  elections-canada, contracts, grants, lobby-registrations, lobby-communications, international-aid, parliament, senate, fiscal, gic-appointments, all',
     )
   }
 }
