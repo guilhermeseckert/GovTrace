@@ -55,6 +55,16 @@ switch (command) {
         await runGicAppointmentsIngestion()
         break
       }
+      case 'travel': {
+        const { runTravelIngestion } = await import('./runners/travel.ts')
+        await runTravelIngestion()
+        break
+      }
+      case 'hospitality': {
+        const { runHospitalityIngestion } = await import('./runners/hospitality.ts')
+        await runHospitalityIngestion()
+        break
+      }
       case 'fiscal': {
         const { runFiscalIngestion } = await import('./runners/ingest-fiscal.ts')
         await runFiscalIngestion()
