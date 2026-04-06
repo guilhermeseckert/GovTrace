@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: verifying
-stopped_at: Completed quick/260406-079-senate-votes-and-attendance-ingest-senat
-last_updated: "2026-04-06T06:30:31.972Z"
-last_activity: "2026-04-06 - Completed quick task 260405-tck: International Aid Country & Theme Breakdown"
+stopped_at: Completed quick/260406-15u-public-accounts-of-canada-ingest-detaile
+last_updated: "2026-04-06T07:01:26Z"
+last_activity: "2026-04-06 - Completed quick task 260406-15u: Public Accounts of Canada Ingestion + Dashboard"
 progress:
   percent: 0
 ---
@@ -184,6 +184,7 @@ None yet.
 | 260405-tm4 | Swap D3 DebtVsAidChart to Recharts | 2026-04-05 | 976e041 | [260405-tm4-swap-d3-charts-to-recharts](./quick/260405-tm4-swap-d3-charts-to-recharts/) |
 | 260405-wym | Travel and Hospitality Disclosures Ingestion | 2026-04-06 | 82602aa | [260405-wym-travel-and-hospitality-disclosures-inges](./quick/260405-wym-travel-and-hospitality-disclosures-inges/) |
 | 260406-079 | Senate Votes and Attendance Ingestion | 2026-04-06 | 075bc3c | [260406-079-senate-votes-and-attendance-ingest-senat](./quick/260406-079-senate-votes-and-attendance-ingest-senat/) |
+| 260406-15u | Public Accounts Expenditures Ingestion + Dashboard | 2026-04-06 | b49c7a2 | [260406-15u-public-accounts-of-canada-ingest-detaile](./quick/260406-15u-public-accounts-of-canada-ingest-detaile/) |
 
 ## Session Continuity
 
