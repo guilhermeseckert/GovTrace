@@ -6,6 +6,7 @@ import { AlertTriangle, TrendingUp, Users, Zap } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { getPatternsFeed } from '@/server-fns/detect-patterns'
+import { DataFreshness } from '@/components/dashboard/DataFreshness'
 
 const PATTERN_TYPES = [
   {
@@ -238,6 +239,13 @@ function PatternsPage() {
               </div>
             </article>
           ))}
+        </div>
+      )}
+
+      {/* Data freshness */}
+      {allItems.length > 0 && (
+        <div className="mt-6">
+          <DataFreshness sources={['elections_canada', 'contracts', 'lobby_communications']} />
         </div>
       )}
 

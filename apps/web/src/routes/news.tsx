@@ -22,6 +22,7 @@ import {
   getEntityCrossReferences,
 } from '@/server-fns/news'
 import type { PressReleaseRow, EntityCrossRef } from '@/server-fns/news'
+import { DataFreshness } from '@/components/dashboard/DataFreshness'
 
 export const Route = createFileRoute('/news')({
   component: NewsPage,
@@ -577,6 +578,9 @@ function NewsPage() {
           </Button>
         </div>
       )}
+
+      {/* Data freshness */}
+      <DataFreshness sources={['news']} />
 
       {/* Source note */}
       <p className="text-xs text-muted-foreground">

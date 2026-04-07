@@ -12,6 +12,7 @@ import {
   getDepartmentList,
 } from '@/server-fns/gazette'
 import type { RegulationRow } from '@/server-fns/gazette'
+import { DataFreshness } from '@/components/dashboard/DataFreshness'
 
 export const Route = createFileRoute('/regulations')({
   component: RegulationsPage,
@@ -397,6 +398,9 @@ function RegulationsPage() {
           </Button>
         </div>
       )}
+
+      {/* Data freshness */}
+      <DataFreshness sources={['gazette_regulations', 'lobby_communications']} />
 
       {/* Source note */}
       <p className="text-xs text-muted-foreground">

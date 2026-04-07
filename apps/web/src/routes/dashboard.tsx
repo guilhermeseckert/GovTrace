@@ -15,6 +15,7 @@ import { BigPicture } from '@/components/dashboard/BigPicture'
 import { WhereMoneyGoes } from '@/components/dashboard/WhereMoneyGoes'
 import { WhoGetsTheMost } from '@/components/dashboard/WhoGetsTheMost'
 import { DeepDive } from '@/components/dashboard/DeepDive'
+import { DataFreshness } from '@/components/dashboard/DataFreshness'
 
 export const Route = createFileRoute('/dashboard')({
   component: DashboardPage,
@@ -88,6 +89,8 @@ function DashboardPage() {
         sectors={sectors}
         spendingByCategory={spendingByCategory}
       />
+
+      <DataFreshness />
 
       <footer className="border-t pt-6">
         <h2 className="mb-2 text-sm font-semibold text-muted-foreground">Data Notes</h2>

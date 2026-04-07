@@ -1,8 +1,9 @@
 import { createServerFn } from '@tanstack/react-start'
-import { sql, sum, count, desc, isNotNull, and, eq, ilike, or } from 'drizzle-orm'
+import { sql, sum, count, desc, isNotNull, and, eq, ilike, or, max } from 'drizzle-orm'
 import { z } from 'zod'
 import { getDb } from '@govtrace/db/client'
 import { fiscalSnapshots, internationalAid, departmentExpenditures, pressReleases } from '@govtrace/db/schema/raw'
+import { ingestionRuns } from '@govtrace/db/schema/jobs'
 import { cached } from '@/lib/cache'
 import { getCountryName, getSectorTheme } from '@/lib/country-codes'
 
@@ -638,4 +639,42 @@ export const getRecentSpendingAnnouncements = createServerFn({ method: 'GET' }).
       ministers: r.ministers ?? [],
     }))
   }),
+)
+
+// ---------------------------------------------------------------------------
+// DataFreshnessRow — last successful ingestion per source
+// ---------------------------------------------------------------------------
+
+export type DataFreshnessRow = {
+  sourceName: string
+  lastUpdated: string | null
+}
+
+// ---------------------------------------------------------------------------
+// getDataFreshness — when each data source was last successfully ingested
+// ---------------------------------------------------------------------------
+
+export const getDataFreshness = createServerFn({ method: 'GET' }).handler(
+  (): Promise<DataFreshnessRow[]> => cached(
+    'data-freshness',
+    async () => {
+      const db = getDb()
+
+      const rows = await db
+        .select({
+          sourceName: ingestionRuns.source,
+          lastUpdated: max(ingestionRuns.completedAt),
+        })
+        .from(ingestionRuns)
+        .where(sql`${ingestionRuns.status} = 'completed'`)
+        .groupBy(ingestionRuns.source)
+        .orderBy(ingestionRuns.source)
+
+      return rows.map((r) => ({
+        sourceName: r.sourceName,
+        lastUpdated: r.lastUpdated ? String(r.lastUpdated) : null,
+      }))
+    },
+    1000 * 60 * 15,
+  ),
 )
