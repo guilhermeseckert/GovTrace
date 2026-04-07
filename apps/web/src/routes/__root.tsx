@@ -1,5 +1,5 @@
 import { createRootRoute, HeadContent, Link, Outlet, Scripts, useMatches } from '@tanstack/react-router'
-import { Sun, Moon, MapPin, Search, ExternalLink, BookOpen, Heart, BarChart2, GitBranch, Flag, ScrollText, Newspaper } from 'lucide-react'
+import { Sun, Moon, MapPin, Search, ExternalLink, BookOpen, Heart, BarChart2, GitBranch, Flag, ScrollText, Newspaper, Home } from 'lucide-react'
 import { ThemeProvider, useTheme } from '@/components/layout/ThemeProvider'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { SkipToContent } from '@/components/layout/SkipToContent'
@@ -72,9 +72,13 @@ function SiteHeader() {
         </Link>
 
         <div className="flex items-center gap-1">
+          <NavLink to="/">
+            <Home className="h-3.5 w-3.5" />
+            Home
+          </NavLink>
           <NavLink to="/dashboard">
             <BarChart2 className="h-3.5 w-3.5" />
-            Debt &amp; Aid
+            Dashboard
           </NavLink>
           <NavLink to="/how-it-works">
             <BookOpen className="h-3.5 w-3.5" />
