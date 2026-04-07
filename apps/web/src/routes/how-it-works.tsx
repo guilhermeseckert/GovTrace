@@ -23,6 +23,9 @@ import {
 } from '@/components/ui/accordion'
 
 export const Route = createFileRoute('/how-it-works')({
+  head: () => ({
+    meta: [{ title: 'How It Works | GovTrace' }],
+  }),
   component: HowItWorksPage,
 })
 

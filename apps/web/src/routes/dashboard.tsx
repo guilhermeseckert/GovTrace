@@ -18,6 +18,9 @@ import { DeepDive } from '@/components/dashboard/DeepDive'
 import { DataFreshness } from '@/components/dashboard/DataFreshness'
 
 export const Route = createFileRoute('/dashboard')({
+  head: () => ({
+    meta: [{ title: 'Dashboard | GovTrace' }],
+  }),
   component: DashboardPage,
 })
 

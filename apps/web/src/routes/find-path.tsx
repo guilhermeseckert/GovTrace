@@ -8,6 +8,9 @@ import { PathGraph } from '@/components/pathfinding/PathGraph'
 import { en } from '@/i18n/en'
 
 export const Route = createFileRoute('/find-path')({
+  head: () => ({
+    meta: [{ title: 'Find Path | GovTrace' }],
+  }),
   component: FindPathPage,
 })
 

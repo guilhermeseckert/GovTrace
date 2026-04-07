@@ -25,6 +25,9 @@ import type { PressReleaseRow, EntityCrossRef } from '@/server-fns/news'
 import { DataFreshness } from '@/components/dashboard/DataFreshness'
 
 export const Route = createFileRoute('/news')({
+  head: () => ({
+    meta: [{ title: 'News | GovTrace' }],
+  }),
   component: NewsPage,
 })
 

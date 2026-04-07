@@ -15,6 +15,9 @@ import type { RegulationRow } from '@/server-fns/gazette'
 import { DataFreshness } from '@/components/dashboard/DataFreshness'
 
 export const Route = createFileRoute('/regulations')({
+  head: () => ({
+    meta: [{ title: 'Regulations | GovTrace' }],
+  }),
   component: RegulationsPage,
 })
 

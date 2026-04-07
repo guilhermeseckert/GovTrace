@@ -29,6 +29,9 @@ const PATTERN_TYPES = [
 const PAGE_SIZE = 50
 
 export const Route = createFileRoute('/patterns')({
+  head: () => ({
+    meta: [{ title: 'Patterns | GovTrace' }],
+  }),
   validateSearch: z.object({
     entity: z.string().uuid().optional(),
     type: z.string().optional(),

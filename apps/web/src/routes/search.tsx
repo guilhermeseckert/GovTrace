@@ -18,6 +18,9 @@ const SearchParamsSchema = z.object({
 })
 
 export const Route = createFileRoute('/search')({
+  head: () => ({
+    meta: [{ title: 'Search | GovTrace' }],
+  }),
   validateSearch: SearchParamsSchema,
   loaderDeps: ({ search }) => ({
     q: search.q,
