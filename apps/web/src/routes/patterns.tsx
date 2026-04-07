@@ -164,11 +164,27 @@ function PatternsPage() {
       {allItems.length === 0 ? (
         <div className="rounded-lg border border-dashed p-12 text-center">
           <AlertTriangle className="mx-auto mb-3 h-8 w-8 text-muted-foreground/50" />
-          <p className="text-sm text-muted-foreground">
-            {typeFilter
-              ? 'No patterns of this type have been detected yet.'
-              : 'No patterns have been detected yet. Run the detection job to populate this feed.'}
-          </p>
+          {typeFilter ? (
+            <>
+              <p className="text-sm font-medium text-foreground">
+                No {patternTypeLabel(typeFilter).toLowerCase()} patterns detected yet
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                The detection pipeline runs weekly. Check back after the next scheduled run,
+                or clear the filter to see all detected patterns.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-sm font-medium text-foreground">
+                Pattern detection has not run yet
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Patterns will appear here once the detection pipeline processes donations,
+                contracts, and lobbying data. The pipeline runs automatically each week.
+              </p>
+            </>
+          )}
         </div>
       ) : (
         <div className="space-y-3">

@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
+import { GitBranch } from 'lucide-react'
 import { findPaths } from '@/server-fns/pathfinding'
 import type { PathResponse } from '@/server-fns/pathfinding'
 import { PathFinder } from '@/components/pathfinding/PathFinder'
@@ -52,6 +53,25 @@ function FindPathPage() {
             className="mt-4 rounded-md border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive"
           >
             {error}
+          </div>
+        )}
+
+        {!result && !loading && !error && (
+          <div className="mt-8 rounded-lg border border-dashed p-10 text-center">
+            <GitBranch className="mx-auto mb-3 h-8 w-8 text-muted-foreground/40" />
+            <p className="text-sm font-medium text-foreground">
+              Find the shortest path between two people or organisations
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Search for any two entities above — a politician, a company, a lobbyist — and
+              GovTrace will trace the chain of donations, contracts, and lobbying meetings
+              that connects them.
+            </p>
+            <div className="mt-4 flex flex-wrap justify-center gap-3 text-xs text-muted-foreground">
+              <span className="rounded-full border px-3 py-1">Politician → Donor</span>
+              <span className="rounded-full border px-3 py-1">Lobbyist → Contract</span>
+              <span className="rounded-full border px-3 py-1">Company → Party</span>
+            </div>
           </div>
         )}
 

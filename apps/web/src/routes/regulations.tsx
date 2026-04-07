@@ -345,10 +345,25 @@ function RegulationsPage() {
             ))}
           </div>
         ) : data?.rows.length === 0 ? (
-          <p className="p-8 text-center text-muted-foreground">
-            No regulations found.{' '}
-            {(search || department) && 'Try adjusting your filters.'}
-          </p>
+          <div className="p-10 text-center">
+            <FileText className="mx-auto mb-3 h-8 w-8 text-muted-foreground/40" />
+            {search || department ? (
+              <>
+                <p className="text-sm font-medium text-foreground">No regulations match your filters</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Try broadening your search or clearing the department filter.
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-sm font-medium text-foreground">No regulations ingested yet</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Regulations are pulled from the Canada Gazette Part II. Once the ingestion
+                  pipeline runs, they will appear here with lobbying cross-references.
+                </p>
+              </>
+            )}
+          </div>
         ) : (
           <div>
             {(data?.rows ?? []).map((regulation) => (

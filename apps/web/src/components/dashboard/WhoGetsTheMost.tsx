@@ -39,9 +39,14 @@ export function WhoGetsTheMost({ data }: Props) {
             <Skeleton className="h-20 rounded-xl" />
           </>
         ) : data.length === 0 ? (
-          <div className="flex h-32 items-center justify-center rounded-lg border border-dashed">
-            <p className="text-sm text-muted-foreground">
-              Entity matching in progress — top recipients will appear once contracts and grants are linked to entities.
+          <div className="rounded-lg border border-dashed p-8 text-center">
+            <p className="text-sm font-medium text-foreground">
+              Top recipients will appear here soon
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              GovTrace is still matching contract and grant records to known entities.
+              Once linking is complete, you will see who receives the most public money —
+              along with their donations and lobbying activity.
             </p>
           </div>
         ) : (

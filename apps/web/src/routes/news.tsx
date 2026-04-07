@@ -525,10 +525,25 @@ function NewsPage() {
             ))}
           </div>
         ) : data?.rows.length === 0 ? (
-          <p className="p-8 text-center text-muted-foreground">
-            No announcements found.{' '}
-            {hasFilters && 'Try adjusting your filters.'}
-          </p>
+          <div className="p-10 text-center">
+            <Newspaper className="mx-auto mb-3 h-8 w-8 text-muted-foreground/40" />
+            {hasFilters ? (
+              <>
+                <p className="text-sm font-medium text-foreground">No announcements match your filters</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Try broadening your search, clearing the department, or changing the content type filter.
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-sm font-medium text-foreground">No press releases ingested yet</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Press releases and government announcements are updated daily from canada.ca.
+                  Check back after the next scheduled ingestion run.
+                </p>
+              </>
+            )}
+          </div>
         ) : (
           <div>
             {(data?.rows ?? []).map((release) => (
