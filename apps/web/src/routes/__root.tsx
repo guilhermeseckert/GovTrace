@@ -5,6 +5,7 @@ import { ThemeProvider, useTheme } from '@/components/layout/ThemeProvider'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { SkipToContent } from '@/components/layout/SkipToContent'
 import { getThemeFn } from '@/server-fns/theme'
+import { warmupDb } from '@/server-fns/warmup'
 import '../app.css'
 
 export const Route = createRootRoute({
@@ -22,7 +23,12 @@ export const Route = createRootRoute({
       { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&family=JetBrains+Mono:wght@400;500&display=swap' },
     ],
   }),
-  loader: () => getThemeFn(),
+  loader: async () => {
+    // Warm up DB pool on the first request — pays TCP handshake cost early
+    // so subsequent data queries feel fast. Fire-and-forget; errors are silent.
+    warmupDb().catch(() => {})
+    return getThemeFn()
+  },
   component: RootComponent,
 })
 
