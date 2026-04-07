@@ -59,7 +59,13 @@ function ActivityRow({ item }: { item: RecentActivity }) {
       </Link>
     )
   }
-  return content
+
+  // No entity linked yet — link to search for the name
+  return (
+    <Link to="/search" search={{ q: item.entityName ?? '' }} className="block cursor-pointer">
+      {content}
+    </Link>
+  )
 }
 
 function TopList({ items, title, icon }: { items: TopRecipient[]; title: string; icon: React.ReactNode }) {
@@ -99,7 +105,11 @@ function TopList({ items, title, icon }: { items: TopRecipient[]; title: string;
               </Link>
             )
           }
-          return <div key={`${item.name}-${i}`}>{content}</div>
+          return (
+            <Link key={`${item.name}-${i}`} to="/search" search={{ q: item.name }} className="block cursor-pointer">
+              {content}
+            </Link>
+          )
         })}
       </div>
     </div>
