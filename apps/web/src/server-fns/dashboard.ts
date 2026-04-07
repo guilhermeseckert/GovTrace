@@ -500,26 +500,26 @@ export const getTopRecipientsWithConnections = createServerFn({ method: 'GET' })
       WITH top_contractors AS (
         SELECT
           vendor_name AS name,
-          MAX(entity_id) AS entity_id,
+          entity_id,
           'contractor' AS type,
-          SUM(CAST(value AS numeric)) AS total_value,
+          SUM(value::numeric) AS total_value,
           COUNT(*) AS record_count
         FROM contracts
-        WHERE value IS NOT NULL
-        GROUP BY vendor_name
+        WHERE entity_id IS NOT NULL AND value IS NOT NULL
+        GROUP BY vendor_name, entity_id
         ORDER BY total_value DESC
         LIMIT 5
       ),
       top_grants AS (
         SELECT
           recipient_name AS name,
-          MAX(entity_id) AS entity_id,
+          entity_id,
           'grant_recipient' AS type,
-          SUM(CAST(amount AS numeric)) AS total_value,
+          SUM(amount::numeric) AS total_value,
           COUNT(*) AS record_count
         FROM grants
-        WHERE amount IS NOT NULL
-        GROUP BY recipient_name
+        WHERE entity_id IS NOT NULL AND amount IS NOT NULL
+        GROUP BY recipient_name, entity_id
         ORDER BY total_value DESC
         LIMIT 5
       ),

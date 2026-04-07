@@ -41,7 +41,7 @@ export function WhoGetsTheMost({ data }: Props) {
         ) : data.length === 0 ? (
           <div className="flex h-32 items-center justify-center rounded-lg border border-dashed">
             <p className="text-sm text-muted-foreground">
-              No recipient data yet. Run the contracts and grants ingestion pipelines.
+              Entity matching in progress — top recipients will appear once contracts and grants are linked to entities.
             </p>
           </div>
         ) : (
@@ -54,8 +54,8 @@ export function WhoGetsTheMost({ data }: Props) {
                 <div className="min-w-0 flex-1">
                   {recipient.entityId ? (
                     <Link
-                      to="/entity/$entityId"
-                      params={{ entityId: recipient.entityId }}
+                      to="/entity/$id"
+                      params={{ id: recipient.entityId }}
                       className="text-base font-semibold transition-colors duration-200 hover:text-primary hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     >
                       {recipient.name}
