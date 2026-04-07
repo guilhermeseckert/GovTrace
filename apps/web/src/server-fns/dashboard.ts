@@ -6,6 +6,20 @@ import { fiscalSnapshots, internationalAid, departmentExpenditures, pressRelease
 import { cached } from '@/lib/cache'
 import { getCountryName, getSectorTheme } from '@/lib/country-codes'
 
+// ---------------------------------------------------------------------------
+// TopRecipientWithConnections — top contractors and grant recipients w/ connection counts
+// ---------------------------------------------------------------------------
+
+export type TopRecipientWithConnections = {
+  name: string
+  entityId: string
+  type: 'contractor' | 'grant_recipient'
+  totalValue: number
+  recordCount: number
+  lobbyingCount: number
+  donationCount: number
+}
+
 export type DebtAidDataPoint = {
   year: number
   debtBillionsCad: number
@@ -472,6 +486,123 @@ export type RecentSpendingAnnouncement = {
   department: string
   dollarAmounts: { amount: string; context: string }[]
   ministers: string[]
+}
+
+// ---------------------------------------------------------------------------
+// getTopRecipientsWithConnections — top contractors + grant recipients + connection counts
+// ---------------------------------------------------------------------------
+
+export const getTopRecipientsWithConnections = createServerFn({ method: 'GET' }).handler(
+  (): Promise<TopRecipientWithConnections[]> => cached('top-recipients-connections', async () => {
+    const db = getDb()
+
+    const rows = await db.execute(sql`
+      WITH top_contractors AS (
+        SELECT
+          vendor_name AS name,
+          entity_id,
+          'contractor' AS type,
+          SUM(CAST(value AS numeric)) AS total_value,
+          COUNT(*) AS record_count
+        FROM contracts
+        WHERE entity_id IS NOT NULL
+        GROUP BY vendor_name, entity_id
+        ORDER BY total_value DESC
+        LIMIT 5
+      ),
+      top_grants AS (
+        SELECT
+          recipient_name AS name,
+          entity_id,
+          'grant_recipient' AS type,
+          SUM(CAST(amount AS numeric)) AS total_value,
+          COUNT(*) AS record_count
+        FROM grants
+        WHERE entity_id IS NOT NULL
+        GROUP BY recipient_name, entity_id
+        ORDER BY total_value DESC
+        LIMIT 5
+      ),
+      combined AS (
+        SELECT * FROM top_contractors
+        UNION ALL
+        SELECT * FROM top_grants
+      )
+      SELECT
+        c.name,
+        c.entity_id AS "entityId",
+        c.type,
+        c.total_value AS "totalValue",
+        c.record_count AS "recordCount",
+        COALESCE(
+          (
+            SELECT SUM(ec.transaction_count)
+            FROM entity_connections ec
+            WHERE (ec.entity_a_id = c.entity_id OR ec.entity_b_id = c.entity_id)
+              AND ec.connection_type IN ('lobbyist_to_official', 'lobbyist_client_to_official')
+              AND ec.is_stale = false
+          ), 0
+        ) AS "lobbyingCount",
+        COALESCE(
+          (
+            SELECT SUM(ec.transaction_count)
+            FROM entity_connections ec
+            WHERE (ec.entity_a_id = c.entity_id OR ec.entity_b_id = c.entity_id)
+              AND ec.connection_type = 'donor_to_party'
+              AND ec.is_stale = false
+          ), 0
+        ) AS "donationCount"
+      FROM combined c
+      ORDER BY c.total_value DESC
+    `)
+
+    return Array.from(rows).map((r) => {
+      const row = r as Record<string, unknown>
+      return {
+        name: String(row.name ?? ''),
+        entityId: String(row.entityId ?? ''),
+        type: row.type === 'contractor' ? 'contractor' : 'grant_recipient',
+        totalValue: Number(row.totalValue ?? 0),
+        recordCount: Number(row.recordCount ?? 0),
+        lobbyingCount: Number(row.lobbyingCount ?? 0),
+        donationCount: Number(row.donationCount ?? 0),
+      }
+    })
+  }),
+)
+
+// ---------------------------------------------------------------------------
+// SPENDING_BUCKETS — plain-English groupings for standard object categories
+// ---------------------------------------------------------------------------
+
+export const SPENDING_BUCKETS: Record<string, string> = {
+  'Personnel - Military and RCMP': 'People (salaries & pensions)',
+  'Personnel - Civilian': 'People (salaries & pensions)',
+  'Transfer payments': 'Transfers (aid, grants & pensions)',
+  'Professional and special services': 'Running government (operations)',
+  'Transportation and communications': 'Running government (operations)',
+  'Rentals': 'Running government (operations)',
+  'Utilities, materials and supplies': 'Running government (operations)',
+  'Repair and maintenance': 'Running government (operations)',
+  'Acquisition of land, buildings and works': 'Building things (capital)',
+  'Acquisition of machinery and equipment': 'Building things (capital)',
+  'Public debt charges': 'Paying interest on debt',
+  'Other subsidies and payments': 'Transfers (aid, grants & pensions)',
+  'Information': 'Running government (operations)',
+}
+
+export function bucketizeSpending(rows: SpendingCategoryRow[]): { bucket: string; amount: number }[] {
+  const bucketMap = new Map<string, number>()
+
+  for (const row of rows) {
+    const bucket = SPENDING_BUCKETS[row.category] ?? 'Other'
+    const existing = bucketMap.get(bucket) ?? 0
+    bucketMap.set(bucket, existing + row.amount)
+  }
+
+  return Array.from(bucketMap.entries())
+    .map(([bucket, amount]) => ({ bucket, amount }))
+    .sort((a, b) => b.amount - a.amount)
 }
 
 // ---------------------------------------------------------------------------
