@@ -168,6 +168,18 @@ function SiteFooter() {
               >
                 How it works
               </Link>
+              <Link
+                to="/about"
+                className="flex w-fit items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground"
+              >
+                About
+              </Link>
+              <Link
+                to="/privacy"
+                className="flex w-fit items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Privacy
+              </Link>
               <a
                 href="https://github.com/guilhermeseckert/GovTrace"
                 target="_blank"
