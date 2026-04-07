@@ -143,49 +143,99 @@ export async function registerIngestionJobs(databaseUrl: string): Promise<void> 
   })
 
   // ═══════════════════════════════════════════════════════════════════════
-  // NIGHTLY SCHEDULE — runs every night starting at midnight UTC
-  // All ingestion first, then match → merge → build connections → stale
+  // NIGHTLY PIPELINE — single orchestrator job runs everything in sequence
+  // Each phase waits for the previous to finish before starting the next.
+  // No more fixed cron times — dependencies are respected.
   // ═══════════════════════════════════════════════════════════════════════
 
-  // Phase 1: Fast sources (midnight–1am) — press releases, fiscal, GIC
-  await boss.schedule(JOB_NAMES.INGEST_PRESS_RELEASES, '0 0 * * *', {}, { tz: 'UTC' })
-  await boss.schedule(JOB_NAMES.INGEST_FISCAL, '5 0 * * *', {}, { tz: 'UTC' })
-  await boss.schedule(JOB_NAMES.INGEST_GIC_APPOINTMENTS, '10 0 * * *', {}, { tz: 'UTC' })
-  await boss.schedule(JOB_NAMES.INGEST_GAZETTE, '15 0 * * *', {}, { tz: 'UTC' })
-  await boss.schedule(JOB_NAMES.INGEST_PUBLIC_ACCOUNTS, '20 0 * * *', {}, { tz: 'UTC' })
+  const NIGHTLY_PIPELINE = 'nightly:pipeline'
 
-  // Phase 2: Medium sources (1am–2am) — elections, lobbying
-  await boss.schedule(JOB_NAMES.INGEST_ELECTIONS_CANADA, '0 1 * * *', {}, { tz: 'UTC' })
-  await boss.schedule(JOB_NAMES.INGEST_LOBBY_REGISTRATIONS, '15 1 * * *', {}, { tz: 'UTC' })
-  await boss.schedule(JOB_NAMES.INGEST_LOBBY_COMMUNICATIONS, '30 1 * * *', {}, { tz: 'UTC' })
+  await boss.work(NIGHTLY_PIPELINE, { teamSize: 1, teamConcurrency: 1 }, async () => {
+    const start = Date.now()
+    const log = (msg: string) => console.log(`[nightly] ${msg}`)
 
-  // Phase 3: Heavy sources (2am–4am) — contracts, grants, travel, hospitality
-  await boss.schedule(JOB_NAMES.INGEST_CONTRACTS, '0 2 * * *', {}, { tz: 'UTC' })
-  await boss.schedule(JOB_NAMES.INGEST_GRANTS, '30 2 * * *', {}, { tz: 'UTC' })
-  await boss.schedule(JOB_NAMES.INGEST_TRAVEL, '0 3 * * *', {}, { tz: 'UTC' })
-  await boss.schedule(JOB_NAMES.INGEST_HOSPITALITY, '30 3 * * *', {}, { tz: 'UTC' })
+    try {
+      // Phase 1: Fast sources (parallel — independent of each other)
+      log('Phase 1: Fast sources...')
+      await Promise.all([
+        (async () => { const { runPressReleasesIngestion } = await import('../runners/press-releases.ts'); await runPressReleasesIngestion() })(),
+        (async () => { const { runFiscalIngestion } = await import('../runners/ingest-fiscal.ts'); await runFiscalIngestion() })(),
+        (async () => { const { runGicAppointmentsIngestion } = await import('../runners/gic-appointments.ts'); await runGicAppointmentsIngestion() })(),
+        (async () => { const { runGazetteIngestion } = await import('../runners/gazette.ts'); await runGazetteIngestion() })(),
+        (async () => { const { runPublicAccountsIngestion } = await import('../runners/ingest-public-accounts.ts'); await runPublicAccountsIngestion() })(),
+      ])
+      log('Phase 1 done.')
 
-  // Phase 4: Scraped sources (4am) — parliament, senate, international aid
-  await boss.schedule(JOB_NAMES.INGEST_PARLIAMENT, '0 4 * * *', {}, { tz: 'UTC' })
-  await boss.schedule(JOB_NAMES.INGEST_SENATE, '30 4 * * *', {}, { tz: 'UTC' })
-  await boss.schedule(JOB_NAMES.INGEST_INTERNATIONAL_AID, '45 4 * * *', {}, { tz: 'UTC' })
+      // Phase 2: Medium sources (parallel)
+      log('Phase 2: Elections + lobbying...')
+      await Promise.all([
+        (async () => { const { runElectionsCanadaIngestion } = await import('../runners/elections-canada.ts'); await runElectionsCanadaIngestion() })(),
+        (async () => { const { runLobbyRegistrationsIngestion } = await import('../runners/lobby-registrations.ts'); await runLobbyRegistrationsIngestion() })(),
+        (async () => { const { runLobbyCommunicationsIngestion } = await import('../runners/lobby-communications.ts'); await runLobbyCommunicationsIngestion() })(),
+      ])
+      log('Phase 2 done.')
 
-  // Phase 5: Linking (5am–7am) — match → merge → build connections
-  await boss.schedule(JOB_NAMES.MATCH_ENTITIES, '0 5 * * *', {}, { tz: 'UTC' })
-  await boss.schedule(JOB_NAMES.MERGE_ENTITIES, '0 6 * * *', {}, { tz: 'UTC' })
-  await boss.schedule(JOB_NAMES.BUILD_CONNECTIONS, '0 7 * * *', {}, { tz: 'UTC' })
+      // Phase 3: Heavy CSV sources (parallel)
+      log('Phase 3: Contracts, grants, travel, hospitality...')
+      await Promise.all([
+        (async () => { const { runContractsIngestion } = await import('../runners/contracts.ts'); await runContractsIngestion() })(),
+        (async () => { const { runGrantsIngestion } = await import('../runners/grants.ts'); await runGrantsIngestion() })(),
+        (async () => { const { runTravelIngestion } = await import('../runners/travel.ts'); await runTravelIngestion() })(),
+        (async () => { const { runHospitalityIngestion } = await import('../runners/hospitality.ts'); await runHospitalityIngestion() })(),
+      ])
+      log('Phase 3 done.')
 
-  // Phase 6: Cleanup (8am) — mark AI summaries stale so they regenerate
-  await boss.schedule(JOB_NAMES.MARK_SUMMARIES_STALE, '0 8 * * *', {}, { tz: 'UTC' })
+      // Phase 4: Scraped sources (sequential — polite delays, don't hammer government sites)
+      log('Phase 4: Parliament, senate, international aid...')
+      const { runParliamentIngestion } = await import('../runners/parliament.ts')
+      await runParliamentIngestion()
+      const { runSenateIngestion } = await import('../runners/senate.ts')
+      await runSenateIngestion()
+      const { runInternationalAidIngestion } = await import('../runners/international-aid.ts')
+      await runInternationalAidIngestion()
+      log('Phase 4 done.')
 
-  console.log('Nightly jobs scheduled (every day):')
-  console.log('  00:00 press-releases, fiscal, gic, gazette, public-accounts')
-  console.log('  01:00 elections-canada, lobby-registrations, lobby-communications')
-  console.log('  02:00 contracts, grants')
-  console.log('  03:00 travel, hospitality')
-  console.log('  04:00 parliament, senate, international-aid')
-  console.log('  05:00 match-entities')
-  console.log('  06:00 merge-entities')
-  console.log('  07:00 build-connections')
-  console.log('  08:00 mark-summaries-stale')
+      // Phase 5: Entity linking (strict sequence — each depends on previous)
+      log('Phase 5: Match entities...')
+      const { runMatchingPipeline } = await import('../matcher/run-matching.ts')
+      await runMatchingPipeline()
+      log('Phase 5 done.')
+
+      log('Phase 6: Merge entities...')
+      const { runCrossDatasetMerge } = await import('../matcher/cross-dataset-merge.ts')
+      await runCrossDatasetMerge()
+      log('Phase 6 done.')
+
+      log('Phase 7: Build connections...')
+      const { buildEntityConnections } = await import('../graph/build-connections.ts')
+      await buildEntityConnections()
+      log('Phase 7 done.')
+
+      // Phase 8: Mark AI summaries stale
+      log('Phase 8: Mark summaries stale...')
+      const db = getDb()
+      await db.update(aiSummaries).set({ isStale: true })
+      log('Phase 8 done.')
+
+      const elapsed = Math.round((Date.now() - start) / 1000 / 60)
+      log(`Nightly pipeline complete in ${elapsed} minutes.`)
+    } catch (err) {
+      const elapsed = Math.round((Date.now() - start) / 1000 / 60)
+      console.error(`[nightly] Pipeline failed after ${elapsed} minutes:`, err instanceof Error ? err.message : err)
+      throw err // pg-boss will mark as failed and retry
+    }
+  })
+
+  // Trigger the pipeline every night at midnight UTC
+  await boss.schedule(NIGHTLY_PIPELINE, '0 0 * * *', {}, { tz: 'UTC' })
+
+  console.log('Nightly pipeline scheduled (every day at midnight UTC):')
+  console.log('  Phase 1: press-releases, fiscal, gic, gazette, public-accounts (parallel)')
+  console.log('  Phase 2: elections-canada, lobby-registrations, lobby-communications (parallel, waits for Phase 1)')
+  console.log('  Phase 3: contracts, grants, travel, hospitality (parallel, waits for Phase 2)')
+  console.log('  Phase 4: parliament, senate, international-aid (sequential, waits for Phase 3)')
+  console.log('  Phase 5: match-entities (waits for all ingestion)')
+  console.log('  Phase 6: merge-entities (waits for matching)')
+  console.log('  Phase 7: build-connections (waits for merge)')
+  console.log('  Phase 8: mark-summaries-stale (waits for connections)')
 }
