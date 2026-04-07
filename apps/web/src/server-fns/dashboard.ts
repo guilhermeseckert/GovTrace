@@ -2,7 +2,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { sql, sum, count, desc, isNotNull, and, eq, ilike, or } from 'drizzle-orm'
 import { z } from 'zod'
 import { getDb } from '@govtrace/db/client'
-import { fiscalSnapshots, internationalAid, departmentExpenditures } from '@govtrace/db/schema/raw'
+import { fiscalSnapshots, internationalAid, departmentExpenditures, pressReleases } from '@govtrace/db/schema/raw'
 import { cached } from '@/lib/cache'
 import { getCountryName, getSectorTheme } from '@/lib/country-codes'
 
@@ -456,6 +456,55 @@ export const getSpendingByCategory = createServerFn({ method: 'GET' }).handler(
     return rows.map((r) => ({
       category: r.standardObject ?? '',
       amount: Number(r.total ?? 0),
+    }))
+  }),
+)
+
+// ---------------------------------------------------------------------------
+// RecentSpendingAnnouncement — press releases with dollar amounts
+// ---------------------------------------------------------------------------
+
+export type RecentSpendingAnnouncement = {
+  id: string
+  title: string
+  url: string
+  publishedDate: string
+  department: string
+  dollarAmounts: { amount: string; context: string }[]
+  ministers: string[]
+}
+
+// ---------------------------------------------------------------------------
+// getRecentSpendingAnnouncements — latest press releases with $ amounts
+// ---------------------------------------------------------------------------
+
+export const getRecentSpendingAnnouncements = createServerFn({ method: 'GET' }).handler(
+  (): Promise<RecentSpendingAnnouncement[]> => cached('recent-spending-announcements', async () => {
+    const db = getDb()
+
+    const rows = await db
+      .select({
+        id: pressReleases.id,
+        title: pressReleases.title,
+        url: pressReleases.url,
+        publishedDate: pressReleases.publishedDate,
+        department: pressReleases.department,
+        dollarAmounts: pressReleases.dollarAmounts,
+        ministers: pressReleases.ministers,
+      })
+      .from(pressReleases)
+      .where(sql`dollar_amounts IS NOT NULL AND dollar_amounts::text != '[]'`)
+      .orderBy(desc(pressReleases.publishedDate))
+      .limit(10)
+
+    return rows.map((r) => ({
+      id: r.id,
+      title: r.title,
+      url: r.url,
+      publishedDate: String(r.publishedDate),
+      department: r.department,
+      dollarAmounts: (r.dollarAmounts as { amount: string; context: string }[]) ?? [],
+      ministers: r.ministers ?? [],
     }))
   }),
 )

@@ -7,6 +7,7 @@ import {
   getCountryBreakdown,
   getSectorBreakdown,
   getSpendingByCategory,
+  getRecentSpendingAnnouncements,
 } from '@/server-fns/dashboard'
 import { DebtHeroStats } from '@/components/dashboard/DebtHeroStats'
 import { DebtVsAidChart } from '@/components/dashboard/DebtVsAidChart'
@@ -14,6 +15,7 @@ import { DepartmentBreakdown } from '@/components/dashboard/DepartmentBreakdown'
 import { CountryBreakdown } from '@/components/dashboard/CountryBreakdown'
 import { SectorBreakdown } from '@/components/dashboard/SectorBreakdown'
 import { SpendingByCategory } from '@/components/dashboard/SpendingByCategory'
+import { RecentSpending } from '@/components/dashboard/RecentSpending'
 import { Skeleton } from '@/components/ui/skeleton'
 
 export const Route = createFileRoute('/dashboard')({
@@ -51,6 +53,11 @@ function DashboardPage() {
     queryFn: () => getSpendingByCategory(),
     staleTime: 1000 * 60 * 60,
   })
+  const { data: recentSpending } = useQuery({
+    queryKey: ['recent-spending-announcements'],
+    queryFn: () => getRecentSpendingAnnouncements(),
+    staleTime: 1000 * 60 * 30,
+  })
 
   return (
     <main id="main-content" className="mx-auto max-w-6xl space-y-10 px-4 py-10">
@@ -78,6 +85,18 @@ function DashboardPage() {
           </div>
         )}
       </section>
+
+      {recentSpending && recentSpending.length > 0 && (
+        <section aria-labelledby="recent-spending-heading">
+          <h2 id="recent-spending-heading" className="mb-1 text-lg font-semibold">
+            Recent Spending Announcements
+          </h2>
+          <p className="mb-4 text-sm text-muted-foreground">
+            Latest government press releases mentioning dollar amounts — near-real-time data from canada.ca.
+          </p>
+          <RecentSpending data={recentSpending} />
+        </section>
+      )}
 
       <section aria-labelledby="chart-heading">
         <h2 id="chart-heading" className="mb-4 text-lg font-semibold">
