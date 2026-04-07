@@ -500,26 +500,26 @@ export const getTopRecipientsWithConnections = createServerFn({ method: 'GET' })
       WITH top_contractors AS (
         SELECT
           vendor_name AS name,
-          entity_id,
+          MAX(entity_id) AS entity_id,
           'contractor' AS type,
           SUM(CAST(value AS numeric)) AS total_value,
           COUNT(*) AS record_count
         FROM contracts
-        WHERE entity_id IS NOT NULL
-        GROUP BY vendor_name, entity_id
+        WHERE value IS NOT NULL
+        GROUP BY vendor_name
         ORDER BY total_value DESC
         LIMIT 5
       ),
       top_grants AS (
         SELECT
           recipient_name AS name,
-          entity_id,
+          MAX(entity_id) AS entity_id,
           'grant_recipient' AS type,
           SUM(CAST(amount AS numeric)) AS total_value,
           COUNT(*) AS record_count
         FROM grants
-        WHERE entity_id IS NOT NULL
-        GROUP BY recipient_name, entity_id
+        WHERE amount IS NOT NULL
+        GROUP BY recipient_name
         ORDER BY total_value DESC
         LIMIT 5
       ),
@@ -534,7 +534,7 @@ export const getTopRecipientsWithConnections = createServerFn({ method: 'GET' })
         c.type,
         c.total_value AS "totalValue",
         c.record_count AS "recordCount",
-        COALESCE(
+        CASE WHEN c.entity_id IS NOT NULL THEN COALESCE(
           (
             SELECT SUM(ec.transaction_count)
             FROM entity_connections ec
@@ -542,8 +542,8 @@ export const getTopRecipientsWithConnections = createServerFn({ method: 'GET' })
               AND ec.connection_type IN ('lobbyist_to_official', 'lobbyist_client_to_official')
               AND ec.is_stale = false
           ), 0
-        ) AS "lobbyingCount",
-        COALESCE(
+        ) ELSE 0 END AS "lobbyingCount",
+        CASE WHEN c.entity_id IS NOT NULL THEN COALESCE(
           (
             SELECT SUM(ec.transaction_count)
             FROM entity_connections ec
@@ -551,7 +551,7 @@ export const getTopRecipientsWithConnections = createServerFn({ method: 'GET' })
               AND ec.connection_type = 'donor_to_party'
               AND ec.is_stale = false
           ), 0
-        ) AS "donationCount"
+        ) ELSE 0 END AS "donationCount"
       FROM combined c
       ORDER BY c.total_value DESC
     `)
