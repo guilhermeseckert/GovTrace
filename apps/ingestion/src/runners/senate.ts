@@ -248,9 +248,11 @@ export async function runSenateIngestion(): Promise<void> {
           const inserted = await upsertSenateBallots(ballotRecords, new Map())
           ballotCount += inserted
           stats.ballotsIngested += inserted
+          await markSenateBallotsIngested(vote.id)
+        } else {
+          // Don't mark as ingested if 0 ballots — allows retry
+          console.warn(`  Warning: 0 ballots parsed for vote ${vote.id} — not marking as ingested`)
         }
-
-        await markSenateBallotsIngested(vote.id)
 
         // Log progress every 50 divisions
         if ((i + 1) % 50 === 0) {

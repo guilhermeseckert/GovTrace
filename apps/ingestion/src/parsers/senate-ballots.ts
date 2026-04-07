@@ -62,9 +62,8 @@ export function parseSenateVoteDetailHtml(html: string): ParsedSenateBallot[] {
 
   const ballots: ParsedSenateBallot[] = []
 
-  // Find table rows that contain senator links
-  // sencanada.ca renders the detail table with links to /senator/{id}/
-  const tableRows = $('table tr, .table tr').filter((_, el) => {
+  // Find the ballot detail table — sencanada.ca uses id="sc-vote-details-table"
+  const tableRows = $('#sc-vote-details-table tbody tr').filter((_, el) => {
     return $(el).find('a[href*="/senator/"]').length > 0
   })
 
@@ -72,67 +71,44 @@ export function parseSenateVoteDetailHtml(html: string): ParsedSenateBallot[] {
     const $row = $(row)
     const cells = $row.find('td')
 
-    if (cells.length < 3) return // Need at least senator, group/province, vote
+    // Table columns: Senator(0), Affiliation(1), Province(2), Yea(3), Nay(4), Abstention(5)
+    if (cells.length < 6) return
 
     // Extract senator ID from the link
     const senatorLink = $row.find('a[href*="/senator/"]').first()
     const href = senatorLink.attr('href') ?? ''
     const senatorId = extractSenatorIdFromHref(href)
 
-    if (!senatorId) return // Skip rows without a valid senator ID
+    if (!senatorId) return
 
     // Parse senator name from the link text
     const rawName = senatorLink.text().trim()
     const { firstName, lastName } = parseSenatorName(rawName)
 
-    if (!lastName) return // Skip rows with no parseable name
+    if (!lastName) return
 
     const cellTexts = cells.map((_, el) => $(el).text().trim()).get()
 
-    // Column identification: senator name is first, then group, province, vote
-    // The exact positions vary slightly but follow a consistent pattern
-    let groupAffiliation = ''
-    let province = ''
+    // Columns: Senator(0), Affiliation(1), Province(2), Yea(3), Nay(4), Abstention(5)
+    const groupAffiliation = cellTexts[1] ?? ''
+    const province = cellTexts[2] ?? ''
+
+    // Detect vote: sencanada.ca uses data-order="aaa" on the active vote column,
+    // "zzz" on inactive columns. Check columns 3, 4, 5 for the "aaa" marker.
     let ballotValue = ''
+    const yeaCell = cells.eq(3)
+    const nayCell = cells.eq(4)
+    const abstentionCell = cells.eq(5)
 
-    // Known group affiliations
-    const KNOWN_GROUPS = new Set(['C', 'ISG', 'CSG', 'PSG', 'Non-affiliated', 'Vacant'])
-    // Known ballot values
-    const KNOWN_BALLOT_VALUES = new Set(['Yea', 'Nay', 'Abstention'])
-    // Canadian provinces/territories
-    const KNOWN_PROVINCES = new Set([
-      'Alberta', 'British Columbia', 'Manitoba', 'New Brunswick', 'Newfoundland and Labrador',
-      'Northwest Territories', 'Nova Scotia', 'Nunavut', 'Ontario', 'Prince Edward Island',
-      'Quebec', 'Saskatchewan', 'Yukon',
-      // French names
-      'Colombie-Britannique', 'Nouveau-Brunswick', 'Nouvelle-Écosse', 'Terre-Neuve-et-Labrador',
-      'Territoires du Nord-Ouest', 'Île-du-Prince-Édouard',
-    ])
-
-    for (const text of cellTexts) {
-      if (KNOWN_BALLOT_VALUES.has(text)) {
-        ballotValue = text
-      } else if (KNOWN_GROUPS.has(text)) {
-        groupAffiliation = text
-      } else if (KNOWN_PROVINCES.has(text)) {
-        province = text
-      }
+    if (yeaCell.attr('data-order') === 'aaa') {
+      ballotValue = 'Yea'
+    } else if (nayCell.attr('data-order') === 'aaa') {
+      ballotValue = 'Nay'
+    } else if (abstentionCell.attr('data-order') === 'aaa') {
+      ballotValue = 'Abstention'
     }
 
-    // Fallback: if still missing values, use positional approach
-    // Typical columns: [name] [group] [province] [vote]
-    if (!groupAffiliation && cellTexts.length >= 2) {
-      groupAffiliation = cellTexts[1] ?? ''
-    }
-    if (!province && cellTexts.length >= 3) {
-      province = cellTexts[2] ?? ''
-    }
-    if (!ballotValue && cellTexts.length >= 4) {
-      const lastCell = cellTexts[cellTexts.length - 1] ?? ''
-      if (KNOWN_BALLOT_VALUES.has(lastCell)) ballotValue = lastCell
-    }
-
-    if (!ballotValue) return // Skip rows without a parseable vote
+    if (!ballotValue) return // Senator didn't vote (absent) or unparseable
 
     ballots.push({
       senatorId,
