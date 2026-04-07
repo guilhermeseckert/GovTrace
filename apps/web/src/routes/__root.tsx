@@ -1,5 +1,5 @@
 import { createRootRoute, HeadContent, Link, Outlet, Scripts, useMatches } from '@tanstack/react-router'
-import { Sun, Moon, MapPin, Search, ExternalLink, BookOpen, Heart, BarChart2, GitBranch, Flag, ScrollText, Newspaper, Home, Menu, X } from 'lucide-react'
+import { Sun, Moon, MapPin, Search, ExternalLink, BookOpen, Heart, BarChart2, GitBranch, Flag, ScrollText, Newspaper, Home, Menu, X, Info } from 'lucide-react'
 import { useState } from 'react'
 import { ThemeProvider, useTheme } from '@/components/layout/ThemeProvider'
 import { TooltipProvider } from '@/components/ui/tooltip'
@@ -77,6 +77,7 @@ const NAV_ITEMS = [
   { to: '/regulations', label: 'Regulations', icon: <ScrollText className="h-3.5 w-3.5" /> },
   { to: '/news', label: 'News', icon: <Newspaper className="h-3.5 w-3.5" /> },
   { to: '/search', label: 'Search', icon: <Search className="h-3.5 w-3.5" /> },
+  { to: '/about', label: 'About', icon: <Info className="h-3.5 w-3.5" /> },
 ] as const
 
 function SiteHeader() {
