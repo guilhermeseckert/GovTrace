@@ -117,6 +117,12 @@ switch (command) {
     break
   }
 
+  case 'detect-patterns': {
+    const { runPatternDetection } = await import('./runners/detect-patterns.ts')
+    await runPatternDetection()
+    break
+  }
+
   case 'build-connections': {
     const { buildEntityConnections } = await import('./graph/build-connections.ts')
     const result = await buildEntityConnections()

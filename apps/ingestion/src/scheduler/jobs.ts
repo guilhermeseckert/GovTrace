@@ -211,11 +211,17 @@ export async function registerIngestionJobs(databaseUrl: string): Promise<void> 
       await buildEntityConnections()
       log('Phase 7 done.')
 
-      // Phase 8: Mark AI summaries stale
-      log('Phase 8: Mark summaries stale...')
+      // Phase 8: Detect patterns
+      log('Phase 8: Detect patterns...')
+      const { runPatternDetection } = await import('../runners/detect-patterns.ts')
+      await runPatternDetection()
+      log('Phase 8 done.')
+
+      // Phase 9: Mark AI summaries stale
+      log('Phase 9: Mark summaries stale...')
       const db = getDb()
       await db.update(aiSummaries).set({ isStale: true })
-      log('Phase 8 done.')
+      log('Phase 9 done.')
 
       const elapsed = Math.round((Date.now() - start) / 1000 / 60)
       log(`Nightly pipeline complete in ${elapsed} minutes.`)
