@@ -1,5 +1,6 @@
 import { createRootRoute, HeadContent, Link, Outlet, Scripts, useMatches } from '@tanstack/react-router'
-import { Sun, Moon, MapPin, Search, ExternalLink, BookOpen, Heart, BarChart2, GitBranch, Flag, ScrollText, Newspaper, Home } from 'lucide-react'
+import { Sun, Moon, MapPin, Search, ExternalLink, BookOpen, Heart, BarChart2, GitBranch, Flag, ScrollText, Newspaper, Home, Menu, X } from 'lucide-react'
+import { useState } from 'react'
 import { ThemeProvider, useTheme } from '@/components/layout/ThemeProvider'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { SkipToContent } from '@/components/layout/SkipToContent'
@@ -39,7 +40,7 @@ function ThemeToggle() {
   )
 }
 
-function NavLink({ to, children }: { to: string; children: React.ReactNode }) {
+function NavLink({ to, children, onClose }: { to: string; children: React.ReactNode; onClose?: () => void }) {
   const matches = useMatches()
   // For "/" (home), only active when it's the LAST match (exact). For others, any match works.
   const isActive = to === '/'
@@ -49,6 +50,7 @@ function NavLink({ to, children }: { to: string; children: React.ReactNode }) {
   return (
     <Link
       to={to}
+      onClick={onClose}
       className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
         isActive
           ? 'bg-primary/10 text-primary'
@@ -60,11 +62,26 @@ function NavLink({ to, children }: { to: string; children: React.ReactNode }) {
   )
 }
 
+const NAV_ITEMS = [
+  { to: '/', label: 'Home', icon: <Home className="h-3.5 w-3.5" /> },
+  { to: '/dashboard', label: 'Dashboard', icon: <BarChart2 className="h-3.5 w-3.5" /> },
+  { to: '/how-it-works', label: 'How it works', icon: <BookOpen className="h-3.5 w-3.5" /> },
+  { to: '/find-path', label: 'Find Path', icon: <GitBranch className="h-3.5 w-3.5" /> },
+  { to: '/patterns', label: 'Patterns', icon: <Flag className="h-3.5 w-3.5" /> },
+  { to: '/regulations', label: 'Regulations', icon: <ScrollText className="h-3.5 w-3.5" /> },
+  { to: '/news', label: 'News', icon: <Newspaper className="h-3.5 w-3.5" /> },
+  { to: '/search', label: 'Search', icon: <Search className="h-3.5 w-3.5" /> },
+] as const
+
 function SiteHeader() {
+  const [isOpen, setIsOpen] = useState(false)
+  const closeMenu = () => setIsOpen(false)
+
   return (
     <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-md">
+      {/* Top bar */}
       <nav className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
-        <Link to="/" className="flex items-center gap-2.5 transition-opacity hover:opacity-80">
+        <Link to="/" className="flex items-center gap-2.5 transition-opacity hover:opacity-80" onClick={closeMenu}>
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary shadow-sm">
             <MapPin className="h-4 w-4 text-primary-foreground" />
           </div>
@@ -74,42 +91,45 @@ function SiteHeader() {
           </div>
         </Link>
 
-        <div className="flex items-center gap-1">
-          <NavLink to="/">
-            <Home className="h-3.5 w-3.5" />
-            Home
-          </NavLink>
-          <NavLink to="/dashboard">
-            <BarChart2 className="h-3.5 w-3.5" />
-            Dashboard
-          </NavLink>
-          <NavLink to="/how-it-works">
-            <BookOpen className="h-3.5 w-3.5" />
-            How it works
-          </NavLink>
-          <NavLink to="/find-path">
-            <GitBranch className="h-3.5 w-3.5" />
-            Find Path
-          </NavLink>
-          <NavLink to="/patterns">
-            <Flag className="h-3.5 w-3.5" />
-            Patterns
-          </NavLink>
-          <NavLink to="/regulations">
-            <ScrollText className="h-3.5 w-3.5" />
-            Regulations
-          </NavLink>
-          <NavLink to="/news">
-            <Newspaper className="h-3.5 w-3.5" />
-            News
-          </NavLink>
-          <NavLink to="/search">
-            <Search className="h-3.5 w-3.5" />
-            Search
-          </NavLink>
+        {/* Desktop nav */}
+        <div className="hidden items-center gap-1 md:flex">
+          {NAV_ITEMS.map((item) => (
+            <NavLink key={item.to} to={item.to}>
+              {item.icon}
+              {item.label}
+            </NavLink>
+          ))}
           <ThemeToggle />
         </div>
+
+        {/* Mobile controls */}
+        <div className="flex items-center gap-1 md:hidden">
+          <ThemeToggle />
+          <button
+            type="button"
+            onClick={() => setIsOpen((prev) => !prev)}
+            aria-expanded={isOpen}
+            aria-label={isOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+          >
+            {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
       </nav>
+
+      {/* Mobile slide-down menu */}
+      {isOpen && (
+        <div className="border-t bg-background/95 px-4 pb-4 pt-2 md:hidden">
+          <div className="flex flex-col gap-1">
+            {NAV_ITEMS.map((item) => (
+              <NavLink key={item.to} to={item.to} onClose={closeMenu}>
+                {item.icon}
+                {item.label}
+              </NavLink>
+            ))}
+          </div>
+        </div>
+      )}
     </header>
   )
 }
