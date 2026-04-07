@@ -48,8 +48,8 @@ async function detectDonationSpikes(db: DbInstance): Promise<number> {
     JOIN contracts c ON c.entity_id = d.entity_id
     JOIN (SELECT entity_id, AVG(amount) AS avg_amount FROM donations WHERE entity_id IS NOT NULL GROUP BY entity_id) avg_d ON avg_d.entity_id = d.entity_id
     WHERE d.entity_id IS NOT NULL AND c.entity_id IS NOT NULL
-      AND ABS(c.award_date - d.donation_date) <= ${TEMPORAL_WINDOW_DAYS}
-      AND d.amount > avg_d.avg_amount * ${DONATION_SPIKE_MULTIPLIER}
+      AND ABS(c.award_date - d.donation_date) <= 90
+      AND d.amount > avg_d.avg_amount * 2
     ORDER BY d.amount DESC LIMIT 500
   `)
   let count = 0
@@ -82,15 +82,15 @@ async function detectLobbyingClusters(db: DbInstance): Promise<number> {
     SELECT lr.client_entity_id AS entity_id,
       STRING_AGG(lc.id, ',' ORDER BY lc.communication_date) AS communication_ids,
       COUNT(lc.id)::text AS communication_count,
-      c.award_date::text AS award_date, (c.award_date - ${TEMPORAL_WINDOW_DAYS})::text AS window_start,
+      c.award_date::text AS award_date, (c.award_date - INTERVAL '90 days')::text AS window_start,
       c.id AS contract_id, c.value::text AS contract_value
     FROM lobby_registrations lr
     JOIN lobby_communications lc ON lc.registration_number = lr.registration_number
     JOIN contracts c ON c.entity_id = lr.client_entity_id
     WHERE lr.client_entity_id IS NOT NULL AND c.award_date IS NOT NULL
-      AND lc.communication_date BETWEEN c.award_date - ${TEMPORAL_WINDOW_DAYS} AND c.award_date
+      AND lc.communication_date BETWEEN c.award_date - INTERVAL '90 days' AND c.award_date
     GROUP BY lr.client_entity_id, c.id, c.award_date, c.value
-    HAVING COUNT(lc.id) >= ${LOBBYING_CLUSTER_MEDIUM_THRESHOLD}
+    HAVING COUNT(lc.id) >= 3
     ORDER BY COUNT(lc.id) DESC LIMIT 300
   `)
   let count = 0
