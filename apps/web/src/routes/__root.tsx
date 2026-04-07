@@ -79,13 +79,8 @@ function NavLink({ to, children, onClose }: { to: string; children: React.ReactN
 const NAV_ITEMS = [
   { to: '/', label: 'Home', icon: <Home className="h-3.5 w-3.5" /> },
   { to: '/dashboard', label: 'Dashboard', icon: <BarChart2 className="h-3.5 w-3.5" /> },
-  { to: '/how-it-works', label: 'How it works', icon: <BookOpen className="h-3.5 w-3.5" /> },
-  { to: '/find-path', label: 'Find Path', icon: <GitBranch className="h-3.5 w-3.5" /> },
-  { to: '/patterns', label: 'Patterns', icon: <Flag className="h-3.5 w-3.5" /> },
-  { to: '/regulations', label: 'Regulations', icon: <ScrollText className="h-3.5 w-3.5" /> },
   { to: '/news', label: 'News', icon: <Newspaper className="h-3.5 w-3.5" /> },
   { to: '/search', label: 'Search', icon: <Search className="h-3.5 w-3.5" /> },
-  { to: '/about', label: 'About', icon: <Info className="h-3.5 w-3.5" /> },
 ] as const
 
 function SiteHeader() {
@@ -169,23 +164,23 @@ function SiteFooter() {
           <div className="flex flex-col gap-2 text-xs text-muted-foreground">
             <p>All data under Open Government Licence — Canada</p>
             <p>Connections shown do not imply wrongdoing</p>
-            <div className="flex flex-col gap-1.5 pt-1">
-              <Link
-                to="/how-it-works"
-                className="flex w-fit items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground"
-              >
+            <div className="grid grid-cols-2 gap-x-8 gap-y-1.5 pt-1">
+              <Link to="/find-path" className="flex w-fit items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground">
+                Find Path
+              </Link>
+              <Link to="/patterns" className="flex w-fit items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground">
+                Patterns
+              </Link>
+              <Link to="/regulations" className="flex w-fit items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground">
+                Regulations
+              </Link>
+              <Link to="/how-it-works" className="flex w-fit items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground">
                 How it works
               </Link>
-              <Link
-                to="/about"
-                className="flex w-fit items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground"
-              >
+              <Link to="/about" className="flex w-fit items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground">
                 About
               </Link>
-              <Link
-                to="/privacy"
-                className="flex w-fit items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground"
-              >
+              <Link to="/privacy" className="flex w-fit items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground">
                 Privacy
               </Link>
               <a
@@ -195,7 +190,7 @@ function SiteFooter() {
                 className="flex w-fit items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground"
               >
                 <ExternalLink className="h-3.5 w-3.5" />
-                Open source on GitHub
+                GitHub
               </a>
               <a
                 href="https://buymeacoffee.com/guilhermeeckert"
@@ -204,7 +199,7 @@ function SiteFooter() {
                 className="flex w-fit items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground"
               >
                 <Heart className="h-3.5 w-3.5" />
-                Support GovTrace
+                Support
               </a>
             </div>
           </div>
