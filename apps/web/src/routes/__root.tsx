@@ -41,7 +41,10 @@ function ThemeToggle() {
 
 function NavLink({ to, children }: { to: string; children: React.ReactNode }) {
   const matches = useMatches()
-  const isActive = matches.some((m) => m.fullPath === to)
+  // For "/" (home), only active when it's the LAST match (exact). For others, any match works.
+  const isActive = to === '/'
+    ? matches[matches.length - 1]?.fullPath === '/'
+    : matches.some((m) => m.fullPath === to)
 
   return (
     <Link
