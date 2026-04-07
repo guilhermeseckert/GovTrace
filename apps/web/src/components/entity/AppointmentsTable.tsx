@@ -83,7 +83,7 @@ export function AppointmentsTable({ entityId }: AppointmentsTableProps) {
   return (
     <div className="space-y-4">
       {/* Desktop table */}
-      <div className="hidden rounded-md border md:block">
+      <div className="hidden overflow-x-auto rounded-md border md:block">
         <Table>
           <TableHeader>
             <TableRow>

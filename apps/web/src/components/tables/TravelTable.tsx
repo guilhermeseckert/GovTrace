@@ -304,7 +304,7 @@ export function TravelTable({ entityId }: TravelTableProps) {
       </div>
 
       {/* Desktop table */}
-      <div className="hidden rounded-md border md:block">
+      <div className="hidden overflow-x-auto rounded-md border md:block">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((hg) => (
