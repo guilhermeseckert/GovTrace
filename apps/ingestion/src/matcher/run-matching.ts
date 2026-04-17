@@ -88,14 +88,12 @@ export async function runMatchingPipeline(): Promise<MatchingStats> {
 		let totalNew = 0
 
 		while (true) {
-			// Fetch a batch of distinct unmatched names
-			const batch = await db.execute<{ raw_name: string; cnt: string }>(sql`
-				SELECT ${sql.raw(config.nameField)} AS raw_name, COUNT(*)::text AS cnt
+			// Fetch a batch of distinct unmatched names — no GROUP BY, no ORDER BY, just DISTINCT + LIMIT
+			const batch = await db.execute<{ raw_name: string }>(sql`
+				SELECT DISTINCT ${sql.raw(config.nameField)} AS raw_name
 				FROM ${sql.raw(config.table)}
 				WHERE ${sql.raw(config.entityIdField)} IS NULL
 					AND ${sql.raw(config.nameField)} IS NOT NULL
-				GROUP BY ${sql.raw(config.nameField)}
-				ORDER BY COUNT(*) DESC
 				LIMIT ${BATCH_SIZE}
 			`)
 
