@@ -14,9 +14,10 @@ type TabCounts = {
   appointments: number
   travel: number
   hospitality: number
+  spending?: number
 }
 
-export type TabKey = 'donations' | 'contracts' | 'grants' | 'lobbying' | 'votes' | 'aid' | 'appointments' | 'travel' | 'hospitality' | 'connections' | 'visualizations'
+export type TabKey = 'donations' | 'contracts' | 'grants' | 'lobbying' | 'votes' | 'aid' | 'appointments' | 'spending' | 'travel' | 'hospitality' | 'connections' | 'visualizations'
 
 type ProfileTabsProps = {
   counts: TabCounts
@@ -39,6 +40,7 @@ const TAB_DESCRIPTIONS: Record<TabKey, string> = {
   votes: 'House of Commons voting records showing how this politician voted on every division, sourced from ourcommons.ca Open Data.',
   aid: 'International Aid projects funded by Global Affairs Canada (IATI Activity Files). Shows overseas development projects this entity implemented or received funding for.',
   appointments: 'Governor in Council appointments to federal boards, agencies, and Crown corporations, sourced from federal-organizations.canada.ca.',
+  spending: 'A combined overview of travel expenses, hospitality events, and ministerial press release announcements. Shows how public money was spent and what this minister announced.',
   travel: 'Travel expenses for federal officials disclosed under proactive disclosure rules on open.canada.ca. Shows destinations, purpose, and cost breakdowns.',
   hospitality: 'Hospitality expenses for federal officials disclosed under proactive disclosure rules on open.canada.ca. Shows event details, vendors, and attendee counts.',
   connections: 'Pre-computed relationships linking this entity to others across all five datasets — donations, contracts, grants, and lobbying.',
@@ -53,6 +55,7 @@ const TABS: TabDef[] = [
   { key: 'votes', label: 'Votes', count: 0 },
   { key: 'aid', label: 'International Aid', count: 0 },
   { key: 'appointments', label: 'Appointments', count: 0 },
+  { key: 'spending', label: 'Spending', count: 0 },
   { key: 'travel', label: 'Travel', count: 0 },
   { key: 'hospitality', label: 'Hospitality', count: 0 },
   { key: 'connections', label: 'Connections', count: 0, disclaimer: true },
@@ -62,10 +65,13 @@ const TABS: TabDef[] = [
 export function ProfileTabs({ counts, renderTab }: ProfileTabsProps) {
   const [activeTab, setActiveTab] = useState<TabKey>('donations')
 
-  const tabs = TABS.map((t) => ({
-    ...t,
-    count: (counts as Record<string, number>)[t.key] ?? 0,
-  }))
+  const tabs = TABS.map((t) => {
+    // Spending tab count = travel + hospitality combined
+    if (t.key === 'spending') {
+      return { ...t, count: (counts.travel ?? 0) + (counts.hospitality ?? 0) }
+    }
+    return { ...t, count: (counts as Record<string, number>)[t.key] ?? 0 }
+  })
 
   const activeDef = tabs.find((t) => t.key === activeTab)
 

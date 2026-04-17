@@ -15,6 +15,7 @@ import { LobbyingTable } from '@/components/tables/LobbyingTable'
 import { AidTable } from '@/components/tables/AidTable'
 import { TravelTable } from '@/components/tables/TravelTable'
 import { HospitalityTable } from '@/components/tables/HospitalityTable'
+import { SpendingTab } from '@/components/entity/SpendingTab'
 import { VotesTable } from '@/components/tables/VotesTable'
 import { ConnectionsTable } from '@/components/tables/ConnectionsTable'
 import { AppointmentsTable } from '@/components/entity/AppointmentsTable'
@@ -145,6 +146,7 @@ function EntityProfilePage() {
               case 'grants': return <GrantsTable entityId={profile.id} />
               case 'lobbying': return <LobbyingTable entityId={profile.id} />
               case 'aid': return <AidTable entityId={profile.id} />
+              case 'spending': return <SpendingTab entityId={profile.id} />
               case 'travel': return <TravelTable entityId={profile.id} />
               case 'hospitality': return <HospitalityTable entityId={profile.id} />
               case 'votes': return <VotesTable entityId={profile.id} />

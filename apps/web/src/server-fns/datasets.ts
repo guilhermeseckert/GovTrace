@@ -1,8 +1,8 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
-import { count, desc, eq, or, sql } from 'drizzle-orm'
+import { count, desc, eq, or, sql, sum } from 'drizzle-orm'
 import { getDb } from '@govtrace/db/client'
-import { contracts, donations, grants, hospitalityDisclosures, internationalAid, lobbyCommunications, lobbyRegistrations, travelDisclosures } from '@govtrace/db/schema/raw'
+import { contracts, donations, grants, hospitalityDisclosures, internationalAid, lobbyCommunications, lobbyRegistrations, pressReleases, travelDisclosures } from '@govtrace/db/schema/raw'
 import { entityConnections } from '@govtrace/db/schema/connections'
 import { entities } from '@govtrace/db/schema/entities'
 import { parliamentBills, parliamentVoteBallots, parliamentVotes, billSummaries } from '@govtrace/db/schema/parliament'
@@ -658,6 +658,149 @@ export const getHospitality = createServerFn({ method: 'GET' })
     return {
       rows,
       total: Number(totalRows[0]?.c ?? 0),
+      page: data.page,
+      pageSize: data.pageSize,
+    }
+  })
+
+const SpendingSummaryInputSchema = z.object({
+  entityId: z.string().uuid(),
+})
+
+// Spending summary: travel totals, hospitality totals, and minister announcement totals.
+// Used by the Spending tab stat cards on entity profile pages.
+export const getSpendingSummary = createServerFn({ method: 'GET' })
+  .inputValidator(SpendingSummaryInputSchema)
+  .handler(async ({ data }) => {
+    const db = getDb()
+
+    // Look up canonical name to match against ministers array
+    const entityRows = await db
+      .select({ canonicalName: entities.canonicalName })
+      .from(entities)
+      .where(eq(entities.id, data.entityId))
+      .limit(1)
+
+    const canonicalName = entityRows[0]?.canonicalName ?? null
+
+    const [travelResult, hospitalityResult, announcementResult] = await Promise.all([
+      db
+        .select({
+          total: sum(travelDisclosures.total),
+          recordCount: count(),
+        })
+        .from(travelDisclosures)
+        .where(eq(travelDisclosures.entityId, data.entityId)),
+
+      db
+        .select({
+          total: sum(hospitalityDisclosures.total),
+          recordCount: count(),
+        })
+        .from(hospitalityDisclosures)
+        .where(eq(hospitalityDisclosures.entityId, data.entityId)),
+
+      canonicalName
+        ? db.execute<{ cnt: string; dollar_sum: string | null }>(sql`
+            SELECT
+              COUNT(*)::text AS cnt,
+              SUM(
+                COALESCE(
+                  (SELECT SUM((da->>'amount')::numeric)
+                   FROM jsonb_array_elements(dollar_amounts) AS da
+                   WHERE (da->>'amount') ~ '^[0-9]+(\.[0-9]+)?$'),
+                  0
+                )
+              )::text AS dollar_sum
+            FROM press_releases
+            WHERE ${canonicalName} = ANY(ministers)
+          `)
+        : Promise.resolve([{ cnt: '0', dollar_sum: null }] as { cnt: string; dollar_sum: string | null }[]),
+    ])
+
+    const announcementRow = Array.from(announcementResult)[0]
+
+    return {
+      travelTotal: Number(travelResult[0]?.total ?? 0),
+      travelCount: Number(travelResult[0]?.recordCount ?? 0),
+      hospitalityTotal: Number(hospitalityResult[0]?.total ?? 0),
+      hospitalityCount: Number(hospitalityResult[0]?.recordCount ?? 0),
+      announcementCount: Number(announcementRow?.cnt ?? 0),
+      announcedTotal: Number(announcementRow?.dollar_sum ?? 0),
+    }
+  })
+
+const MinisterAnnouncementsInputSchema = z.object({
+  entityId: z.string().uuid(),
+  page: z.number().int().min(1).default(1),
+  pageSize: z.number().int().min(1).max(100).default(10),
+})
+
+export type MinisterAnnouncementRow = {
+  id: string
+  title: string
+  url: string
+  publishedDate: string
+  department: string
+  dollarAmounts: Array<{ amount: string; context: string }>
+}
+
+// Press releases where this entity's canonical name appears in the ministers array.
+export const getMinisterAnnouncements = createServerFn({ method: 'GET' })
+  .inputValidator(MinisterAnnouncementsInputSchema)
+  .handler(async ({ data }) => {
+    const db = getDb()
+    const offset = (data.page - 1) * data.pageSize
+
+    const entityRows = await db
+      .select({ canonicalName: entities.canonicalName })
+      .from(entities)
+      .where(eq(entities.id, data.entityId))
+      .limit(1)
+
+    const canonicalName = entityRows[0]?.canonicalName ?? null
+
+    if (!canonicalName) {
+      return {
+        rows: [] as MinisterAnnouncementRow[],
+        total: 0,
+        page: data.page,
+        pageSize: data.pageSize,
+      }
+    }
+
+    const [rows, totalResult] = await Promise.all([
+      db
+        .select({
+          id: pressReleases.id,
+          title: pressReleases.title,
+          url: pressReleases.url,
+          publishedDate: pressReleases.publishedDate,
+          department: pressReleases.department,
+          dollarAmounts: pressReleases.dollarAmounts,
+        })
+        .from(pressReleases)
+        .where(sql`${canonicalName} = ANY(${pressReleases.ministers})`)
+        .orderBy(desc(pressReleases.publishedDate))
+        .limit(data.pageSize)
+        .offset(offset),
+
+      db
+        .select({ c: count() })
+        .from(pressReleases)
+        .where(sql`${canonicalName} = ANY(${pressReleases.ministers})`),
+    ])
+
+    return {
+      rows: rows.map((r) => ({
+        id: r.id,
+        title: r.title,
+        url: r.url,
+        publishedDate: String(r.publishedDate),
+        department: r.department,
+        dollarAmounts: (r.dollarAmounts as Array<{ amount: string; context: string }>) ?? [],
+      })) as MinisterAnnouncementRow[],
+      total: Number(totalResult[0]?.c ?? 0),
       page: data.page,
       pageSize: data.pageSize,
     }
