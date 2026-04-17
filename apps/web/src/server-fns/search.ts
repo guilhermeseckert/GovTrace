@@ -35,7 +35,7 @@ async function getEntityCounts(
 
   // Batch-fetch entity info to determine politician vs person/org
   const entityInfo = await db.select({ id: entities.id, canonicalName: entities.canonicalName, entityType: entities.entityType })
-    .from(entities).where(sql`id = ANY(${entityIds}::uuid[])`)
+    .from(entities).where(sql`id = ANY(ARRAY[${sql.join(entityIds.map(id => sql`${id}::uuid`), sql`, `)}])`)
 
   const entityMap = new Map(entityInfo.map(e => [e.id, e]))
 
