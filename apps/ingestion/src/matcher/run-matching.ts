@@ -118,28 +118,36 @@ export async function runMatchingPipeline(): Promise<MatchingStats> {
 
 			// Batch UPDATE all deterministic matches
 			for (const m of matched) {
-				await db.execute(sql`
-					UPDATE ${sql.raw(config.table)}
-					SET ${sql.raw(config.entityIdField)} = ${m.entityId}::uuid,
-							${sql.raw(config.normalizedField)} = ${m.normalizedName}
-					WHERE ${sql.raw(config.nameField)} = ${m.rawName}
-						AND ${sql.raw(config.entityIdField)} IS NULL
-				`)
-				stats.deterministic++
+				try {
+					await db.execute(sql`
+						UPDATE ${sql.raw(config.table)}
+						SET ${sql.raw(config.entityIdField)} = ${m.entityId}::uuid,
+								${sql.raw(config.normalizedField)} = ${m.normalizedName}
+						WHERE ${sql.raw(config.nameField)} = ${m.rawName}
+							AND ${sql.raw(config.entityIdField)} IS NULL
+					`)
+					stats.deterministic++
+				} catch (err) {
+					console.error(`  Error updating match for "${m.rawName}":`, err instanceof Error ? err.message : err)
+				}
 			}
 
 			// Create new entities for unmatched names and update rows
 			for (const u of unmatched) {
-				const entityId = await createNewEntity(u.rawName, config.table, config.nameField)
-				entityByNormalized.set(u.normalizedName, entityId) // Add to lookup for future batches
-				await db.execute(sql`
-					UPDATE ${sql.raw(config.table)}
-					SET ${sql.raw(config.entityIdField)} = ${entityId}::uuid,
-							${sql.raw(config.normalizedField)} = ${u.normalizedName}
-					WHERE ${sql.raw(config.nameField)} = ${u.rawName}
-						AND ${sql.raw(config.entityIdField)} IS NULL
-				`)
-				stats.newEntities++
+				try {
+					const entityId = await createNewEntity(u.rawName, config.table, config.nameField)
+					entityByNormalized.set(u.normalizedName, entityId)
+					await db.execute(sql`
+						UPDATE ${sql.raw(config.table)}
+						SET ${sql.raw(config.entityIdField)} = ${entityId}::uuid,
+								${sql.raw(config.normalizedField)} = ${u.normalizedName}
+						WHERE ${sql.raw(config.nameField)} = ${u.rawName}
+							AND ${sql.raw(config.entityIdField)} IS NULL
+					`)
+					stats.newEntities++
+				} catch (err) {
+					console.error(`  Error creating entity for "${u.rawName}":`, err instanceof Error ? err.message : err)
+				}
 			}
 
 			processed += batchRows.length
