@@ -45,18 +45,19 @@ function DatePicker({
   const selected = value ? parseISO(value) : undefined
 
   return (
-    <div className="space-y-1.5">
-      <span className="text-xs font-medium text-muted-foreground">{label}</span>
+    <div className="flex items-center gap-2">
+      <span className="w-10 shrink-0 text-xs font-medium text-muted-foreground">{label}</span>
       <Popover>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
-            className={`w-full cursor-pointer justify-start text-left text-sm font-normal ${
+            size="sm"
+            className={`h-8 flex-1 cursor-pointer justify-start text-left text-xs font-normal ${
               !selected ? 'text-muted-foreground' : ''
             }`}
           >
-            <CalendarIcon className="mr-2 h-3.5 w-3.5 text-muted-foreground" />
-            {selected ? format(selected, 'MMM d, yyyy') : 'Pick a date'}
+            <CalendarIcon className="mr-1.5 h-3 w-3 text-muted-foreground" />
+            {selected ? format(selected, 'MMM d, yyyy') : 'Any'}
             {selected && (
               <button
                 type="button"
@@ -164,7 +165,7 @@ export function SearchFilters({
       {/* Date Range */}
       <div className="rounded-xl border bg-card p-4 shadow-sm">
         <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Date Range</h2>
-        <div className="space-y-3">
+        <div className="space-y-2">
           <DatePicker
             value={currentDateFrom}
             onChange={onDateFromChange}
