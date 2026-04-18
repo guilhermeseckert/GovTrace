@@ -123,7 +123,7 @@ export const getNewsStats = createServerFn({ method: 'GET' })
   .handler(async () => {
     const db = getDb()
 
-    const [statsResult] = await db.execute<{
+    const statsRows = await db.execute<{
       total: string
       departments: string
       latest: string | null
@@ -134,6 +134,7 @@ export const getNewsStats = createServerFn({ method: 'GET' })
         MAX(published_date)::text AS latest
       FROM press_releases
     `)
+    const statsResult = Array.from(statsRows)[0]
 
     // Content type breakdown
     const contentTypeRows = await db.execute<{ content_type: string | null; cnt: string }>(sql`

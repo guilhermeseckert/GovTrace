@@ -448,8 +448,8 @@ function NewsPage() {
       <NewsStats />
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-3">
-        <form onSubmit={handleSearch} className="flex gap-2">
+      <div className="flex flex-wrap items-center gap-3">
+        <form onSubmit={handleSearch} className="flex items-center gap-2">
           <div className="relative">
             <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
@@ -457,11 +457,11 @@ function NewsPage() {
               type="search"
               placeholder="Search announcements..."
               defaultValue={search}
-              className="h-9 rounded-md border bg-background pl-8 pr-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+              className="h-9 w-48 rounded-md border bg-background pl-8 pr-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
               aria-label="Search announcement titles"
             />
           </div>
-          <Button type="submit" variant="secondary" size="sm">
+          <Button type="submit" variant="secondary" className="h-9">
             Search
           </Button>
         </form>
@@ -469,7 +469,7 @@ function NewsPage() {
         <select
           value={department}
           onChange={handleDepartmentChange}
-          className="h-9 rounded-md border bg-background px-3 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+          className="h-9 max-w-[200px] rounded-md border bg-background px-3 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
           aria-label="Filter by department"
         >
           <option value="">All departments</option>
