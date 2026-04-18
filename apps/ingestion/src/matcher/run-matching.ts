@@ -94,6 +94,8 @@ export async function runMatchingPipeline(): Promise<MatchingStats> {
 				FROM ${sql.raw(config.table)}
 				WHERE ${sql.raw(config.entityIdField)} IS NULL
 					AND ${sql.raw(config.nameField)} IS NOT NULL
+					AND ${sql.raw(config.nameField)} != ''
+					AND ${sql.raw(config.normalizedField)} IS NULL
 				LIMIT ${BATCH_SIZE}
 			`)
 
@@ -106,7 +108,19 @@ export async function runMatchingPipeline(): Promise<MatchingStats> {
 
 			for (const row of batchRows) {
 				const normalized = normalizeName(row.raw_name)
-				if (!normalized) continue
+				if (!normalized) {
+					// Mark as processed so we don't loop on unnormalizable names
+					try {
+						await db.execute(sql`
+							UPDATE ${sql.raw(config.table)}
+							SET ${sql.raw(config.normalizedField)} = ''
+							WHERE ${sql.raw(config.nameField)} = ${row.raw_name}
+								AND ${sql.raw(config.entityIdField)} IS NULL
+								AND ${sql.raw(config.normalizedField)} IS NULL
+						`)
+					} catch { /* skip */ }
+					continue
+				}
 
 				const entityId = entityByNormalized.get(normalized)
 				if (entityId) {
