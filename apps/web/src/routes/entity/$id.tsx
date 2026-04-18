@@ -139,6 +139,7 @@ function EntityProfilePage() {
         <ProfileTabs
           counts={stats}
           entityId={profile.id}
+          entityType={profile.entityType}
           renderTab={(tab) => {
             switch (tab) {
               case 'donations': return <DonationsTable entityId={profile.id} />

@@ -22,7 +22,17 @@ export type TabKey = 'donations' | 'contracts' | 'grants' | 'lobbying' | 'votes'
 type ProfileTabsProps = {
   counts: TabCounts
   entityId: string
+  entityType: string
   renderTab: (tab: TabKey) => ReactNode
+}
+
+// Which tabs are relevant per entity type — only show these + any with data > 0
+const TABS_BY_TYPE: Record<string, TabKey[]> = {
+  politician: ['donations', 'votes', 'lobbying', 'spending', 'travel', 'hospitality', 'appointments', 'connections'],
+  company: ['contracts', 'grants', 'donations', 'lobbying', 'aid', 'connections'],
+  organization: ['contracts', 'grants', 'donations', 'lobbying', 'aid', 'connections'],
+  department: ['contracts', 'grants', 'lobbying', 'connections'],
+  person: ['donations', 'connections'],
 }
 
 type TabDef = {
@@ -62,16 +72,20 @@ const TABS: TabDef[] = [
   { key: 'visualizations', label: 'Visualizations', count: 0, disclaimer: true },
 ]
 
-export function ProfileTabs({ counts, renderTab }: ProfileTabsProps) {
-  const [activeTab, setActiveTab] = useState<TabKey>('donations')
+export function ProfileTabs({ counts, entityType, renderTab }: ProfileTabsProps) {
+  const relevantKeys = TABS_BY_TYPE[entityType] ?? TABS_BY_TYPE.person ?? []
 
-  const tabs = TABS.map((t) => {
-    // Spending tab count = travel + hospitality combined
+  const allTabs = TABS.map((t) => {
     if (t.key === 'spending') {
       return { ...t, count: (counts.travel ?? 0) + (counts.hospitality ?? 0) }
     }
     return { ...t, count: (counts as Record<string, number>)[t.key] ?? 0 }
   })
+
+  // Show tabs that are relevant to this entity type OR have data
+  const tabs = allTabs.filter((t) => relevantKeys.includes(t.key) || t.count > 0)
+
+  const [activeTab, setActiveTab] = useState<TabKey>(tabs[0]?.key ?? 'donations')
 
   const activeDef = tabs.find((t) => t.key === activeTab)
 
