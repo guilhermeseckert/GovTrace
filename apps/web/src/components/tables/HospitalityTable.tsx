@@ -1,3 +1,4 @@
+import { getDepartmentName } from '@/lib/department-codes'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import {
@@ -125,8 +126,8 @@ const columns: ColumnDef<HospitalityRow>[] = [
     accessorKey: 'department',
     header: 'Department',
     cell: ({ row }) => (
-      <span className="text-sm max-w-[160px] truncate block" title={row.original.department}>
-        {row.original.department}
+      <span className="text-sm max-w-[160px] truncate block" title={getDepartmentName(row.original.department)}>
+        {getDepartmentName(row.original.department)}
       </span>
     ),
   },
@@ -345,7 +346,7 @@ export function HospitalityTable({ entityId }: HospitalityTableProps) {
               </span>
             </div>
             <div className="text-muted-foreground">
-              {row.department}
+              {getDepartmentName(row.department)}
               {row.vendorEn && <> &middot; {row.vendorEn}</>}
             </div>
             {(row.startDate ?? row.endDate) && (

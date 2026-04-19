@@ -10,12 +10,14 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SearchRouteImport } from './routes/search'
-import { Route as NewsRouteImport } from './routes/news'
 import { Route as RegulationsRouteImport } from './routes/regulations'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PatternsRouteImport } from './routes/patterns'
+import { Route as NewsRouteImport } from './routes/news'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as FindPathRouteImport } from './routes/find-path'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as EntityIdRouteImport } from './routes/entity/$id'
 import { Route as BillIdRouteImport } from './routes/bill/$id'
@@ -26,19 +28,24 @@ const SearchRoute = SearchRouteImport.update({
   path: '/search',
   getParentRoute: () => rootRouteImport,
 } as any)
-const NewsRoute = NewsRouteImport.update({
-  id: '/news',
-  path: '/news',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const RegulationsRoute = RegulationsRouteImport.update({
   id: '/regulations',
   path: '/regulations',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PatternsRoute = PatternsRouteImport.update({
   id: '/patterns',
   path: '/patterns',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NewsRoute = NewsRouteImport.update({
+  id: '/news',
+  path: '/news',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HowItWorksRoute = HowItWorksRouteImport.update({
@@ -54,6 +61,11 @@ const FindPathRoute = FindPathRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -79,11 +91,13 @@ const AidCountryCodeRoute = AidCountryCodeRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/dashboard': typeof DashboardRoute
   '/find-path': typeof FindPathRoute
   '/how-it-works': typeof HowItWorksRoute
   '/news': typeof NewsRoute
   '/patterns': typeof PatternsRoute
+  '/privacy': typeof PrivacyRoute
   '/regulations': typeof RegulationsRoute
   '/search': typeof SearchRoute
   '/bill/$id': typeof BillIdRoute
@@ -92,11 +106,13 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/dashboard': typeof DashboardRoute
   '/find-path': typeof FindPathRoute
   '/how-it-works': typeof HowItWorksRoute
   '/news': typeof NewsRoute
   '/patterns': typeof PatternsRoute
+  '/privacy': typeof PrivacyRoute
   '/regulations': typeof RegulationsRoute
   '/search': typeof SearchRoute
   '/bill/$id': typeof BillIdRoute
@@ -106,11 +122,13 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/dashboard': typeof DashboardRoute
   '/find-path': typeof FindPathRoute
   '/how-it-works': typeof HowItWorksRoute
   '/news': typeof NewsRoute
   '/patterns': typeof PatternsRoute
+  '/privacy': typeof PrivacyRoute
   '/regulations': typeof RegulationsRoute
   '/search': typeof SearchRoute
   '/bill/$id': typeof BillIdRoute
@@ -121,11 +139,13 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/about'
     | '/dashboard'
     | '/find-path'
     | '/how-it-works'
     | '/news'
     | '/patterns'
+    | '/privacy'
     | '/regulations'
     | '/search'
     | '/bill/$id'
@@ -134,11 +154,13 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/about'
     | '/dashboard'
     | '/find-path'
     | '/how-it-works'
     | '/news'
     | '/patterns'
+    | '/privacy'
     | '/regulations'
     | '/search'
     | '/bill/$id'
@@ -147,11 +169,13 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/about'
     | '/dashboard'
     | '/find-path'
     | '/how-it-works'
     | '/news'
     | '/patterns'
+    | '/privacy'
     | '/regulations'
     | '/search'
     | '/bill/$id'
@@ -161,11 +185,13 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
   DashboardRoute: typeof DashboardRoute
   FindPathRoute: typeof FindPathRoute
   HowItWorksRoute: typeof HowItWorksRoute
   NewsRoute: typeof NewsRoute
   PatternsRoute: typeof PatternsRoute
+  PrivacyRoute: typeof PrivacyRoute
   RegulationsRoute: typeof RegulationsRoute
   SearchRoute: typeof SearchRoute
   BillIdRoute: typeof BillIdRoute
@@ -189,11 +215,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RegulationsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/news': {
-      id: '/news'
-      path: '/news'
-      fullPath: '/news'
-      preLoaderRoute: typeof NewsRouteImport
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/patterns': {
@@ -201,6 +227,13 @@ declare module '@tanstack/react-router' {
       path: '/patterns'
       fullPath: '/patterns'
       preLoaderRoute: typeof PatternsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/news': {
+      id: '/news'
+      path: '/news'
+      fullPath: '/news'
+      preLoaderRoute: typeof NewsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/how-it-works': {
@@ -222,6 +255,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -257,11 +297,13 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
   DashboardRoute: DashboardRoute,
   FindPathRoute: FindPathRoute,
   HowItWorksRoute: HowItWorksRoute,
   NewsRoute: NewsRoute,
   PatternsRoute: PatternsRoute,
+  PrivacyRoute: PrivacyRoute,
   RegulationsRoute: RegulationsRoute,
   SearchRoute: SearchRoute,
   BillIdRoute: BillIdRoute,
