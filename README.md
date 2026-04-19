@@ -158,18 +158,33 @@ PORT=3000
 - [x] Multi-Hop Path Finding (trace connections 2-3 degrees of separation)
 - [x] Anomaly Flagging (donation spikes, lobbying clusters, outlier detection)
 
+### v3.0 Deep Transparency (Shipped)
+- [x] Travel & Hospitality Disclosures (145K travel + 65K hospitality records)
+- [x] Senate Votes & Attendance (28K+ ballots, 392 votes)
+- [x] Public Accounts of Canada (15K expenditure records, 14 fiscal years)
+- [x] Canada Gazette regulations (492 entries with lobbying cross-reference)
+- [x] GIC Appointments (1,600+ board/commission appointments)
+- [x] Government Press Releases (318+ with AI entity extraction)
+- [x] Lobby Data Enrichment (subject matter, officials, departments from secondary CSVs)
+- [x] Story-first Dashboard (Right Now, Big Picture, Where Money Goes, Who Gets Most)
+- [x] Spending tab on politician profiles
+- [x] Anomaly pattern detection (763+ flags — donation spikes, lobbying clusters, outlier contributions)
+- [x] Nightly automated pipeline (15 sources + match + merge + connections + patterns)
+
 ### Backlog — More Data Sources
-- [ ] Travel & Hospitality Disclosures (where officials travel, who hosts them)
 - [ ] Ethics Commissioner Disclosures (MP financial interests vs their votes)
-- [ ] Senate Votes & Attendance (upper chamber voting records)
-- [ ] Public Accounts of Canada (full government spending by department)
-- [ ] Canada Gazette (regulatory changes after lobbying)
 - [ ] Order Paper Written Questions (what MPs investigate vs who funds them)
 - [ ] Ministerial Briefing Titles (what ministers are briefed on near lobbying)
+- [ ] Orders in Council from Privy Council Office
+- [ ] Immigration & Refugee Spending (IRCC program breakdowns)
+- [ ] MP Expenditure Reports (quarterly office/travel/staff budgets from ourcommons.ca)
 
 ### Backlog — Features
 - [ ] Newsletter and weekly digest
-- [ ] Ingestion hash-check optimization (skip unchanged files)
+- [ ] Lobby data enrichment from lobbycanada.gc.ca (per-registration detail scraping)
+- [ ] Family & Board Connections (corporate directors + family ties)
+- [ ] Budget Spending Visualization (year-over-year trends + budget vote cross-reference)
+- [ ] Regulation AI Summaries (grandpa-readable explanations)
 
 ## Contributing
 

@@ -193,7 +193,7 @@ function SiteFooter() {
                 GitHub
               </a>
               <a
-                href="https://buymeacoffee.com/guilhermeeckert"
+                href="https://buymeacoffee.com/guilhermesp"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex w-fit items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground"
