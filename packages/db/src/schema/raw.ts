@@ -67,6 +67,7 @@ export const donations = pgTable('donations', {
 }, (t) => [
   index('donations_normalized_contributor_name_idx').on(t.normalizedContributorName),
   index('donations_entity_id_idx').on(t.entityId),
+  index('donations_recipient_name_idx').on(t.recipientName),
   index('donations_donation_date_idx').on(t.donationDate),
   index('donations_election_year_idx').on(t.electionYear),
 ])
@@ -230,6 +231,8 @@ export const lobbyCommunications = pgTable('lobby_communications', {
   index('lobby_communications_normalized_lobbyist_name_idx').on(t.normalizedLobbyistName),
   index('lobby_communications_normalized_official_name_idx').on(t.normalizedOfficialName),
   index('lobby_communications_communication_date_idx').on(t.communicationDate),
+  index('lobby_communications_lobbyist_entity_id_idx').on(t.lobbyistEntityId),
+  index('lobby_communications_official_entity_id_idx').on(t.officialEntityId),
 ])
 
 // Federal travel expense disclosures from open.canada.ca (DATA-07)
