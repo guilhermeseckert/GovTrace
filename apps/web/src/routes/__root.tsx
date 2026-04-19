@@ -215,6 +215,7 @@ function RootComponent() {
     <html lang="en" className={theme} suppressHydrationWarning>
       <head>
         <HeadContent />
+        <script defer src="https://umami.lab.guilhermeseckert.dev/script.js" data-website-id="bcaf207d-d2a6-427b-89cf-e5de60107c85" />
       </head>
       <body className="flex min-h-screen flex-col">
         <SkipToContent />
