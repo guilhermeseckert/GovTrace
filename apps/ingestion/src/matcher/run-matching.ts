@@ -84,12 +84,12 @@ export async function runMatchingPipeline(): Promise<MatchingStats> {
 
 		if (totalNames === 0) continue
 
-		let offset = 0
 		let processed = 0
 		let totalMatched = 0
 		let totalNew = 0
+		let stuckCount = 0
 
-		while (true) {
+		while (stuckCount < 3) {
 			// Fetch a batch of distinct unmatched names — no GROUP BY, no ORDER BY, just DISTINCT + LIMIT
 			const batch = await db.execute<{ raw_name: string }>(sql`
 				SELECT DISTINCT ${sql.raw(config.nameField)} AS raw_name
@@ -97,7 +97,6 @@ export async function runMatchingPipeline(): Promise<MatchingStats> {
 				WHERE ${sql.raw(config.entityIdField)} IS NULL
 					AND ${sql.raw(config.nameField)} IS NOT NULL
 					AND ${sql.raw(config.nameField)} != ''
-					AND ${sql.raw(config.normalizedField)} IS NULL
 				LIMIT ${BATCH_SIZE}
 			`)
 
@@ -166,12 +165,22 @@ export async function runMatchingPipeline(): Promise<MatchingStats> {
 				}
 			}
 
+			const batchSuccess = matched.length + unmatched.length
+			if (batchSuccess === 0) {
+				stuckCount++
+				console.log(`  Skipped ${batchRows.length} unnormalizable names (stuck count: ${stuckCount}/3)`)
+			} else {
+				stuckCount = 0
+			}
+
 			processed += batchRows.length
 			totalMatched += matched.length
 			totalNew += unmatched.length
 			stats.total += batchRows.length
 
-			console.log(`  ${processed.toLocaleString()}/${totalNames.toLocaleString()} names — batch: ${matched.length} matched, ${unmatched.length} new`)
+			if (batchSuccess > 0) {
+				console.log(`  ${processed.toLocaleString()}/${totalNames.toLocaleString()} names — batch: ${matched.length} matched, ${unmatched.length} new`)
+			}
 		}
 
 		console.log(`  ${config.table}.${config.nameField}: done (${totalMatched.toLocaleString()} matched, ${totalNew.toLocaleString()} new entities)`)
