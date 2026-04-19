@@ -102,7 +102,8 @@ function EntityPicker({ label, fieldKey, value, onChange }: EntityPickerProps) {
           onFocus={() => { if (!value) setIsOpen(true) }}
           onBlur={() => setTimeout(() => setIsOpen(false), 150)}
           placeholder={`Search for an entity\u2026`}
-          className={`h-11 pr-10 ${value ? 'bg-muted/50 cursor-default' : ''}`}
+          title={value?.name ?? ''}
+          className={`h-11 pr-10 text-ellipsis ${value ? 'bg-muted/50 cursor-default' : ''}`}
           aria-autocomplete="list"
           aria-controls={showDropdown ? listboxId : undefined}
           aria-activedescendant={showDropdown && activeIndex >= 0 ? `${listboxId}-option-${activeIndex}` : undefined}
@@ -198,7 +199,7 @@ export function PathFinder({ onSearch, loading }: PathFinderProps) {
     <div className="rounded-lg border bg-card p-4 shadow-sm sm:p-6">
       <div className="flex flex-col gap-4">
         {/* Entity picker row */}
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_auto_1fr]">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_auto_1fr] [&>*]:min-w-0">
           <EntityPicker
             label={en.pathfinding.sourceLabel}
             fieldKey="source"
