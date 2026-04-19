@@ -1,5 +1,5 @@
 import { pgTable, text, integer, numeric, date, timestamp, uuid, boolean, index, uniqueIndex } from 'drizzle-orm/pg-core'
-import { entities } from './entities.ts'
+import { entities } from './entities'
 
 // Pre-computed relationship graph — MATCH-05
 // Rebuilt after each ingestion run; never queried via runtime JOINs

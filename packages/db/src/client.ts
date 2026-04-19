@@ -1,9 +1,9 @@
 import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
-import * as rawSchema from './schema/raw.ts'
-import * as entitiesSchema from './schema/entities.ts'
-import * as connectionsSchema from './schema/connections.ts'
-import * as jobsSchema from './schema/jobs.ts'
+import * as rawSchema from './schema/raw'
+import * as entitiesSchema from './schema/entities'
+import * as connectionsSchema from './schema/connections'
+import * as jobsSchema from './schema/jobs'
 
 export const schema = {
   ...rawSchema,
