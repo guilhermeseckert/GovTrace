@@ -7,7 +7,7 @@ import { donations, contracts, grants, internationalAid, lobbyRegistrations } fr
 import { parliamentVoteBallots } from '@govtrace/db/schema/parliament'
 
 const SearchInputSchema = z.object({
-  query: z.string().min(1).max(200),
+  query: z.string().max(200).default(''),
   type: z
     .enum(['all', 'politician', 'company', 'person', 'organization', 'department'])
     .default('all'),
@@ -94,40 +94,65 @@ export const searchEntities = createServerFn({ method: 'GET' })
       ? sql`AND created_at <= ${data.dateTo}::date`
       : sql``
 
-    const results = await db.execute<{
-      id: string
-      canonical_name: string
-      entity_type: string
-      province: string | null
-      score: number
-    }>(sql`
-      SELECT id, canonical_name, entity_type, province,
-             similarity(normalized_name, ${normalizedQuery}) AS score
-      FROM entities
-      WHERE normalized_name % ${normalizedQuery}
-        AND is_active = true
-        ${typeFilter}
-        ${provinceFilter}
-        ${dateFromFilter}
-        ${dateToFilter}
-      ORDER BY score DESC
-      LIMIT ${data.pageSize}
-      OFFSET ${(data.page - 1) * data.pageSize}
-    `)
-
-    // drizzle-orm with postgres-js returns RowList (T[]), not { rows: T[] }
-    const rows = results as unknown as Array<{
+    let results: Array<{
       id: string
       canonical_name: string
       entity_type: string
       province: string | null
       score: number
     }>
-    const entityIds = rows.map((r) => r.id)
+
+    if (normalizedQuery.length >= 2) {
+      // Search mode: use pg_trgm similarity
+      const rows = await db.execute<{
+        id: string
+        canonical_name: string
+        entity_type: string
+        province: string | null
+        score: number
+      }>(sql`
+        SELECT id, canonical_name, entity_type, province,
+               similarity(normalized_name, ${normalizedQuery}) AS score
+        FROM entities
+        WHERE normalized_name % ${normalizedQuery}
+          AND is_active = true
+          ${typeFilter}
+          ${provinceFilter}
+          ${dateFromFilter}
+          ${dateToFilter}
+        ORDER BY score DESC
+        LIMIT ${data.pageSize}
+        OFFSET ${(data.page - 1) * data.pageSize}
+      `)
+      results = Array.from(rows)
+    } else {
+      // Browse mode: show entities sorted by canonical_name
+      const rows = await db.execute<{
+        id: string
+        canonical_name: string
+        entity_type: string
+        province: string | null
+        score: number
+      }>(sql`
+        SELECT id, canonical_name, entity_type, province, 1.0 AS score
+        FROM entities
+        WHERE is_active = true
+          ${typeFilter}
+          ${provinceFilter}
+          ${dateFromFilter}
+          ${dateToFilter}
+        ORDER BY canonical_name ASC
+        LIMIT ${data.pageSize}
+        OFFSET ${(data.page - 1) * data.pageSize}
+      `)
+      results = Array.from(rows)
+    }
+
+    const entityIds = results.map((r) => r.id)
     const counts = await getEntityCounts(db, entityIds)
 
     return {
-      results: rows.map((r) => ({
+      results: results.map((r) => ({
         id: r.id,
         canonicalName: r.canonical_name,
         entityType: r.entity_type,

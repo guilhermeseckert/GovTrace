@@ -31,7 +31,6 @@ export const Route = createFileRoute('/search')({
     page: search.page,
   }),
   loader: async ({ deps }) => {
-    if (!deps.q) return { results: [], page: 1, pageSize: 20 }
     return searchEntities({
       data: {
         query: deps.q,
