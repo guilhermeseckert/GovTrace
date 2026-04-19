@@ -34,14 +34,14 @@ export async function runLobbyRegistrationsIngestion(): Promise<void> {
     // Download
     console.log('[lobby_registrations] Downloading CSV...')
     const destDir = join(tmpdir(), 'govtrace-ingestion', 'lobby-registrations')
-    const { localPath, fileHash, fileSizeBytes } = await downloadLobbyRegistrations(destDir)
+    const { localPath, fileHash, fileSizeBytes, extractedFiles } = await downloadLobbyRegistrations(destDir)
     console.log(
-      `[lobby_registrations] Downloaded ${(fileSizeBytes / 1024).toFixed(1)} KB (hash: ${fileHash.slice(0, 8)}...)`,
+      `[lobby_registrations] Downloaded ${(fileSizeBytes / 1024).toFixed(1)} KB (hash: ${fileHash.slice(0, 8)}...) — ${Object.keys(extractedFiles).length} CSVs extracted`,
     )
 
-    // Parse (encoding detection happens inside the parser)
-    console.log('[lobby_registrations] Parsing CSV...')
-    const records = await parseLobbyRegistrationsFile(localPath, fileHash)
+    // Parse (encoding detection happens inside the parser; secondary CSVs enrich subject matter + departments)
+    console.log('[lobby_registrations] Parsing CSV with enrichment from secondary files...')
+    const records = await parseLobbyRegistrationsFile(localPath, fileHash, extractedFiles)
     console.log(`[lobby_registrations] Parsed ${records.length} records`)
 
     // Upsert

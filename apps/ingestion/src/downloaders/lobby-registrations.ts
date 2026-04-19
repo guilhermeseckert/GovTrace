@@ -11,9 +11,10 @@ const SOURCE_URL =
   'https://lobbycanada.gc.ca/media/zwcjycef/registrations_enregistrements_ocl_cal.zip'
 
 export interface DownloadResult {
-  localPath: string
+  localPath: string // Path to PrimaryExport CSV (backward compatible)
   fileHash: string
   fileSizeBytes: number
+  extractedFiles: Record<string, string> // filename -> absolute path for ALL CSVs
 }
 
 export async function downloadLobbyRegistrations(destDir: string): Promise<DownloadResult> {
@@ -52,25 +53,30 @@ export async function downloadLobbyRegistrations(destDir: string): Promise<Downl
   const fileHash = hash.digest('hex')
   const fileStat = await stat(zipPath)
 
-  // Extract CSV from ZIP
-  console.log('Extracting CSV from ZIP...')
+  // Extract ALL CSVs from ZIP
+  console.log('Extracting CSVs from ZIP...')
+  const extractedFiles: Record<string, string> = {}
   let csvPath = ''
   const directory = await unzipper.Open.file(zipPath)
   for (const entry of directory.files) {
-    if (entry.path.includes('PrimaryExport') && entry.path.endsWith('.csv')) {
+    if (entry.path.endsWith('.csv')) {
       const fileName = entry.path.split('/').pop() ?? entry.path
-      csvPath = join(destDir, fileName)
-      await pipeline(entry.stream(), createWriteStream(csvPath))
+      const fileDest = join(destDir, fileName)
+      await pipeline(entry.stream(), createWriteStream(fileDest))
+      extractedFiles[fileName] = fileDest
       console.log(`Extracted: ${entry.path} → ${fileName}`)
-      break
+      if (entry.path.includes('PrimaryExport')) {
+        csvPath = fileDest
+      }
     }
   }
 
-  if (!csvPath) throw new Error('No CSV file found in lobby registrations ZIP')
+  if (!csvPath) throw new Error('No PrimaryExport CSV file found in lobby registrations ZIP')
 
   return {
     localPath: csvPath,
     fileHash,
     fileSizeBytes: Number(fileStat.size),
+    extractedFiles,
   }
 }
