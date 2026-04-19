@@ -28,7 +28,7 @@ type ProfileTabsProps = {
 
 // Which tabs are relevant per entity type — only show these + any with data > 0
 const TABS_BY_TYPE: Record<string, TabKey[]> = {
-  politician: ['donations', 'votes', 'lobbying', 'spending', 'travel', 'hospitality', 'appointments', 'connections'],
+  politician: ['donations', 'votes', 'lobbying', 'travel', 'hospitality', 'appointments', 'connections'],
   company: ['contracts', 'grants', 'donations', 'lobbying', 'aid', 'connections'],
   organization: ['contracts', 'grants', 'donations', 'lobbying', 'aid', 'connections'],
   department: ['contracts', 'grants', 'lobbying', 'connections'],

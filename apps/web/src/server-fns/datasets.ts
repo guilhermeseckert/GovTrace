@@ -30,19 +30,12 @@ export const getDonations = createServerFn({ method: 'GET' })
     const isPolitician = entity[0]?.entityType === 'politician'
     const entityName = entity[0]?.canonicalName ?? ''
 
-    // For politicians: use materialized view for fast count, raw table for paginated rows
-    // Raw table query uses the idx_donations_recipient_name index with LIMIT
-    const whereClause = isPolitician
-      ? eq(donations.recipientName, entityName)
+    // For politicians: show both donations received (by recipient_name) AND donations made (by entity_id)
+    const whereClause = isPolitician && entityName
+      ? or(eq(donations.recipientName, entityName), eq(donations.entityId, data.entityId))
       : eq(donations.entityId, data.entityId)
 
-    // Fast count from materialized view for politicians (avoids 23s seq scan)
-    const totalCountPromise = isPolitician
-      ? db.execute<{ c: string }>(sql`
-          SELECT SUM(donation_count)::text AS c FROM mv_donation_summaries
-          WHERE recipient_name = ${entityName}
-        `).then(r => Number(Array.from(r)[0]?.c ?? 0))
-      : db.select({ c: count() }).from(donations).where(whereClause)
+    const totalCountPromise = db.select({ c: count() }).from(donations).where(whereClause!)
           .then(r => Number(r[0]?.c ?? 0))
 
     const [rows, totalCount] = await Promise.all([
