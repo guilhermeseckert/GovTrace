@@ -186,8 +186,13 @@ export const getEntityStats = createServerFn({ method: 'GET' })
       .from(entities).where(eq(entities.id, data.id)).limit(1)
 
     const isPolitician = entity[0]?.entityType === 'politician'
-    const donWhere = isPolitician && entity[0]?.canonicalName
-      ? eq(donations.recipientName, entity[0].canonicalName)
+    const canonicalName = entity[0]?.canonicalName ?? ''
+    // For politicians: check both "First Last" and "Last, First" formats in recipient_name
+    const donWhere = isPolitician && canonicalName
+      ? or(
+          eq(donations.recipientName, canonicalName),
+          eq(donations.entityId, data.id),
+        )
       : eq(donations.entityId, data.id)
 
     const [donCount, conCount, grCount, lobCount, connCount, summaryRows, aidCount, voteCount, apptCount, travelCount, hospitalityCount] = await Promise.all([

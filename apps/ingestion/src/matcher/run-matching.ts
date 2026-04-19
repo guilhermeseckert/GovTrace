@@ -29,6 +29,8 @@ const SOURCE_CONFIGS: SourceConfig[] = [
 	{ table: 'lobby_communications', nameField: 'lobbyist_name', normalizedField: 'normalized_lobbyist_name', entityIdField: 'lobbyist_entity_id' },
 	{ table: 'lobby_communications', nameField: 'public_official_name', normalizedField: 'normalized_official_name', entityIdField: 'official_entity_id' },
 	{ table: 'international_aid', nameField: 'implementer_name', normalizedField: 'normalized_implementer_name', entityIdField: 'entity_id' },
+	{ table: 'travel_disclosures', nameField: 'name', normalizedField: 'normalized_name', entityIdField: 'entity_id' },
+	{ table: 'hospitality_disclosures', nameField: 'name', normalizedField: 'normalized_name', entityIdField: 'entity_id' },
 ]
 
 const BATCH_SIZE = 1000
