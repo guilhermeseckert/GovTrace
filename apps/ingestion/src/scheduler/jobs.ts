@@ -157,7 +157,7 @@ export async function registerIngestionJobs(databaseUrl: string): Promise<void> 
     try {
       // Phase 1: Fast sources (parallel — independent of each other)
       log('Phase 1: Fast sources...')
-      await Promise.all([
+      await Promise.allSettled([
         (async () => { const { runPressReleasesIngestion } = await import('../runners/press-releases.ts'); await runPressReleasesIngestion() })(),
         (async () => { const { runFiscalIngestion } = await import('../runners/ingest-fiscal.ts'); await runFiscalIngestion() })(),
         (async () => { const { runGicAppointmentsIngestion } = await import('../runners/gic-appointments.ts'); await runGicAppointmentsIngestion() })(),
@@ -168,7 +168,7 @@ export async function registerIngestionJobs(databaseUrl: string): Promise<void> 
 
       // Phase 2: Medium sources (parallel)
       log('Phase 2: Elections + lobbying...')
-      await Promise.all([
+      await Promise.allSettled([
         (async () => { const { runElectionsCanadaIngestion } = await import('../runners/elections-canada.ts'); await runElectionsCanadaIngestion() })(),
         (async () => { const { runLobbyRegistrationsIngestion } = await import('../runners/lobby-registrations.ts'); await runLobbyRegistrationsIngestion() })(),
         (async () => { const { runLobbyCommunicationsIngestion } = await import('../runners/lobby-communications.ts'); await runLobbyCommunicationsIngestion() })(),
@@ -177,7 +177,7 @@ export async function registerIngestionJobs(databaseUrl: string): Promise<void> 
 
       // Phase 3: Heavy CSV sources (parallel)
       log('Phase 3: Contracts, grants, travel, hospitality...')
-      await Promise.all([
+      await Promise.allSettled([
         (async () => { const { runContractsIngestion } = await import('../runners/contracts.ts'); await runContractsIngestion() })(),
         (async () => { const { runGrantsIngestion } = await import('../runners/grants.ts'); await runGrantsIngestion() })(),
         (async () => { const { runTravelIngestion } = await import('../runners/travel.ts'); await runTravelIngestion() })(),
@@ -187,40 +187,30 @@ export async function registerIngestionJobs(databaseUrl: string): Promise<void> 
 
       // Phase 4: Scraped sources (sequential — polite delays, don't hammer government sites)
       log('Phase 4: Parliament, senate, international aid...')
-      const { runParliamentIngestion } = await import('../runners/parliament.ts')
-      await runParliamentIngestion()
-      const { runSenateIngestion } = await import('../runners/senate.ts')
-      await runSenateIngestion()
-      const { runInternationalAidIngestion } = await import('../runners/international-aid.ts')
-      await runInternationalAidIngestion()
+      try { const { runParliamentIngestion } = await import('../runners/parliament.ts'); await runParliamentIngestion() } catch (e) { log(`  parliament failed: ${e instanceof Error ? e.message : e}`) }
+      try { const { runSenateIngestion } = await import('../runners/senate.ts'); await runSenateIngestion() } catch (e) { log(`  senate failed: ${e instanceof Error ? e.message : e}`) }
+      try { const { runInternationalAidIngestion } = await import('../runners/international-aid.ts'); await runInternationalAidIngestion() } catch (e) { log(`  international-aid failed: ${e instanceof Error ? e.message : e}`) }
       log('Phase 4 done.')
 
       // Phase 5: Entity linking (strict sequence — each depends on previous)
       log('Phase 5: Match entities...')
-      const { runMatchingPipeline } = await import('../matcher/run-matching.ts')
-      await runMatchingPipeline()
+      try { const { runMatchingPipeline } = await import('../matcher/run-matching.ts'); await runMatchingPipeline() } catch (e) { log(`  match failed: ${e instanceof Error ? e.message : e}`) }
       log('Phase 5 done.')
 
       log('Phase 6: Merge entities...')
-      const { runCrossDatasetMerge } = await import('../matcher/cross-dataset-merge.ts')
-      await runCrossDatasetMerge()
+      try { const { runCrossDatasetMerge } = await import('../matcher/cross-dataset-merge.ts'); await runCrossDatasetMerge() } catch (e) { log(`  merge failed: ${e instanceof Error ? e.message : e}`) }
       log('Phase 6 done.')
 
       log('Phase 7: Build connections...')
-      const { buildEntityConnections } = await import('../graph/build-connections.ts')
-      await buildEntityConnections()
+      try { const { buildEntityConnections } = await import('../graph/build-connections.ts'); await buildEntityConnections() } catch (e) { log(`  connections failed: ${e instanceof Error ? e.message : e}`) }
       log('Phase 7 done.')
 
-      // Phase 8: Detect patterns
       log('Phase 8: Detect patterns...')
-      const { runPatternDetection } = await import('../runners/detect-patterns.ts')
-      await runPatternDetection()
+      try { const { runPatternDetection } = await import('../runners/detect-patterns.ts'); await runPatternDetection() } catch (e) { log(`  patterns failed: ${e instanceof Error ? e.message : e}`) }
       log('Phase 8 done.')
 
-      // Phase 9: Mark AI summaries stale
       log('Phase 9: Mark summaries stale...')
-      const db = getDb()
-      await db.update(aiSummaries).set({ isStale: true })
+      try { const db = getDb(); await db.update(aiSummaries).set({ isStale: true }) } catch (e) { log(`  stale failed: ${e instanceof Error ? e.message : e}`) }
       log('Phase 9 done.')
 
       const elapsed = Math.round((Date.now() - start) / 1000 / 60)
