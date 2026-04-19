@@ -16,6 +16,7 @@ import { WhereMoneyGoes } from '@/components/dashboard/WhereMoneyGoes'
 import { WhoGetsTheMost } from '@/components/dashboard/WhoGetsTheMost'
 import { DeepDive } from '@/components/dashboard/DeepDive'
 import { DataFreshness } from '@/components/dashboard/DataFreshness'
+import { Skeleton } from '@/components/ui/skeleton'
 
 export const Route = createFileRoute('/dashboard')({
   head: () => ({
@@ -75,13 +76,15 @@ function DashboardPage() {
         </p>
       </div>
 
-      {recentSpending && recentSpending.length > 0 && (
-        <RightNow data={recentSpending} />
+      {recentSpending ? (
+        recentSpending.length > 0 ? <RightNow data={recentSpending} /> : null
+      ) : (
+        <Skeleton className="h-48 rounded-xl" />
       )}
 
-      {heroStats && <BigPicture stats={heroStats} />}
+      {heroStats ? <BigPicture stats={heroStats} /> : <Skeleton className="h-40 rounded-xl" />}
 
-      {spendingByCategory && <WhereMoneyGoes data={spendingByCategory} />}
+      {spendingByCategory ? <WhereMoneyGoes data={spendingByCategory} /> : <Skeleton className="h-64 rounded-xl" />}
 
       <WhoGetsTheMost data={topRecipients} />
 
