@@ -22,7 +22,19 @@ export function normalizeName(input: string): string {
   // Step 3: strip legal suffixes (also handles parentheticals and "The")
   name = stripLegalSuffixes(name)
 
-  // Step 4: collapse multiple whitespace and punctuation
+  // Step 4: flip "Last, First" → "First Last" for person names
+  // Only flip if: single comma, both parts are short (person-like), no company indicators
+  const commaIdx = name.indexOf(',')
+  if (commaIdx > 0 && name.indexOf(',', commaIdx + 1) === -1) {
+    const before = name.slice(0, commaIdx).trim()
+    const after = name.slice(commaIdx + 1).trim()
+    const isCompany = /\b(inc|ltd|corp|llc|association|council|commission|foundation|institute|university|college|government|department|canada)\b/.test(name)
+    if (!isCompany && before.length > 0 && after.length > 0 && before.split(' ').length <= 3 && after.split(' ').length <= 4) {
+      name = `${after} ${before}`
+    }
+  }
+
+  // Step 5: collapse multiple whitespace and punctuation
   name = name.replace(/[,._-]+/g, ' ').replace(/\s+/g, ' ').trim()
 
   return name
