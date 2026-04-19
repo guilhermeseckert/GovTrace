@@ -6,7 +6,6 @@ import { EntityHeader } from '@/components/entity/EntityHeader'
 import { AISummary } from '@/components/entity/AISummary'
 import { ProfileTabs } from '@/components/entity/ProfileTabs'
 import { FlagModal } from '@/components/entity/FlagModal'
-import { ConnectionCards } from '@/components/entity/ConnectionCards'
 import { PatternCallouts } from '@/components/entity/PatternCallouts'
 import { DonationsTable } from '@/components/tables/DonationsTable'
 import { ContractsTable } from '@/components/tables/ContractsTable'
@@ -132,10 +131,7 @@ function EntityProfilePage() {
         {/* Pattern callouts — "Did you know?" cards (STORY-03) */}
         <PatternCallouts entityId={profile.id} />
 
-        {/* Plain English connection cards (STORY-02) */}
-        <ConnectionCards entityId={profile.id} />
-
-        {/* Data tables and visualizations — always visible */}
+        {/* Data tables — connection cards moved into Connections tab */}
         <ProfileTabs
           counts={stats}
           entityId={profile.id}
