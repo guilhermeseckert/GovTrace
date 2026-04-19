@@ -3,11 +3,11 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: International Money Tracking
 status: verifying
-stopped_at: Completed quick/260406-nuq-government-press-releases-scrape-canada-
-last_updated: "2026-04-06T23:34:12.636Z"
+stopped_at: Completed quick/260419-05p-lobby-data-enrichment-scrape-lobbycanada
+last_updated: "2026-04-19T06:23:16.719Z"
 last_activity: "2026-04-06 - Completed quick task 260405-tck: International Aid Country & Theme Breakdown"
 progress:
-  total_phases: 21
+  total_phases: 26
   completed_phases: 3
   total_plans: 6
   completed_plans: 6
@@ -190,9 +190,10 @@ None yet.
 | 260405-wym | Travel and Hospitality Disclosures Ingestion | 2026-04-06 | 82602aa | [260405-wym-travel-and-hospitality-disclosures-inges](./quick/260405-wym-travel-and-hospitality-disclosures-inges/) |
 | 260406-079 | Senate Votes and Attendance Ingestion | 2026-04-06 | 075bc3c | [260406-079-senate-votes-and-attendance-ingest-senat](./quick/260406-079-senate-votes-and-attendance-ingest-senat/) |
 | 260406-15u | Public Accounts Expenditures Ingestion + Dashboard | 2026-04-06 | b49c7a2 | [260406-15u-public-accounts-of-canada-ingest-detaile](./quick/260406-15u-public-accounts-of-canada-ingest-detaile/) |
+| 260419-05p | Lobby Data Enrichment from Secondary CSVs | 2026-04-19 | 3bb78a3 | [260419-05p-lobby-data-enrichment-scrape-lobbycanada](./quick/260419-05p-lobby-data-enrichment-scrape-lobbycanada/) |
 
 ## Session Continuity
 
-Last session: 2026-04-06T23:34:08.287Z
-Stopped at: Completed quick/260406-nuq-government-press-releases-scrape-canada-
+Last session: 2026-04-19T06:23:16.715Z
+Stopped at: Completed quick/260419-05p-lobby-data-enrichment-scrape-lobbycanada
 Resume file: None
