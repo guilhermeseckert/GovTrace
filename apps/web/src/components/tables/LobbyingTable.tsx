@@ -64,19 +64,13 @@ const columns: ColumnDef<LobbyRow>[] = [
     ),
   },
   {
-    accessorKey: 'subjectMatter',
-    header: 'Subject Matter',
-    cell: ({ row }) =>
-      row.original.subjectMatter ? (
-        <span
-          className="max-w-[220px] truncate text-sm"
-          title={row.original.subjectMatter}
-        >
-          {row.original.subjectMatter}
-        </span>
-      ) : (
-        <span className="text-muted-foreground">&mdash;</span>
-      ),
+    accessorKey: 'type',
+    header: 'Type',
+    cell: ({ row }) => (
+      <span className="text-xs text-muted-foreground">
+        {row.original.type === 'registration' ? 'Registration' : 'Communication'}
+      </span>
+    ),
   },
   {
     accessorKey: 'date',
@@ -100,29 +94,22 @@ const columns: ColumnDef<LobbyRow>[] = [
       ),
   },
   {
+    accessorKey: 'subjectMatter',
+    header: 'Subject Matter',
+    cell: ({ row }) =>
+      row.original.subjectMatter ? (
+        <span className="max-w-[220px] truncate text-sm" title={row.original.subjectMatter}>
+          {row.original.subjectMatter}
+        </span>
+      ) : null,
+  },
+  {
     accessorKey: 'officialName',
     header: 'Official',
     cell: ({ row }) =>
-      row.original.officialName ? (
+      row.original.officialName && row.original.officialName !== 'Unknown' ? (
         <span className="text-sm">{row.original.officialName}</span>
-      ) : (
-        <span className="text-muted-foreground">&mdash;</span>
-      ),
-  },
-  {
-    accessorKey: 'department',
-    header: 'Department',
-    cell: ({ row }) =>
-      row.original.department ? (
-        <span
-          className="max-w-[160px] truncate text-sm"
-          title={row.original.department}
-        >
-          {row.original.department}
-        </span>
-      ) : (
-        <span className="text-muted-foreground">&mdash;</span>
-      ),
+      ) : null,
   },
   {
     id: 'source',
@@ -239,10 +226,9 @@ export function LobbyingTable({ entityId }: LobbyingTableProps) {
   const lobbyCsvColumns = [
     { key: 'type', header: 'Record Type' },
     { key: 'registrantName', header: 'Registrant Name' },
-    { key: 'subjectMatter', header: 'Subject Matter' },
     { key: 'date', header: 'Date' },
+    { key: 'subjectMatter', header: 'Subject Matter' },
     { key: 'officialName', header: 'Public Official' },
-    { key: 'department', header: 'Department' },
   ]
 
   return (
