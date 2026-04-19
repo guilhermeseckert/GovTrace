@@ -1,3 +1,4 @@
+import { getDepartmentName } from '@/lib/department-codes'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import {
@@ -129,8 +130,8 @@ const columns: ColumnDef<TravelRow>[] = [
     accessorKey: 'department',
     header: 'Department',
     cell: ({ row }) => (
-      <span className="text-sm max-w-[160px] truncate block" title={row.original.department}>
-        {row.original.department}
+      <span className="text-sm max-w-[160px] truncate block" title={getDepartmentName(row.original.department)}>
+        {getDepartmentName(row.original.department)}
       </span>
     ),
   },

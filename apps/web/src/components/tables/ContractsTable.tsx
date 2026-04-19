@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { getDepartmentName } from '@/lib/department-codes'
 import { useQuery } from '@tanstack/react-query'
 import {
   type ColumnDef,
@@ -127,7 +128,7 @@ const columns: ColumnDef<ContractRow>[] = [
     header: 'Department',
     cell: ({ row }) => (
       <span className="max-w-[200px] truncate text-sm">
-        {row.original.department}
+        {getDepartmentName(row.original.department)}
       </span>
     ),
   },

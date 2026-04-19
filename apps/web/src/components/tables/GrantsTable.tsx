@@ -1,3 +1,4 @@
+import { getDepartmentName } from '@/lib/department-codes'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import {
@@ -120,7 +121,7 @@ const columns: ColumnDef<GrantRow>[] = [
     header: 'Department',
     cell: ({ row }) => (
       <span className="max-w-[180px] truncate text-sm">
-        {row.original.department}
+        {getDepartmentName(row.original.department)}
       </span>
     ),
   },
@@ -320,7 +321,7 @@ export function GrantsTable({ entityId }: GrantsTableProps) {
               </span>
             </div>
             <div className="text-muted-foreground">
-              {row.department}
+              {getDepartmentName(row.department)}
               {row.agreementDate && (
                 <> &middot; {String(row.agreementDate).slice(0, 10)}</>
               )}

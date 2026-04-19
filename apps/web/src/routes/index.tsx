@@ -6,6 +6,7 @@ import { getPlatformStats } from '@/server-fns/stats'
 import { getLandingData } from '@/server-fns/landing'
 import { getDebtHeroStats } from '@/server-fns/dashboard'
 import { HeroSearch } from '@/components/landing/HeroSearch'
+import { getDepartmentName } from '@/lib/department-codes'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { RecentActivity, TopRecipient } from '@/server-fns/landing'
 import type { DebtHeroStats } from '@/server-fns/dashboard'
@@ -38,7 +39,7 @@ function ActivityRow({ item }: { item: RecentActivity }) {
       <div className="flex-1 min-w-0">
         <div className="truncate text-sm font-medium group-hover:text-primary group-hover:underline">{item.entityName}</div>
         {item.department && (
-          <div className="truncate text-xs text-muted-foreground">{item.department}</div>
+          <div className="truncate text-xs text-muted-foreground">{getDepartmentName(item.department ?? '')}</div>
         )}
       </div>
       {item.amount && (
