@@ -2,6 +2,7 @@ import { Flag, Building2, User, Landmark } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ConfidenceBadge } from '@/components/entity/ConfidenceBadge'
 import type { EntityProfile } from '@/server-fns/entity'
+import { getDepartmentName } from '@/lib/department-codes'
 import { en } from '@/i18n/en'
 
 type EntityHeaderProps = {
@@ -20,6 +21,9 @@ const typeIcons: Record<string, typeof User> = {
 export function EntityHeader({ entity, onFlagClick }: EntityHeaderProps) {
   const bestAlias = entity.bestAlias
   const Icon = typeIcons[entity.entityType] ?? User
+  const displayName = entity.entityType === 'department'
+    ? getDepartmentName(entity.canonicalName)
+    : entity.canonicalName
 
   return (
     <header className="relative overflow-hidden border-b bg-primary text-primary-foreground">
@@ -48,7 +52,7 @@ export function EntityHeader({ entity, onFlagClick }: EntityHeaderProps) {
 
             {/* Name */}
             <h1 className="font-serif text-3xl leading-tight sm:text-4xl">
-              {entity.canonicalName}
+              {displayName}
             </h1>
           </div>
 
