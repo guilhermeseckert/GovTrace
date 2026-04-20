@@ -119,11 +119,39 @@ export const mpProfiles = pgTable('mp_profiles', {
   normalizedName: text('normalized_name'),
   matchMethod: text('match_method'), // 'deterministic', 'fuzzy', 'ai_verified', 'new_entity'
   matchConfidence: real('match_confidence'),
+  // Summary fields computed from mp_tenures at Phase C.5 end
+  parliamentsServed: integer('parliaments_served').notNull().default(0),
+  firstElectedDate: date('first_elected_date'),
+  lastServiceEndDate: date('last_service_end_date'), // NULL if currently sitting
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
   index('mp_profiles_entity_id_idx').on(t.entityId),
   index('mp_profiles_normalized_name_idx').on(t.normalizedName),
+])
+
+// MP tenures — one row per (personId, parliamentNumber) capturing riding, party,
+// and dates for that parliament. Populated from per-parliament ourcommons XML.
+// Enables "Liberal MP for Papineau 2008–2025" storytelling and queries like
+// "everyone who served in the 40th parliament" without scraping elsewhere.
+export const mpTenures = pgTable('mp_tenures', {
+  personId: integer('person_id')
+    .notNull()
+    .references(() => mpProfiles.personId, { onDelete: 'cascade' }),
+  parliamentNumber: integer('parliament_number').notNull(),
+  partyShortName: text('party_short_name'), // "Liberal", "Conservative", "NDP", "Bloc Québécois", "Independent", null
+  ridingName: text('riding_name'), // "Papineau"
+  ridingProvince: text('riding_province'), // "Québec" (full name as emitted by XML)
+  startDate: date('start_date'), // FromDateTime (may be null if XML field missing)
+  endDate: date('end_date'), // ToDateTime — null if currently sitting
+  isCurrent: boolean('is_current').notNull().default(false), // true if endDate is null AND parliamentNumber = max
+  ingestedAt: timestamp('ingested_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  uniqueIndex('mp_tenures_person_parliament_idx').on(t.personId, t.parliamentNumber),
+  index('mp_tenures_parliament_idx').on(t.parliamentNumber),
+  index('mp_tenures_party_idx').on(t.partyShortName),
+  index('mp_tenures_is_current_idx').on(t.isCurrent),
 ])
 
 // Senator profiles — senatorId anchor for entity matching
