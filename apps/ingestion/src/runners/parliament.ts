@@ -8,24 +8,24 @@
  *   D — Individual MP ballots (one request per division, 6,000–8,000 total with 100ms delay)
  *   E — Bill AI summaries via Claude Haiku (PARL-05)
  */
-import { sql, eq, isNull } from 'drizzle-orm'
+import { sql, eq } from 'drizzle-orm'
 import Anthropic from '@anthropic-ai/sdk'
 import { XMLParser } from 'fast-xml-parser'
 import { getDb } from '@govtrace/db/client'
 import { ingestionRuns } from '@govtrace/db/schema/jobs'
-import { entities } from '@govtrace/db/schema/entities'
 import {
   parliamentBills,
   parliamentVotes,
-  parliamentVoteBallots,
   mpProfiles,
+  mpTenures,
   billSummaries,
 } from '@govtrace/db/schema/parliament'
 import {
   PARLIAMENT_SESSIONS,
+  HISTORIC_PARLIAMENTS,
   fetchVotesXml,
   fetchBallotsXml,
-  fetchMembersXml,
+  fetchMembersByParliamentXml,
   fetchBillsJson,
 } from '../downloaders/parliament.ts'
 import { parseVotesXml } from '../parsers/parliament-votes.ts'
@@ -57,6 +57,19 @@ interface MpRecord {
   constituency: string | null
   province: string | null
   caucusShortName: string | null
+  fromDateTime: string | null // "2006-01-23T00:00:00" or null
+  toDateTime: string | null // "2008-10-13T23:59:59" or null (null while sitting)
+}
+
+/**
+ * Extracts a trimmed non-empty string from an XML field value, handling both
+ * plain strings and fast-xml-parser's nil-object representation for
+ * `<ToDateTime xsi:nil="true" />` self-closing elements.
+ */
+function asDateString(v: unknown): string | null {
+  if (typeof v === 'string' && v.trim().length > 0) return v.trim()
+  // fast-xml-parser returns { '@_xsi:nil': 'true' } for self-closing nil element
+  return null
 }
 
 function parseMembersXml(xml: string): MpRecord[] {
@@ -86,6 +99,8 @@ function parseMembersXml(xml: string): MpRecord[] {
       constituency: String(member['ConstituencyName'] ?? '').trim() || null,
       province: String(member['ConstituencyProvinceTerritoryName'] ?? '').trim() || null,
       caucusShortName: String(member['CaucusShortName'] ?? '').trim() || null,
+      fromDateTime: asDateString(member['FromDateTime']),
+      toDateTime: asDateString(member['ToDateTime']),
     }
   })
 }
@@ -252,66 +267,173 @@ export async function runParliamentIngestion(): Promise<void> {
     console.log(`Phase B complete: ${stats.votesIngested} votes`)
 
     // =========================================================
-    // Phase C: MP entity matching via PersonId-anchored mp_profiles
-    // Note: parliamentary MP matching uses PersonId-anchored mp_profiles instead
-    // of the generic SOURCE_CONFIGS pipeline in run-matching.ts. PersonId is the
-    // stable ground truth per person across sessions (Pitfall 3 — same name ≠ same MP).
+    // Phase C: MP entity matching across parliaments 36–45
+    // Fetches per-parliament member XML so tenure data (riding, party, dates)
+    // is captured correctly. Research probe 2026-04-19: parliament=all returns
+    // only each MP's latest tenure — per-parliament endpoints give full history.
     // =========================================================
-    console.log('\n=== Phase C: MP entity matching ===')
-    for (const session of PARLIAMENT_SESSIONS) {
+    console.log('\n=== Phase C: MP entity matching (all parliaments) ===')
+
+    // Collect tenures per personId so Phase C.5 can compute summary fields.
+    // Map<personId, Array<{ parliament, party, riding, province, startDate, endDate }>>
+    interface TenureRecord {
+      parliament: number
+      party: string | null
+      riding: string | null
+      province: string | null
+      startDate: string | null
+      endDate: string | null
+    }
+    const tenuresByPerson = new Map<number, TenureRecord[]>()
+
+    for (const parliament of HISTORIC_PARLIAMENTS) {
       try {
-        console.log(`  Fetching members for ${session.code}...`)
-        const xml = await fetchMembersXml(session.parliament, session.session)
+        console.log(`  Fetching members for parliament ${parliament}...`)
+        const xml = await fetchMembersByParliamentXml(parliament)
         const members = parseMembersXml(xml)
+        console.log(`    ${members.length} MPs in parliament ${parliament}`)
 
         for (const mp of members) {
           if (mp.personId === 0) continue
 
-          // Check mp_profiles cache — if already matched, skip
+          // Upsert mp_profiles if new (PersonId is stable across parliaments)
           const existing = await db
-            .select({ personId: mpProfiles.personId, entityId: mpProfiles.entityId })
+            .select({ personId: mpProfiles.personId })
             .from(mpProfiles)
             .where(eq(mpProfiles.personId, mp.personId))
             .limit(1)
 
-          if (existing.length > 0) continue // Already matched from a previous session
+          if (existing.length === 0) {
+            const { entityId, matchMethod, matchConfidence } = await matchMpToEntity(mp)
+            const normalizedFullName = normalizeName(`${mp.firstName} ${mp.lastName}`)
+            await db
+              .insert(mpProfiles)
+              .values({
+                personId: mp.personId,
+                entityId,
+                canonicalFirstName: mp.firstName,
+                canonicalLastName: mp.lastName,
+                normalizedName: normalizedFullName,
+                matchMethod,
+                matchConfidence,
+              })
+              .onConflictDoUpdate({
+                target: mpProfiles.personId,
+                set: {
+                  entityId: sql`COALESCE(${mpProfiles.entityId}, excluded.entity_id)`,
+                  matchMethod: sql`excluded.match_method`,
+                  matchConfidence: sql`excluded.match_confidence`,
+                  updatedAt: sql`NOW()`,
+                },
+              })
+            stats.mpsMatched++
+          }
 
-          // Run matching pipeline
-          const { entityId, matchMethod, matchConfidence } = await matchMpToEntity(mp)
-
-          // Upsert mp_profiles with PersonId as stable key
-          const normalizedFullName = normalizeName(`${mp.firstName} ${mp.lastName}`)
-          await db
-            .insert(mpProfiles)
-            .values({
-              personId: mp.personId,
-              entityId,
-              canonicalFirstName: mp.firstName,
-              canonicalLastName: mp.lastName,
-              normalizedName: normalizedFullName,
-              matchMethod,
-              matchConfidence,
-            })
-            .onConflictDoUpdate({
-              target: mpProfiles.personId,
-              set: {
-                entityId: sql`COALESCE(${mpProfiles.entityId}, excluded.entity_id)`,
-                matchMethod: sql`excluded.match_method`,
-                matchConfidence: sql`excluded.match_confidence`,
-                updatedAt: sql`NOW()`,
-              },
-            })
-
-          stats.mpsMatched++
+          // Collect tenure regardless of whether profile was new or existing
+          const list = tenuresByPerson.get(mp.personId) ?? []
+          list.push({
+            parliament,
+            party: mp.caucusShortName,
+            riding: mp.constituency,
+            province: mp.province,
+            startDate: mp.fromDateTime ? mp.fromDateTime.slice(0, 10) : null, // ISO date only
+            endDate: mp.toDateTime ? mp.toDateTime.slice(0, 10) : null,
+          })
+          tenuresByPerson.set(mp.personId, list)
         }
 
-        console.log(`    Matched ${members.length} MPs for ${session.code}`)
+        // Polite 500ms delay between parliament fetches — avoid hammering ourcommons.ca
+        await sleep(500)
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err)
-        console.warn(`  Skipping member matching for ${session.code}: ${msg}`)
+        console.warn(`  Skipping parliament ${parliament}: ${msg}`)
       }
     }
-    console.log(`Phase C complete: ${stats.mpsMatched} MPs matched/upserted`)
+    console.log(`Phase C complete: ${stats.mpsMatched} new MPs matched`)
+
+    // =========================================================
+    // Phase C.5: Populate mp_tenures + mp_profiles summary fields
+    // =========================================================
+    console.log('\n=== Phase C.5: MP tenures + profile summaries ===')
+
+    const maxParliamentOverall = Math.max(...HISTORIC_PARLIAMENTS)
+    let tenureRowsWritten = 0
+
+    for (const [personId, tenures] of tenuresByPerson) {
+      // Sort by parliament ascending to compute first/last
+      tenures.sort((a, b) => a.parliament - b.parliament)
+
+      for (const t of tenures) {
+        const isCurrent = t.endDate === null && t.parliament === maxParliamentOverall
+        await db
+          .insert(mpTenures)
+          .values({
+            personId,
+            parliamentNumber: t.parliament,
+            partyShortName: t.party,
+            ridingName: t.riding,
+            ridingProvince: t.province,
+            startDate: t.startDate,
+            endDate: t.endDate,
+            isCurrent,
+          })
+          .onConflictDoUpdate({
+            target: [mpTenures.personId, mpTenures.parliamentNumber],
+            set: {
+              partyShortName: sql`excluded.party_short_name`,
+              ridingName: sql`excluded.riding_name`,
+              ridingProvince: sql`excluded.riding_province`,
+              startDate: sql`excluded.start_date`,
+              endDate: sql`excluded.end_date`,
+              isCurrent: sql`excluded.is_current`,
+              updatedAt: sql`NOW()`,
+            },
+          })
+        tenureRowsWritten++
+      }
+
+      // Compute summary fields
+      const parliamentsServed = tenures.length
+      const firstElectedDate = tenures.find((x) => x.startDate !== null)?.startDate ?? null
+      // last end date: null if any tenure is open-ended (currently sitting)
+      const hasOpenTenure = tenures.some((x) => x.endDate === null)
+      const lastServiceEndDate = hasOpenTenure
+        ? null
+        : tenures.reduce<string | null>(
+            (acc, x) => (x.endDate && (!acc || x.endDate > acc) ? x.endDate : acc),
+            null,
+          )
+
+      await db
+        .update(mpProfiles)
+        .set({
+          parliamentsServed,
+          firstElectedDate,
+          lastServiceEndDate,
+          updatedAt: sql`NOW()`,
+        })
+        .where(eq(mpProfiles.personId, personId))
+    }
+    console.log(
+      `Phase C.5 complete: ${tenureRowsWritten} tenure rows across ${tenuresByPerson.size} MPs`,
+    )
+
+    // =========================================================
+    // Phase C.6: Backfill orphaned parliament_vote_ballots.entity_id
+    // Uses the person_id index — runs in seconds on 725K rows.
+    // Only touches rows where entity_id IS NULL — never overwrites matched ballots.
+    // =========================================================
+    console.log('\n=== Phase C.6: Backfill orphaned ballot entity_ids ===')
+    const backfillResult = await db.execute(sql`
+      UPDATE parliament_vote_ballots AS b
+      SET entity_id = p.entity_id
+      FROM mp_profiles AS p
+      WHERE b.person_id = p.person_id
+        AND b.entity_id IS NULL
+        AND p.entity_id IS NOT NULL
+    `)
+    const backfilledCount = (backfillResult as unknown as { count?: number }).count ?? 0
+    console.log(`  Backfilled ${backfilledCount} ballots`)
 
     // =========================================================
     // Phase D: Individual MP ballots (resumable)

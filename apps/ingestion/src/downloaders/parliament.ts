@@ -115,3 +115,31 @@ export async function fetchBillsJson(parliament: number, session: number): Promi
   }
   return response.text()
 }
+
+/**
+ * All parliaments for which ourcommons.ca emits member records.
+ * Empirically verified 2026-04-19: parliament=35 and earlier return empty.
+ * Parliament 36 is the lower bound (1997–present).
+ */
+export const HISTORIC_PARLIAMENTS = [36, 37, 38, 39, 40, 41, 42, 43, 44, 45] as const
+
+/**
+ * Fetches MPs who served in a specific parliament.
+ * Each MP appears once per parliament served, with that parliament's
+ * FromDateTime, ToDateTime, ConstituencyName, and CaucusShortName.
+ * Iterate HISTORIC_PARLIAMENTS to build full tenure history for every MP.
+ *
+ * @throws Error on non-200 HTTP responses
+ */
+export async function fetchMembersByParliamentXml(parliament: number): Promise<string> {
+  const url = `https://www.ourcommons.ca/Members/en/search/xml?parliament=${parliament}`
+  const response = await fetch(url, {
+    headers: { 'Accept': 'application/xml, text/xml, */*' },
+  })
+  if (!response.ok) {
+    throw new Error(
+      `fetchMembersByParliamentXml failed for parliament ${parliament}: HTTP ${response.status} ${response.statusText}`,
+    )
+  }
+  return response.text()
+}
