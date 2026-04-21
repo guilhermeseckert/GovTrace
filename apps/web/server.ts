@@ -43,6 +43,13 @@ const SECURITY_HEADERS: Record<string, string> = {
 const server = createServer(async (req, res) => {
   const url = new URL(req.url ?? '/', `http://localhost:${port}`)
 
+  // Health check — no DB, no SSR, no security headers needed (internal only)
+  if (req.method === 'GET' && url.pathname === '/health') {
+    res.writeHead(200, { 'Content-Type': 'application/json' })
+    res.end('{"ok":true}')
+    return
+  }
+
   // Serve static assets from Vite build output
   if (url.pathname.startsWith('/assets/') || url.pathname === '/favicon.ico') {
     const filePath = join(process.cwd(), 'dist/client', url.pathname)
