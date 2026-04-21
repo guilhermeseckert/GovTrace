@@ -11,7 +11,42 @@ import { Skeleton } from '@/components/ui/skeleton'
 import type { RecentActivity, TopRecipient } from '@/server-fns/landing'
 import type { DebtHeroStats } from '@/server-fns/dashboard'
 
+const FIVE_MINUTES = 1000 * 60 * 5
+const ONE_HOUR = 1000 * 60 * 60
+
 export const Route = createFileRoute('/')({
+  loader: async ({ context }) => {
+    const { queryClient } = context
+    await Promise.all([
+      queryClient
+        .ensureQueryData({
+          queryKey: ['platform-stats'],
+          queryFn: () => getPlatformStats(),
+          staleTime: FIVE_MINUTES,
+        })
+        .catch((err: unknown) => {
+          console.error('[home-loader] platform-stats prefetch failed', err)
+        }),
+      queryClient
+        .ensureQueryData({
+          queryKey: ['landing-data'],
+          queryFn: () => getLandingData(),
+          staleTime: FIVE_MINUTES,
+        })
+        .catch((err: unknown) => {
+          console.error('[home-loader] landing-data prefetch failed', err)
+        }),
+      queryClient
+        .ensureQueryData({
+          queryKey: ['debt-hero-stats'],
+          queryFn: () => getDebtHeroStats(),
+          staleTime: ONE_HOUR,
+        })
+        .catch((err: unknown) => {
+          console.error('[home-loader] debt-hero-stats prefetch failed', err)
+        }),
+    ])
+  },
   component: IndexPage,
 })
 

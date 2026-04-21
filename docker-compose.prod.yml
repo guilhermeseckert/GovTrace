@@ -49,7 +49,7 @@ services:
       govtrace-db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "-qO", "/dev/null", "--timeout=5", "http://localhost:3000/how-it-works"]
+      test: ["CMD", "wget", "-qO", "/dev/null", "--timeout=5", "http://localhost:3000/health"]
       interval: 30s
       timeout: 10s
       start_period: 60s
