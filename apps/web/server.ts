@@ -40,6 +40,18 @@ const SECURITY_HEADERS: Record<string, string> = {
   ].join('; '),
 }
 
+const PUBLIC_CACHEABLE_PATHS = new Set([
+  '/',
+  '/dashboard',
+  '/how-it-works',
+  '/about',
+  '/privacy',
+  '/news',
+  '/regulations',
+  '/patterns',
+])
+const PUBLIC_CACHE_CONTROL = 'public, s-maxage=60, stale-while-revalidate=600'
+
 const server = createServer(async (req, res) => {
   const url = new URL(req.url ?? '/', `http://localhost:${port}`)
 
@@ -78,7 +90,27 @@ const server = createServer(async (req, res) => {
     const response = await handler(request)
 
     const responseHeaders = Object.fromEntries(response.headers.entries())
-    res.writeHead(response.status, { ...SECURITY_HEADERS, ...responseHeaders })
+    const contentType = responseHeaders['content-type'] ?? ''
+    const existingCacheControl = responseHeaders['cache-control']
+
+    const shouldCache =
+      req.method === 'GET' &&
+      response.status === 200 &&
+      contentType.startsWith('text/html') &&
+      PUBLIC_CACHEABLE_PATHS.has(url.pathname) &&
+      !existingCacheControl
+    // Future: add `&& !req.headers.cookie` (or a more specific auth-cookie check)
+    // once auth ships. Single `if` extension point.
+
+    const finalHeaders: Record<string, string | number> = {
+      ...SECURITY_HEADERS,
+      ...responseHeaders,
+    }
+    if (shouldCache) {
+      finalHeaders['Cache-Control'] = PUBLIC_CACHE_CONTROL
+    }
+
+    res.writeHead(response.status, finalHeaders)
 
     if (response.body === null) {
       res.end()
