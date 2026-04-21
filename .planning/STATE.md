@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: International Money Tracking
 status: verifying
-stopped_at: Completed quick/260419-sxc-fix-entity-name-normalizer-strip-honorif
-last_updated: "2026-04-20T03:24:30.000Z"
-last_activity: "2026-04-20 - Completed quick task 260419-sxc: V3 entity normalizer (code only)"
+stopped_at: Completed quick/260421-2yo-rewrite-apps-web-server-ts-to-stream-ssr
+last_updated: "2026-04-21T08:08:01.032Z"
+last_activity: "2026-04-21 - Completed quick task 260421-2yo: Web perf + stability (streaming SSR, compiled runtime, /health, prefetch, Cache-Control, compression)"
 progress:
   total_phases: 26
   completed_phases: 3
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-03-31)
 Phase: 999.1
 Plan: Not started
 Status: Phase complete — ready for verification
-Last activity: 2026-04-20 - Completed quick task 260419-scw: Ingest historical MPs + tenure data (fixed 725K orphaned ballots)
+Last activity: 2026-04-21 - Completed quick task 260421-2yo: Web perf + stability (streaming SSR, compiled runtime, /health, prefetch, Cache-Control, compression)
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -194,9 +194,10 @@ None yet.
 | 260419-4kl | Add missing indexes to fix slow entity page loads (gateway timeouts) | 2026-04-19 | 682f22a | [260419-4kl-add-missing-indexes-to-fix-slow-entity-p](./quick/260419-4kl-add-missing-indexes-to-fix-slow-entity-p/) |
 | 260419-scw | Ingest historical MPs + tenure data (fixed 725K orphaned ballots) | 2026-04-20 | e74ea7f | [260419-scw-ingest-historical-mps-from-parlinfo-ourc](./quick/260419-scw-ingest-historical-mps-from-parlinfo-ourc/) |
 | 260419-sxc | V3 entity normalizer — strip honorifics + middle initials; idempotent re-normalize + dry-run + flagged merge scripts (code only; user deploys + runs) | 2026-04-20 | 8aead3e | [260419-sxc-fix-entity-name-normalizer-strip-honorif](./quick/260419-sxc-fix-entity-name-normalizer-strip-honorif/) |
+| 260421-2yo | Web performance + stability — streaming SSR, compiled server runtime, /health endpoint, SSR prefetch, Cache-Control, gzip/brotli | 2026-04-21 | 4e88277 | [260421-2yo-rewrite-apps-web-server-ts-to-stream-ssr](./quick/260421-2yo-rewrite-apps-web-server-ts-to-stream-ssr/) |
 
 ## Session Continuity
 
-Last session: 2026-04-20T03:24:30.000Z
-Stopped at: Completed quick/260419-sxc-fix-entity-name-normalizer-strip-honorif
+Last session: 2026-04-21T08:08:01.032Z
+Stopped at: Completed quick/260421-2yo-rewrite-apps-web-server-ts-to-stream-ssr
 Resume file: None
