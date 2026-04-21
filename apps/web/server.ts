@@ -1,6 +1,7 @@
 import { createServer } from 'node:http'
 import { createReadStream, existsSync, statSync } from 'node:fs'
 import { join, extname } from 'node:path'
+import { Readable } from 'node:stream'
 
 // Dynamic import to avoid bundling issues with TanStack Start's SSR output
 // This wraps the handler exported by TanStack Start (GitHub issue #5476)
@@ -60,19 +61,43 @@ const server = createServer(async (req, res) => {
   }
 
   // SSR handler for everything else
-  const response = await handler(new Request(url, {
-    method: req.method,
-    headers: Object.fromEntries(
-      Object.entries(req.headers).filter(([, v]) => v !== undefined).map(([k, v]) => [k, Array.isArray(v) ? v.join(', ') : v as string])
-    ),
-  }))
+  try {
+    const request = new Request(url, {
+      method: req.method,
+      headers: Object.fromEntries(
+        Object.entries(req.headers).filter(([, v]) => v !== undefined).map(([k, v]) => [k, Array.isArray(v) ? v.join(', ') : v as string])
+      ),
+    })
+    const response = await handler(request)
 
-  const responseHeaders = Object.fromEntries(response.headers.entries())
-  res.writeHead(response.status, { ...SECURITY_HEADERS, ...responseHeaders })
-  const body = await response.text()
-  res.end(body)
+    const responseHeaders = Object.fromEntries(response.headers.entries())
+    res.writeHead(response.status, { ...SECURITY_HEADERS, ...responseHeaders })
+
+    if (response.body === null) {
+      res.end()
+      return
+    }
+
+    Readable.fromWeb(response.body as import('node:stream/web').ReadableStream).pipe(res)
+  } catch (err: unknown) {
+    console.error('[ssr-handler]', err)
+    if (res.headersSent) {
+      res.end()
+      return
+    }
+    res.writeHead(500, { 'Content-Type': 'text/plain', ...SECURITY_HEADERS })
+    res.end('Internal Server Error')
+  }
 })
 
 server.listen(port, () => {
   console.log(`GovTrace web server running on port ${port}`)
+})
+
+process.on('unhandledRejection', (reason: unknown) => {
+  console.error('[unhandledRejection]', reason)
+})
+
+process.on('uncaughtException', (err: unknown) => {
+  console.error('[uncaughtException]', err)
 })
