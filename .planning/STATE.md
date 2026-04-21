@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: International Money Tracking
 status: verifying
-stopped_at: Completed quick/260419-05p-lobby-data-enrichment-scrape-lobbycanada
-last_updated: "2026-04-19T06:23:16.719Z"
-last_activity: "2026-04-06 - Completed quick task 260405-tck: International Aid Country & Theme Breakdown"
+stopped_at: Completed quick/260419-sxc-fix-entity-name-normalizer-strip-honorif
+last_updated: "2026-04-20T03:24:30.000Z"
+last_activity: "2026-04-20 - Completed quick task 260419-sxc: V3 entity normalizer (code only)"
 progress:
   total_phases: 26
   completed_phases: 3
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-03-31)
 Phase: 999.1
 Plan: Not started
 Status: Phase complete — ready for verification
-Last activity: 2026-04-06 - Completed quick task 260405-tck: International Aid Country & Theme Breakdown
+Last activity: 2026-04-20 - Completed quick task 260419-scw: Ingest historical MPs + tenure data (fixed 725K orphaned ballots)
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -191,9 +191,12 @@ None yet.
 | 260406-079 | Senate Votes and Attendance Ingestion | 2026-04-06 | 075bc3c | [260406-079-senate-votes-and-attendance-ingest-senat](./quick/260406-079-senate-votes-and-attendance-ingest-senat/) |
 | 260406-15u | Public Accounts Expenditures Ingestion + Dashboard | 2026-04-06 | b49c7a2 | [260406-15u-public-accounts-of-canada-ingest-detaile](./quick/260406-15u-public-accounts-of-canada-ingest-detaile/) |
 | 260419-05p | Lobby Data Enrichment from Secondary CSVs | 2026-04-19 | 3bb78a3 | [260419-05p-lobby-data-enrichment-scrape-lobbycanada](./quick/260419-05p-lobby-data-enrichment-scrape-lobbycanada/) |
+| 260419-4kl | Add missing indexes to fix slow entity page loads (gateway timeouts) | 2026-04-19 | 682f22a | [260419-4kl-add-missing-indexes-to-fix-slow-entity-p](./quick/260419-4kl-add-missing-indexes-to-fix-slow-entity-p/) |
+| 260419-scw | Ingest historical MPs + tenure data (fixed 725K orphaned ballots) | 2026-04-20 | e74ea7f | [260419-scw-ingest-historical-mps-from-parlinfo-ourc](./quick/260419-scw-ingest-historical-mps-from-parlinfo-ourc/) |
+| 260419-sxc | V3 entity normalizer — strip honorifics + middle initials; idempotent re-normalize + dry-run + flagged merge scripts (code only; user deploys + runs) | 2026-04-20 | 8aead3e | [260419-sxc-fix-entity-name-normalizer-strip-honorif](./quick/260419-sxc-fix-entity-name-normalizer-strip-honorif/) |
 
 ## Session Continuity
 
-Last session: 2026-04-19T06:23:16.715Z
-Stopped at: Completed quick/260419-05p-lobby-data-enrichment-scrape-lobbycanada
+Last session: 2026-04-20T03:24:30.000Z
+Stopped at: Completed quick/260419-sxc-fix-entity-name-normalizer-strip-honorif
 Resume file: None
