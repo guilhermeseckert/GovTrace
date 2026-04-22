@@ -1,5 +1,5 @@
 import type { EntityProfile } from '@/server-fns/entity'
-import type { EntityAggregates } from '@/server-fns/entity-aggregates'
+import type { EntityAggregates } from '@/server-fns/entity-aggregates-types'
 import { formatAmount } from '@/lib/connection-labels'
 
 type CategoryTotal = {

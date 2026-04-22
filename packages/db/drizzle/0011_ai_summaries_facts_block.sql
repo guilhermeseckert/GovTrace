@@ -1,0 +1,1 @@
+ALTER TABLE "ai_summaries" ADD COLUMN "facts_block" text;

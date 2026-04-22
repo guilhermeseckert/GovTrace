@@ -66,6 +66,10 @@ export const aiSummaries = pgTable('ai_summaries', {
   id: uuid('id').primaryKey().defaultRandom(),
   entityId: uuid('entity_id').notNull().references(() => entities.id, { onDelete: 'cascade' }),
   summaryText: text('summary_text').notNull(),
+  // Template-built plain-English fact sentence — computed from entity_aggregates.
+  // Nullable for rows predating this column; populated on first summary fetch.
+  // Safe to regenerate at any time (pure function of public aggregate data).
+  factsBlock: text('facts_block'),
   model: text('model').notNull(),
   generatedAt: timestamp('generated_at', { withTimezone: true }).notNull().defaultNow(),
   isStale: boolean('is_stale').notNull().default(false),

@@ -131,8 +131,15 @@ function EntityProfilePage() {
         {/* Aggregate story headline — grandpa-readable first sentence about the entity */}
         {aggregates && <EntityHero entity={profile} aggregates={aggregates} />}
 
-        {/* AI Summary — appears below the hero headline (PROF-02, STORY-01) */}
-        <AISummary entityId={profile.id} initialSummary={null} />
+        {/* AI Summary — appears below the hero headline (PROF-02, STORY-01). */}
+        {/* Pass entity + aggregates so FactBlock can render as instant fallback */}
+        {/* while Claude generates the summary, and as corroboration after. */}
+        <AISummary
+          entityId={profile.id}
+          initialSummary={null}
+          entity={profile}
+          aggregates={aggregates}
+        />
 
         {/* Pattern callouts — "Did you know?" cards (STORY-03) */}
         <PatternCallouts entityId={profile.id} />

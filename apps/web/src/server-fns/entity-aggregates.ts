@@ -5,31 +5,12 @@ import { getDb } from '@govtrace/db/client'
 import { contracts, donations, grants, internationalAid, lobbyRegistrations } from '@govtrace/db/schema/raw'
 import { entities } from '@govtrace/db/schema/entities'
 import { cached } from '@/lib/cache'
+import type { EntityAggregates, LargestDeal } from '@/server-fns/entity-aggregates-types'
+
+// Re-export types for backward compatibility with existing callers.
+export type { EntityAggregates, LargestDeal }
 
 const Input = z.object({ id: z.string().uuid() })
-
-export type LargestDeal = {
-  value: number
-  department: string | null
-  year: number | null
-  dataset: 'contract' | 'grant' | 'aid'
-}
-
-export type EntityAggregates = {
-  contractsTotal: number
-  contractsCount: number
-  grantsTotal: number
-  grantsCount: number
-  donationsTotal: number
-  donationsCount: number
-  lobbyingCount: number
-  aidTotal: number
-  aidCount: number
-  earliestYear: number | null
-  latestYear: number | null
-  primaryDepartment: string | null
-  largestDeal: LargestDeal | null
-}
 
 const AGGREGATES_TTL_MS = 60 * 60 * 1000 // 1 hour — aggregates are stable between weekly ingests
 
