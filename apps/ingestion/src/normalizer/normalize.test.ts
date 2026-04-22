@@ -236,12 +236,19 @@ describe('normalizeName — bilingual CSV-header artifact rejection', () => {
     expect(normalizeName('batch report│rapport en lots')).toBe('')
   })
 
-  it('returns empty for ASCII-pipe bilingual artifact', () => {
-    expect(normalizeName('report | rapport')).toBe('')
+  it('returns empty for ASCII-pipe batch-report artifact', () => {
+    expect(normalizeName('Batch Report | Rapport en lots')).toBe('')
   })
 
-  it('returns empty for "report  rapport" bilingual column label', () => {
-    expect(normalizeName('report rapport')).toBe('')
+  it('returns empty for reversed-order batch-report artifact', () => {
+    expect(normalizeName('rapport en lots | batch report')).toBe('')
+  })
+
+  it('does NOT reject legitimate bilingual names separated by pipe', () => {
+    // Before the regex narrowing these were false-positive artifact matches.
+    // Real entities exist with bilingual EN|FR names — must pass through.
+    expect(normalizeName('VIA Rail Canada Inc.|VIA Rail Canada Inc.')).not.toBe('')
+    expect(normalizeName('Nova Scotia | Nouvelle-Écosse')).not.toBe('')
   })
 
   it('does NOT reject legitimate names containing "report" alone', () => {

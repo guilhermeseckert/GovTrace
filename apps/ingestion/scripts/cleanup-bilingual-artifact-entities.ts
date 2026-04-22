@@ -34,10 +34,15 @@
 import { sql } from 'drizzle-orm'
 import { getDb } from '@govtrace/db/client'
 
-// Detection regex — matches U+2502 box-drawing, ASCII pipe, and bilingual
-// column phrases. Mirrors the guard in normalizer/normalize.ts so ingestion
-// and cleanup share a single source of truth.
-const BILINGUAL_ARTIFACT_RE = /[│|]|\breport\s+rapport\b|\brapport\s+report\b|rapport\s+en\s+lots/i
+// Detection regex — matches only the clear CSV-header artifact "batch report /
+// rapport en lots" in either order, separated by any of: whitespace, U+2502
+// box-drawing, ASCII pipe, or forward slash.
+//
+// Earlier broader patterns (plain U+2502 or "report rapport") hit legitimate
+// bilingual entity names (e.g. "VIA Rail Canada Inc.|VIA Rail Canada Inc.",
+// "Sipekne'katik First Nation | Sipekne'katik First Nation", "Nova Scotia |
+// Nouvelle-Écosse"). Narrowed to require BOTH anchor phrases.
+const BILINGUAL_ARTIFACT_RE = /batch\s+report[\s│|/]*rapport\s+en\s+lots|rapport\s+en\s+lots[\s│|/]*batch\s+report/i
 
 type ArtifactRow = { id: string; canonical_name: string }
 
@@ -68,10 +73,8 @@ async function findArtifactEntities(): Promise<ArtifactRow[]> {
   const rows = await db.execute<ArtifactRow>(sql`
     SELECT id::text AS id, canonical_name
     FROM entities
-    WHERE canonical_name ~ '[│|]'
-       OR canonical_name ~* 'report\\s+rapport'
-       OR canonical_name ~* 'rapport\\s+report'
-       OR canonical_name ~* 'rapport\\s+en\\s+lots'
+    WHERE canonical_name ~* 'batch\\s+report.*rapport\\s+en\\s+lots'
+       OR canonical_name ~* 'rapport\\s+en\\s+lots.*batch\\s+report'
   `)
 
   // Belt + suspenders: re-validate against the JS regex so the set never

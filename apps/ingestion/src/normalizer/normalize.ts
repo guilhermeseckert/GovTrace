@@ -7,7 +7,7 @@ import { stripLegalSuffixes } from './strip-suffixes.ts'
 // empty normalized_name as "skip" (see matcher/deterministic.ts findDeterministicMatch).
 // Hoisted to module scope per Biome perf rule; matches U+2502 ("│"), U+007C
 // ASCII pipe, and common bilingual column labels like "report / rapport".
-const BILINGUAL_ARTIFACT_RE = /[│|]|\breport\s+rapport\b|\brapport\s+report\b|rapport\s+en\s+lots/i
+const BILINGUAL_ARTIFACT_RE = /batch\s+report[\s│|/]*rapport\s+en\s+lots|rapport\s+en\s+lots[\s│|/]*batch\s+report/i
 
 /**
  * Normalizes an entity name for matching comparison (V3).
