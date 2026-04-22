@@ -7,6 +7,11 @@ import { entityConnections } from '@govtrace/db/schema/connections'
 import { entities } from '@govtrace/db/schema/entities'
 import { parliamentBills, parliamentVoteBallots, parliamentVotes, billSummaries } from '@govtrace/db/schema/parliament'
 import { gicAppointments } from '@govtrace/db/schema/appointments'
+import { cached } from '@/lib/cache'
+
+// Default per-dataset cache TTL for entity profile tables — 5 minutes balances
+// freshness against 504-inducing load from repeat page visits on heavy entities.
+const DATASET_TTL_MS = 5 * 60 * 1000
 
 const DatasetInputSchema = z.object({
   entityId: z.string().uuid(),
@@ -18,145 +23,166 @@ const DatasetInputSchema = z.object({
 
 export const getDonations = createServerFn({ method: 'GET' })
   .inputValidator(DatasetInputSchema)
-  .handler(async ({ data }) => {
-    const db = getDb()
-    const offset = (data.page - 1) * data.pageSize
+  .handler(({ data }) =>
+    cached(
+      `donations:${data.entityId}:${data.page}:${data.pageSize}:${data.sortBy ?? ''}:${data.sortDir}`,
+      async () => {
+        const db = getDb()
+        const offset = (data.page - 1) * data.pageSize
 
-    // Check entity type — politicians receive donations (match by recipient_name),
-    // persons/organizations make donations (match by entity_id)
-    const entity = await db.select({ canonicalName: entities.canonicalName, entityType: entities.entityType })
-      .from(entities).where(eq(entities.id, data.entityId)).limit(1)
+        // Check entity type — politicians receive donations (match by recipient_name),
+        // persons/organizations make donations (match by entity_id)
+        const entity = await db.select({ canonicalName: entities.canonicalName, entityType: entities.entityType })
+          .from(entities).where(eq(entities.id, data.entityId)).limit(1)
 
-    const isPolitician = entity[0]?.entityType === 'politician'
-    const entityName = entity[0]?.canonicalName ?? ''
+        const isPolitician = entity[0]?.entityType === 'politician'
+        const entityName = entity[0]?.canonicalName ?? ''
 
-    // For politicians: show both donations received (by recipient_name) AND donations made (by entity_id)
-    const whereClause = isPolitician && entityName
-      ? or(eq(donations.recipientName, entityName), eq(donations.entityId, data.entityId))
-      : eq(donations.entityId, data.entityId)
+        // For politicians: show both donations received (by recipient_name) AND donations made (by entity_id)
+        const whereClause = isPolitician && entityName
+          ? or(eq(donations.recipientName, entityName), eq(donations.entityId, data.entityId))
+          : eq(donations.entityId, data.entityId)
 
-    const totalCountPromise = db.select({ c: count() }).from(donations).where(whereClause!)
-          .then(r => Number(r[0]?.c ?? 0))
+        const totalCountPromise = db.select({ c: count() }).from(donations).where(whereClause!)
+              .then(r => Number(r[0]?.c ?? 0))
 
-    const [rows, totalCount] = await Promise.all([
-      db.select({
-        id: donations.id,
-        contributorName: donations.contributorName,
-        contributorType: donations.contributorType,
-        amount: donations.amount,
-        donationDate: donations.donationDate,
-        recipientName: donations.recipientName,
-        recipientType: donations.recipientType,
-        province: donations.province,
-        electionYear: donations.electionYear,
-        rawData: donations.rawData,
-      })
-      .from(donations)
-      .where(whereClause)
-      .orderBy(desc(donations.donationDate))
-      .limit(data.pageSize)
-      .offset(offset),
+        const [rows, totalCount] = await Promise.all([
+          db.select({
+            id: donations.id,
+            contributorName: donations.contributorName,
+            contributorType: donations.contributorType,
+            amount: donations.amount,
+            donationDate: donations.donationDate,
+            recipientName: donations.recipientName,
+            recipientType: donations.recipientType,
+            province: donations.province,
+            electionYear: donations.electionYear,
+            rawData: donations.rawData,
+          })
+          .from(donations)
+          .where(whereClause)
+          .orderBy(desc(donations.donationDate))
+          .limit(data.pageSize)
+          .offset(offset),
 
-      totalCountPromise,
-    ])
+          totalCountPromise,
+        ])
 
-    return {
-      rows,
-      total: totalCount,
-      page: data.page,
-      pageSize: data.pageSize,
-    }
-  })
+        return {
+          rows,
+          total: totalCount,
+          page: data.page,
+          pageSize: data.pageSize,
+        }
+      },
+      DATASET_TTL_MS,
+    ),
+  )
 
 export const getContracts = createServerFn({ method: 'GET' })
   .inputValidator(DatasetInputSchema)
-  .handler(async ({ data }) => {
-    const db = getDb()
-    const offset = (data.page - 1) * data.pageSize
+  .handler(({ data }) =>
+    cached(
+      `contracts:${data.entityId}:${data.page}:${data.pageSize}:${data.sortBy ?? ''}:${data.sortDir}`,
+      async () => {
+        const db = getDb()
+        const offset = (data.page - 1) * data.pageSize
 
-    const [rows, totalRows] = await Promise.all([
-      db.select({
-        id: contracts.id,
-        contractId: contracts.contractId,
-        vendorName: contracts.vendorName,
-        department: contracts.department,
-        description: contracts.description,
-        value: contracts.value,
-        originalValue: contracts.originalValue,
-        awardDate: contracts.awardDate,
-        startDate: contracts.startDate,
-        endDate: contracts.endDate,
-        procurementMethod: contracts.procurementMethod,
-        province: contracts.province,
-        rawData: contracts.rawData,  // PROF-05: contains source URL fields
-      })
-      .from(contracts)
-      .where(eq(contracts.entityId, data.entityId))
-      .orderBy(desc(contracts.awardDate))
-      .limit(data.pageSize)
-      .offset(offset),
+        const [rows, totalRows] = await Promise.all([
+          db.select({
+            id: contracts.id,
+            contractId: contracts.contractId,
+            vendorName: contracts.vendorName,
+            department: contracts.department,
+            description: contracts.description,
+            value: contracts.value,
+            originalValue: contracts.originalValue,
+            awardDate: contracts.awardDate,
+            startDate: contracts.startDate,
+            endDate: contracts.endDate,
+            procurementMethod: contracts.procurementMethod,
+            province: contracts.province,
+            rawData: contracts.rawData,  // PROF-05: contains source URL fields
+          })
+          .from(contracts)
+          .where(eq(contracts.entityId, data.entityId))
+          .orderBy(desc(contracts.awardDate))
+          .limit(data.pageSize)
+          .offset(offset),
 
-      db.select({ c: count() }).from(contracts).where(eq(contracts.entityId, data.entityId)),
-    ])
+          db.select({ c: count() }).from(contracts).where(eq(contracts.entityId, data.entityId)),
+        ])
 
-    return {
-      rows,
-      total: Number(totalRows[0]?.c ?? 0),
-      page: data.page,
-      pageSize: data.pageSize,
-    }
-  })
+        return {
+          rows,
+          total: Number(totalRows[0]?.c ?? 0),
+          page: data.page,
+          pageSize: data.pageSize,
+        }
+      },
+      DATASET_TTL_MS,
+    ),
+  )
 
 export const getGrants = createServerFn({ method: 'GET' })
   .inputValidator(DatasetInputSchema)
-  .handler(async ({ data }) => {
-    const db = getDb()
-    const offset = (data.page - 1) * data.pageSize
+  .handler(({ data }) =>
+    cached(
+      `grants:${data.entityId}:${data.page}:${data.pageSize}:${data.sortBy ?? ''}:${data.sortDir}`,
+      async () => {
+        const db = getDb()
+        const offset = (data.page - 1) * data.pageSize
 
-    const [rows, totalRows] = await Promise.all([
-      db.select({
-        id: grants.id,
-        recipientName: grants.recipientName,
-        recipientLegalName: grants.recipientLegalName,
-        department: grants.department,
-        programName: grants.programName,
-        description: grants.description,
-        amount: grants.amount,
-        agreementDate: grants.agreementDate,  // confirmed column name from schema
-        startDate: grants.startDate,
-        endDate: grants.endDate,
-        province: grants.province,
-        city: grants.city,
-        grantType: grants.grantType,
-        rawData: grants.rawData,  // PROF-05: contains source URL fields
-      })
-      .from(grants)
-      .where(eq(grants.entityId, data.entityId))
-      .orderBy(desc(grants.agreementDate))
-      .limit(data.pageSize)
-      .offset(offset),
+        const [rows, totalRows] = await Promise.all([
+          db.select({
+            id: grants.id,
+            recipientName: grants.recipientName,
+            recipientLegalName: grants.recipientLegalName,
+            department: grants.department,
+            programName: grants.programName,
+            description: grants.description,
+            amount: grants.amount,
+            agreementDate: grants.agreementDate,  // confirmed column name from schema
+            startDate: grants.startDate,
+            endDate: grants.endDate,
+            province: grants.province,
+            city: grants.city,
+            grantType: grants.grantType,
+            rawData: grants.rawData,  // PROF-05: contains source URL fields
+          })
+          .from(grants)
+          .where(eq(grants.entityId, data.entityId))
+          .orderBy(desc(grants.agreementDate))
+          .limit(data.pageSize)
+          .offset(offset),
 
-      db.select({ c: count() }).from(grants).where(eq(grants.entityId, data.entityId)),
-    ])
+          db.select({ c: count() }).from(grants).where(eq(grants.entityId, data.entityId)),
+        ])
 
-    return {
-      rows,
-      total: Number(totalRows[0]?.c ?? 0),
-      page: data.page,
-      pageSize: data.pageSize,
-    }
-  })
+        return {
+          rows,
+          total: Number(totalRows[0]?.c ?? 0),
+          page: data.page,
+          pageSize: data.pageSize,
+        }
+      },
+      DATASET_TTL_MS,
+    ),
+  )
 
 export const getLobbying = createServerFn({ method: 'GET' })
   .inputValidator(DatasetInputSchema)
-  .handler(async ({ data }) => {
-    const db = getDb()
-    const offset = (data.page - 1) * data.pageSize
+  .handler(({ data }) =>
+    cached(
+      `lobbying:${data.entityId}:${data.page}:${data.pageSize}:${data.sortBy ?? ''}:${data.sortDir}`,
+      async () => {
+        const db = getDb()
+        const offset = (data.page - 1) * data.pageSize
 
-    // lobbyRegistrations uses lobbyistEntityId and clientEntityId (no single entityId FK)
-    // lobbyCommunications uses lobbyistEntityId and officialEntityId
-    // Query both tables where this entity appears in either role
-    const [regRows, regCount, commRows, commCount] = await Promise.all([
+        // lobbyRegistrations uses lobbyistEntityId and clientEntityId (no single entityId FK)
+        // lobbyCommunications uses lobbyistEntityId and officialEntityId
+        // Query both tables where this entity appears in either role
+        const [regRows, regCount, commRows, commCount] = await Promise.all([
       db.select({
         id: lobbyRegistrations.id,
         registrationNumber: lobbyRegistrations.registrationNumber,
@@ -219,31 +245,37 @@ export const getLobbying = createServerFn({ method: 'GET' })
       ),
     ])
 
-    const totalRegistrations = Number(regCount[0]?.c ?? 0)
-    const totalCommunications = Number(commCount[0]?.c ?? 0)
+        const totalRegistrations = Number(regCount[0]?.c ?? 0)
+        const totalCommunications = Number(commCount[0]?.c ?? 0)
 
-    return {
-      rows: {
-        registrations: regRows,
-        communications: commRows,
+        return {
+          rows: {
+            registrations: regRows,
+            communications: commRows,
+          },
+          total: totalRegistrations + totalCommunications,
+          page: data.page,
+          pageSize: data.pageSize,
+        }
       },
-      total: totalRegistrations + totalCommunications,
-      page: data.page,
-      pageSize: data.pageSize,
-    }
-  })
+      DATASET_TTL_MS,
+    ),
+  )
 
 export const getConnections = createServerFn({ method: 'GET' })
   .inputValidator(DatasetInputSchema)
-  .handler(async ({ data }) => {
-    const db = getDb()
-    const offset = (data.page - 1) * data.pageSize
+  .handler(({ data }) =>
+    cached(
+      `connections:${data.entityId}:${data.page}:${data.pageSize}`,
+      async () => {
+        const db = getDb()
+        const offset = (data.page - 1) * data.pageSize
 
-    // entityConnections has entityAId / entityBId — query both directions
-    // Join entities table to resolve canonical names for display (API-04)
-    const entitiesAlias = entities
+        // entityConnections has entityAId / entityBId — query both directions
+        // Join entities table to resolve canonical names for display (API-04)
+        const entitiesAlias = entities
 
-    const [rowsA, rowsB, countA, countB] = await Promise.all([
+        const [rowsA, rowsB, countA, countB] = await Promise.all([
       // This entity appears as entityA — connected to entityB
       db.select({
         id: entityConnections.id,
@@ -286,54 +318,63 @@ export const getConnections = createServerFn({ method: 'GET' })
       db.select({ c: count() }).from(entityConnections).where(eq(entityConnections.entityBId, data.entityId)),
     ])
 
-    return {
-      rows: [...rowsA, ...rowsB],
-      total: Number(countA[0]?.c ?? 0) + Number(countB[0]?.c ?? 0),
-      page: data.page,
-      pageSize: data.pageSize,
-    }
-  })
+        return {
+          rows: [...rowsA, ...rowsB],
+          total: Number(countA[0]?.c ?? 0) + Number(countB[0]?.c ?? 0),
+          page: data.page,
+          pageSize: data.pageSize,
+        }
+      },
+      DATASET_TTL_MS,
+    ),
+  )
 
 export const getInternationalAid = createServerFn({ method: 'GET' })
   .inputValidator(DatasetInputSchema)
-  .handler(async ({ data }) => {
-    const db = getDb()
-    const offset = (data.page - 1) * data.pageSize
+  .handler(({ data }) =>
+    cached(
+      `aid:${data.entityId}:${data.page}:${data.pageSize}:${data.sortBy ?? ''}:${data.sortDir}`,
+      async () => {
+        const db = getDb()
+        const offset = (data.page - 1) * data.pageSize
 
-    const [rows, totalRows] = await Promise.all([
-      db.select({
-        id: internationalAid.id,
-        projectTitle: internationalAid.projectTitle,
-        description: internationalAid.description,
-        implementerName: internationalAid.implementerName,
-        fundingDepartment: internationalAid.fundingDepartment,
-        activityStatus: internationalAid.activityStatus,
-        recipientCountry: internationalAid.recipientCountry,
-        recipientRegion: internationalAid.recipientRegion,
-        startDate: internationalAid.startDate,
-        endDate: internationalAid.endDate,
-        totalBudgetCad: internationalAid.totalBudgetCad,
-        totalDisbursedCad: internationalAid.totalDisbursedCad,
-        totalCommittedCad: internationalAid.totalCommittedCad,
-        currency: internationalAid.currency,
-        rawData: internationalAid.rawData,
-      })
-      .from(internationalAid)
-      .where(eq(internationalAid.entityId, data.entityId))
-      .orderBy(desc(internationalAid.startDate))
-      .limit(data.pageSize)
-      .offset(offset),
+        const [rows, totalRows] = await Promise.all([
+          db.select({
+            id: internationalAid.id,
+            projectTitle: internationalAid.projectTitle,
+            description: internationalAid.description,
+            implementerName: internationalAid.implementerName,
+            fundingDepartment: internationalAid.fundingDepartment,
+            activityStatus: internationalAid.activityStatus,
+            recipientCountry: internationalAid.recipientCountry,
+            recipientRegion: internationalAid.recipientRegion,
+            startDate: internationalAid.startDate,
+            endDate: internationalAid.endDate,
+            totalBudgetCad: internationalAid.totalBudgetCad,
+            totalDisbursedCad: internationalAid.totalDisbursedCad,
+            totalCommittedCad: internationalAid.totalCommittedCad,
+            currency: internationalAid.currency,
+            rawData: internationalAid.rawData,
+          })
+          .from(internationalAid)
+          .where(eq(internationalAid.entityId, data.entityId))
+          .orderBy(desc(internationalAid.startDate))
+          .limit(data.pageSize)
+          .offset(offset),
 
-      db.select({ c: count() }).from(internationalAid).where(eq(internationalAid.entityId, data.entityId)),
-    ])
+          db.select({ c: count() }).from(internationalAid).where(eq(internationalAid.entityId, data.entityId)),
+        ])
 
-    return {
-      rows,
-      total: Number(totalRows[0]?.c ?? 0),
-      page: data.page,
-      pageSize: data.pageSize,
-    }
-  })
+        return {
+          rows,
+          total: Number(totalRows[0]?.c ?? 0),
+          page: data.page,
+          pageSize: data.pageSize,
+        }
+      },
+      DATASET_TTL_MS,
+    ),
+  )
 
 const VotingRecordInputSchema = z.object({
   entityId: z.string().uuid(),
@@ -576,85 +617,97 @@ export const getAppointments = createServerFn({ method: 'GET' })
 
 export const getTravel = createServerFn({ method: 'GET' })
   .inputValidator(DatasetInputSchema)
-  .handler(async ({ data }) => {
-    const db = getDb()
-    const offset = (data.page - 1) * data.pageSize
+  .handler(({ data }) =>
+    cached(
+      `travel:${data.entityId}:${data.page}:${data.pageSize}:${data.sortBy ?? ''}:${data.sortDir}`,
+      async () => {
+        const db = getDb()
+        const offset = (data.page - 1) * data.pageSize
 
-    const [rows, totalRows] = await Promise.all([
-      db.select({
-        id: travelDisclosures.id,
-        name: travelDisclosures.name,
-        titleEn: travelDisclosures.titleEn,
-        department: travelDisclosures.department,
-        departmentCode: travelDisclosures.departmentCode,
-        purposeEn: travelDisclosures.purposeEn,
-        destinationEn: travelDisclosures.destinationEn,
-        destination2En: travelDisclosures.destination2En,
-        destinationOtherEn: travelDisclosures.destinationOtherEn,
-        startDate: travelDisclosures.startDate,
-        endDate: travelDisclosures.endDate,
-        airfare: travelDisclosures.airfare,
-        otherTransport: travelDisclosures.otherTransport,
-        lodging: travelDisclosures.lodging,
-        meals: travelDisclosures.meals,
-        otherExpenses: travelDisclosures.otherExpenses,
-        total: travelDisclosures.total,
-      })
-      .from(travelDisclosures)
-      .where(eq(travelDisclosures.entityId, data.entityId))
-      .orderBy(desc(travelDisclosures.startDate))
-      .limit(data.pageSize)
-      .offset(offset),
+        const [rows, totalRows] = await Promise.all([
+          db.select({
+            id: travelDisclosures.id,
+            name: travelDisclosures.name,
+            titleEn: travelDisclosures.titleEn,
+            department: travelDisclosures.department,
+            departmentCode: travelDisclosures.departmentCode,
+            purposeEn: travelDisclosures.purposeEn,
+            destinationEn: travelDisclosures.destinationEn,
+            destination2En: travelDisclosures.destination2En,
+            destinationOtherEn: travelDisclosures.destinationOtherEn,
+            startDate: travelDisclosures.startDate,
+            endDate: travelDisclosures.endDate,
+            airfare: travelDisclosures.airfare,
+            otherTransport: travelDisclosures.otherTransport,
+            lodging: travelDisclosures.lodging,
+            meals: travelDisclosures.meals,
+            otherExpenses: travelDisclosures.otherExpenses,
+            total: travelDisclosures.total,
+          })
+          .from(travelDisclosures)
+          .where(eq(travelDisclosures.entityId, data.entityId))
+          .orderBy(desc(travelDisclosures.startDate))
+          .limit(data.pageSize)
+          .offset(offset),
 
-      db.select({ c: count() }).from(travelDisclosures).where(eq(travelDisclosures.entityId, data.entityId)),
-    ])
+          db.select({ c: count() }).from(travelDisclosures).where(eq(travelDisclosures.entityId, data.entityId)),
+        ])
 
-    return {
-      rows,
-      total: Number(totalRows[0]?.c ?? 0),
-      page: data.page,
-      pageSize: data.pageSize,
-    }
-  })
+        return {
+          rows,
+          total: Number(totalRows[0]?.c ?? 0),
+          page: data.page,
+          pageSize: data.pageSize,
+        }
+      },
+      DATASET_TTL_MS,
+    ),
+  )
 
 export const getHospitality = createServerFn({ method: 'GET' })
   .inputValidator(DatasetInputSchema)
-  .handler(async ({ data }) => {
-    const db = getDb()
-    const offset = (data.page - 1) * data.pageSize
+  .handler(({ data }) =>
+    cached(
+      `hospitality:${data.entityId}:${data.page}:${data.pageSize}:${data.sortBy ?? ''}:${data.sortDir}`,
+      async () => {
+        const db = getDb()
+        const offset = (data.page - 1) * data.pageSize
 
-    const [rows, totalRows] = await Promise.all([
-      db.select({
-        id: hospitalityDisclosures.id,
-        name: hospitalityDisclosures.name,
-        titleEn: hospitalityDisclosures.titleEn,
-        department: hospitalityDisclosures.department,
-        departmentCode: hospitalityDisclosures.departmentCode,
-        descriptionEn: hospitalityDisclosures.descriptionEn,
-        locationEn: hospitalityDisclosures.locationEn,
-        vendorEn: hospitalityDisclosures.vendorEn,
-        startDate: hospitalityDisclosures.startDate,
-        endDate: hospitalityDisclosures.endDate,
-        employeeAttendees: hospitalityDisclosures.employeeAttendees,
-        guestAttendees: hospitalityDisclosures.guestAttendees,
-        total: hospitalityDisclosures.total,
-      })
-      .from(hospitalityDisclosures)
-      .where(eq(hospitalityDisclosures.entityId, data.entityId))
-      .orderBy(desc(hospitalityDisclosures.startDate))
-      .limit(data.pageSize)
-      .offset(offset),
+        const [rows, totalRows] = await Promise.all([
+          db.select({
+            id: hospitalityDisclosures.id,
+            name: hospitalityDisclosures.name,
+            titleEn: hospitalityDisclosures.titleEn,
+            department: hospitalityDisclosures.department,
+            departmentCode: hospitalityDisclosures.departmentCode,
+            descriptionEn: hospitalityDisclosures.descriptionEn,
+            locationEn: hospitalityDisclosures.locationEn,
+            vendorEn: hospitalityDisclosures.vendorEn,
+            startDate: hospitalityDisclosures.startDate,
+            endDate: hospitalityDisclosures.endDate,
+            employeeAttendees: hospitalityDisclosures.employeeAttendees,
+            guestAttendees: hospitalityDisclosures.guestAttendees,
+            total: hospitalityDisclosures.total,
+          })
+          .from(hospitalityDisclosures)
+          .where(eq(hospitalityDisclosures.entityId, data.entityId))
+          .orderBy(desc(hospitalityDisclosures.startDate))
+          .limit(data.pageSize)
+          .offset(offset),
 
-      db.select({ c: count() }).from(hospitalityDisclosures).where(eq(hospitalityDisclosures.entityId, data.entityId)),
-    ])
+          db.select({ c: count() }).from(hospitalityDisclosures).where(eq(hospitalityDisclosures.entityId, data.entityId)),
+        ])
 
-    return {
-      rows,
-      total: Number(totalRows[0]?.c ?? 0),
-      page: data.page,
-      pageSize: data.pageSize,
-    }
-  })
+        return {
+          rows,
+          total: Number(totalRows[0]?.c ?? 0),
+          page: data.page,
+          pageSize: data.pageSize,
+        }
+      },
+      DATASET_TTL_MS,
+    ),
+  )
 
 const SpendingSummaryInputSchema = z.object({
   entityId: z.string().uuid(),

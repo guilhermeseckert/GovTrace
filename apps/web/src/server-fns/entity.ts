@@ -7,6 +7,14 @@ import { aiSummaries, entityAliases, entityMatchesLog, entities } from '@govtrac
 import { entityConnections } from '@govtrace/db/schema/connections'
 import { parliamentVoteBallots } from '@govtrace/db/schema/parliament'
 import { gicAppointments } from '@govtrace/db/schema/appointments'
+import { cached } from '@/lib/cache'
+
+// Loader-path caches. Route loader runs 3 queries (profile, stats, provenance)
+// in parallel; stats alone fires 11 count() queries. Caching absorbs the worst
+// of the 504 pattern on heavy entities (1000+ contracts).
+const PROFILE_TTL_MS = 5 * 60 * 1000
+const STATS_TTL_MS = 5 * 60 * 1000
+const PROVENANCE_TTL_MS = 10 * 60 * 1000
 
 const EntityIdSchema = z.object({ id: z.string().uuid() })
 
@@ -29,49 +37,56 @@ export type EntityProfile = {
 
 export const getEntityProfile = createServerFn({ method: 'GET' })
   .inputValidator(EntityIdSchema)
-  .handler(async ({ data }): Promise<EntityProfile | null> => {
-    const db = getDb()
+  .handler(({ data }): Promise<EntityProfile | null> =>
+    cached(
+      `entity-profile:${data.id}`,
+      async () => {
+        const db = getDb()
 
-    const entityRows = await db
-      .select()
-      .from(entities)
-      .where(eq(entities.id, data.id))
-      .limit(1)
+        const entityRows = await db
+          .select()
+          .from(entities)
+          .where(eq(entities.id, data.id))
+          .limit(1)
 
-    if (entityRows.length === 0) return null
-    const entity = entityRows[0]
+        if (entityRows.length === 0) return null
+        const entity = entityRows[0]
+        if (!entity) return null
 
-    // Best alias = highest confidence score for this entity (AI-04)
-    const bestAliasRows = await db
-      .select({
-        matchMethod: entityAliases.matchMethod,
-        confidenceScore: entityAliases.confidenceScore,
-        aiReasoning: entityAliases.aiReasoning,
-      })
-      .from(entityAliases)
-      .where(eq(entityAliases.entityId, data.id))
-      .orderBy(desc(entityAliases.confidenceScore))
-      .limit(1)
+        // Best alias = highest confidence score for this entity (AI-04)
+        const bestAliasRows = await db
+          .select({
+            matchMethod: entityAliases.matchMethod,
+            confidenceScore: entityAliases.confidenceScore,
+            aiReasoning: entityAliases.aiReasoning,
+          })
+          .from(entityAliases)
+          .where(eq(entityAliases.entityId, data.id))
+          .orderBy(desc(entityAliases.confidenceScore))
+          .limit(1)
 
-    // Fetch most relevant matchLogId (highest AI confidence) for FlagModal (COMM-03)
-    const matchLogRows = await db
-      .select({ id: entityMatchesLog.id })
-      .from(entityMatchesLog)
-      .where(
-        or(
-          eq(entityMatchesLog.entityAId, data.id),
-          eq(entityMatchesLog.entityBId, data.id),
-        )
-      )
-      .orderBy(desc(entityMatchesLog.aiConfidence))
-      .limit(1)
+        // Fetch most relevant matchLogId (highest AI confidence) for FlagModal (COMM-03)
+        const matchLogRows = await db
+          .select({ id: entityMatchesLog.id })
+          .from(entityMatchesLog)
+          .where(
+            or(
+              eq(entityMatchesLog.entityAId, data.id),
+              eq(entityMatchesLog.entityBId, data.id),
+            )
+          )
+          .orderBy(desc(entityMatchesLog.aiConfidence))
+          .limit(1)
 
-    return {
-      ...entity,
-      bestAlias: bestAliasRows[0] ?? null,
-      matchLogId: matchLogRows[0]?.id ?? null,
-    }
-  })
+        return {
+          ...entity,
+          bestAlias: bestAliasRows[0] ?? null,
+          matchLogId: matchLogRows[0]?.id ?? null,
+        }
+      },
+      PROFILE_TTL_MS,
+    ),
+  )
 
 // Data provenance: per-dataset max(ingestedAt) timestamps (PROF-06)
 export type EntityProvenance = {
@@ -87,8 +102,11 @@ export type EntityProvenance = {
 
 export const getEntityProvenance = createServerFn({ method: 'GET' })
   .inputValidator(EntityIdSchema)
-  .handler(async ({ data }): Promise<EntityProvenance> => {
-    const db = getDb()
+  .handler(({ data }): Promise<EntityProvenance> =>
+    cached(
+      `entity-provenance:${data.id}`,
+      async () => {
+        const db = getDb()
 
     const [donResult, conResult, grResult, lobRegResult, lobCommResult, aidResult, voteResult, travelResult, hospitalityResult] =
       await Promise.all([
@@ -163,23 +181,29 @@ export const getEntityProvenance = createServerFn({ method: 'GET' })
     const travelDate = travelResult[0]?.maxDate
     const hospitalityDate = hospitalityResult[0]?.maxDate
 
-    return {
-      donations: donDate ? donDate.toISOString() : null,
-      contracts: conDate ? conDate.toISOString() : null,
-      grants: grDate ? grDate.toISOString() : null,
-      lobbying: lobbyingDate,
-      aid: aidDate ? aidDate.toISOString() : null,
-      votes: voteDate ? voteDate.toISOString() : null,
-      travel: travelDate ? travelDate.toISOString() : null,
-      hospitality: hospitalityDate ? hospitalityDate.toISOString() : null,
-    }
-  })
+        return {
+          donations: donDate ? donDate.toISOString() : null,
+          contracts: conDate ? conDate.toISOString() : null,
+          grants: grDate ? grDate.toISOString() : null,
+          lobbying: lobbyingDate,
+          aid: aidDate ? aidDate.toISOString() : null,
+          votes: voteDate ? voteDate.toISOString() : null,
+          travel: travelDate ? travelDate.toISOString() : null,
+          hospitality: hospitalityDate ? hospitalityDate.toISOString() : null,
+        }
+      },
+      PROVENANCE_TTL_MS,
+    ),
+  )
 
 // Stats for the tab count badges — returns row counts per dataset
 export const getEntityStats = createServerFn({ method: 'GET' })
   .inputValidator(EntityIdSchema)
-  .handler(async ({ data }) => {
-    const db = getDb()
+  .handler(({ data }) =>
+    cached(
+      `entity-stats:${data.id}`,
+      async () => {
+        const db = getDb()
 
     // Check entity type — politicians receive donations, others make them
     const entity = await db.select({ canonicalName: entities.canonicalName, entityType: entities.entityType })
@@ -213,17 +237,20 @@ export const getEntityStats = createServerFn({ method: 'GET' })
       db.select({ c: count() }).from(hospitalityDisclosures).where(eq(hospitalityDisclosures.entityId, data.id)),
     ])
 
-    return {
-      donations: Number(donCount[0]?.c ?? 0),
-      contracts: Number(conCount[0]?.c ?? 0),
-      grants: Number(grCount[0]?.c ?? 0),
-      lobbying: Number(lobCount[0]?.c ?? 0),
-      connections: Number(connCount[0]?.c ?? 0),
-      aid: Number(aidCount[0]?.c ?? 0),
-      votes: Number(voteCount[0]?.c ?? 0),
-      appointments: Number(apptCount[0]?.c ?? 0),
-      travel: Number(travelCount[0]?.c ?? 0),
-      hospitality: Number(hospitalityCount[0]?.c ?? 0),
-      hasFreshSummary: summaryRows.length > 0 && !summaryRows[0]?.isStale,
-    }
-  })
+        return {
+          donations: Number(donCount[0]?.c ?? 0),
+          contracts: Number(conCount[0]?.c ?? 0),
+          grants: Number(grCount[0]?.c ?? 0),
+          lobbying: Number(lobCount[0]?.c ?? 0),
+          connections: Number(connCount[0]?.c ?? 0),
+          aid: Number(aidCount[0]?.c ?? 0),
+          votes: Number(voteCount[0]?.c ?? 0),
+          appointments: Number(apptCount[0]?.c ?? 0),
+          travel: Number(travelCount[0]?.c ?? 0),
+          hospitality: Number(hospitalityCount[0]?.c ?? 0),
+          hasFreshSummary: summaryRows.length > 0 && !summaryRows[0]?.isStale,
+        }
+      },
+      STATS_TTL_MS,
+    ),
+  )
