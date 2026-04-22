@@ -98,6 +98,8 @@ function SearchPage() {
                     contracts: r.counts.contracts,
                     grants: r.counts.grants,
                     lobbying: r.counts.lobbying,
+                    votes: r.counts.votes,
+                    aid: r.counts.aid,
                   }))
                 }
                 filename={`govtrace-search-${q.replaceAll(/[^a-z0-9-]/gi, '-').toLowerCase().slice(0, 40)}.csv`}
@@ -109,6 +111,8 @@ function SearchPage() {
                   { key: 'contracts', header: 'Contract Records' },
                   { key: 'grants', header: 'Grant Records' },
                   { key: 'lobbying', header: 'Lobbying Records' },
+                  { key: 'votes', header: 'Vote Ballots' },
+                  { key: 'aid', header: 'International Aid Records' },
                 ]}
               />
             </div>

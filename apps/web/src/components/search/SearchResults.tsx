@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { ArrowRight, DollarSign, FileText, Gift, Users, Landmark, Building2, User } from 'lucide-react'
+import { ArrowRight, DollarSign, FileText, Gift, Globe, Scale, Users, Landmark, Building2, User } from 'lucide-react'
 import { en } from '@/i18n/en'
 
 type EntityResult = {
@@ -7,7 +7,14 @@ type EntityResult = {
   canonicalName: string
   entityType: string
   province: string | null
-  counts: { donations: number; contracts: number; grants: number; lobbying: number }
+  counts: {
+    donations: number
+    contracts: number
+    grants: number
+    lobbying: number
+    aid: number
+    votes: number
+  }
 }
 
 type SearchResultsProps = { results: EntityResult[] }
@@ -106,6 +113,18 @@ export function SearchResults({ results }: SearchResultsProps) {
                         <span className="flex items-center gap-1">
                           <Users className="h-3 w-3" />
                           {formatCount(entity.counts.lobbying)}
+                        </span>
+                      )}
+                      {entity.counts.votes > 0 && (
+                        <span className="flex items-center gap-1">
+                          <Scale className="h-3 w-3" />
+                          {formatCount(entity.counts.votes)} votes
+                        </span>
+                      )}
+                      {entity.counts.aid > 0 && (
+                        <span className="flex items-center gap-1">
+                          <Globe className="h-3 w-3" />
+                          {formatCount(entity.counts.aid)}
                         </span>
                       )}
                     </div>
