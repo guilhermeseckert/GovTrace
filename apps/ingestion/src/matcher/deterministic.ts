@@ -74,6 +74,15 @@ export async function createNewEntity(
   const db = getDb()
   const normalizedName = normalizeName(rawName)
 
+  // Defence-in-depth: refuse to create entities for rejected raw names
+  // (e.g. bilingual CSV-header artifacts). normalizeName returns '' for
+  // these; without this guard, upstream code paths that bypass the
+  // findDeterministicMatch early-return could still call createNewEntity
+  // and pollute the entities table.
+  if (!normalizedName) {
+    throw new Error(`Refusing to create entity for rejected raw name: ${rawName}`)
+  }
+
   // Infer entity type from source if not provided
   const inferredType = entityType ?? inferEntityType(sourceTable, rawName)
 

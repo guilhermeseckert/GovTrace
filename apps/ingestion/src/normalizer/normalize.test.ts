@@ -231,6 +231,24 @@ describe('normalizeName — regression guards', () => {
   })
 })
 
+describe('normalizeName — bilingual CSV-header artifact rejection', () => {
+  it('returns empty for U+2502 box-drawing artifact with bilingual phrase', () => {
+    expect(normalizeName('batch report│rapport en lots')).toBe('')
+  })
+
+  it('returns empty for ASCII-pipe bilingual artifact', () => {
+    expect(normalizeName('report | rapport')).toBe('')
+  })
+
+  it('returns empty for "report  rapport" bilingual column label', () => {
+    expect(normalizeName('report rapport')).toBe('')
+  })
+
+  it('does NOT reject legitimate names containing "report" alone', () => {
+    expect(normalizeName('Annual Report Inc.')).toBe('annual report')
+  })
+})
+
 describe('normalizeName — idempotency', () => {
   it('normalize(normalize(x)) === normalize(x) for Trudeau variant', () => {
     const once = normalizeName('Trudeau, Right Honourable Justin P.J.')
