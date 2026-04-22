@@ -1,8 +1,10 @@
 import { createFileRoute, notFound } from '@tanstack/react-router'
 import { useState } from 'react'
 import { getEntityProfile, getEntityStats, getEntityProvenance } from '@/server-fns/entity'
+import { getEntityAggregates } from '@/server-fns/entity-aggregates'
 // AI summary is fetched client-side by AISummary component, not in the loader
 import { EntityHeader } from '@/components/entity/EntityHeader'
+import { EntityHero } from '@/components/entity/EntityHero'
 import { AISummary } from '@/components/entity/AISummary'
 import { ProfileTabs } from '@/components/entity/ProfileTabs'
 import { FlagModal } from '@/components/entity/FlagModal'
@@ -27,15 +29,16 @@ export const Route = createFileRoute('/entity/$id')({
   loader: async ({ params }) => {
     // Don't await AI summary in loader — it calls Claude API and blocks page load.
     // The AISummary component fetches it client-side with a skeleton.
-    const [profile, stats, provenance] = await Promise.all([
+    const [profile, stats, provenance, aggregates] = await Promise.all([
       getEntityProfile({ data: { id: params.id } }),
       getEntityStats({ data: { id: params.id } }),
       getEntityProvenance({ data: { id: params.id } }).catch(() => null),
+      getEntityAggregates({ data: { id: params.id } }).catch(() => null),
     ])
 
     if (!profile) throw notFound()
 
-    return { profile, stats, provenance }
+    return { profile, stats, provenance, aggregates }
   },
   notFoundComponent: () => (
     <main id="main-content" className="mx-auto max-w-[1200px] px-4 py-16 text-center">
@@ -117,7 +120,7 @@ function VisualizationsPanel({ entityId }: { entityId: string }) {
 }
 
 function EntityProfilePage() {
-  const { profile, stats, provenance } = Route.useLoaderData()
+  const { profile, stats, provenance, aggregates } = Route.useLoaderData()
   const [flagModalOpen, setFlagModalOpen] = useState(false)
 
   return (
@@ -125,7 +128,10 @@ function EntityProfilePage() {
       <EntityHeader entity={profile} onFlagClick={() => setFlagModalOpen(true)} />
 
       <div className="mx-auto max-w-[1200px] space-y-8 px-4 py-8">
-        {/* AI Summary — first visible content below header (PROF-02, STORY-01) */}
+        {/* Aggregate story headline — grandpa-readable first sentence about the entity */}
+        {aggregates && <EntityHero entity={profile} aggregates={aggregates} />}
+
+        {/* AI Summary — appears below the hero headline (PROF-02, STORY-01) */}
         <AISummary entityId={profile.id} initialSummary={null} />
 
         {/* Pattern callouts — "Did you know?" cards (STORY-03) */}
