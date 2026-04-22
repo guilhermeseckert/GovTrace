@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: International Money Tracking
 status: verifying
-stopped_at: Completed quick/260421-2yo-rewrite-apps-web-server-ts-to-stream-ssr
-last_updated: "2026-04-21T08:08:01.032Z"
-last_activity: "2026-04-21 - Completed quick task 260421-2yo: Web perf + stability (streaming SSR, compiled runtime, /health, prefetch, Cache-Control, compression)"
+stopped_at: Completed quick/260421-sr3-five-product-bugs-features-politician-se
+last_updated: "2026-04-22T02:42:06.813Z"
+last_activity: "2026-04-22 - Completed quick task 260421-sr3: Five product fixes (politician search, artifact entities, entity timeout, hero block, AI summary fallback)"
 progress:
   total_phases: 26
   completed_phases: 3
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-03-31)
 Phase: 999.1
 Plan: Not started
 Status: Phase complete — ready for verification
-Last activity: 2026-04-21 - Completed quick task 260421-2yo: Web perf + stability (streaming SSR, compiled runtime, /health, prefetch, Cache-Control, compression)
+Last activity: 2026-04-22 - Completed quick task 260421-sr3: Five product fixes (politician search, artifact entities, entity timeout, hero block, AI summary fallback)
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -195,9 +195,10 @@ None yet.
 | 260419-scw | Ingest historical MPs + tenure data (fixed 725K orphaned ballots) | 2026-04-20 | e74ea7f | [260419-scw-ingest-historical-mps-from-parlinfo-ourc](./quick/260419-scw-ingest-historical-mps-from-parlinfo-ourc/) |
 | 260419-sxc | V3 entity normalizer — strip honorifics + middle initials; idempotent re-normalize + dry-run + flagged merge scripts (code only; user deploys + runs) | 2026-04-20 | 8aead3e | [260419-sxc-fix-entity-name-normalizer-strip-honorif](./quick/260419-sxc-fix-entity-name-normalizer-strip-honorif/) |
 | 260421-2yo | Web performance + stability — streaming SSR, compiled server runtime, /health endpoint, SSR prefetch, Cache-Control, gzip/brotli | 2026-04-21 | 4e88277 | [260421-2yo-rewrite-apps-web-server-ts-to-stream-ssr](./quick/260421-2yo-rewrite-apps-web-server-ts-to-stream-ssr/) |
+| 260421-sr3 | Five product fixes — politician search bucket, bilingual-artifact entity cleanup, entity page timeout fix, hero block, AI summary fallback facts block | 2026-04-22 | 5a0a919 | [260421-sr3-five-product-bugs-features-politician-se](./quick/260421-sr3-five-product-bugs-features-politician-se/) |
 
 ## Session Continuity
 
-Last session: 2026-04-21T08:08:01.032Z
-Stopped at: Completed quick/260421-2yo-rewrite-apps-web-server-ts-to-stream-ssr
+Last session: 2026-04-22T02:42:06.813Z
+Stopped at: Completed quick/260421-sr3-five-product-bugs-features-politician-se
 Resume file: None
