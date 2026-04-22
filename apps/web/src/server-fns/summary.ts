@@ -252,7 +252,15 @@ export const getOrGenerateSummary = createServerFn({ method: 'GET' })
     if (!summaryText) return null
 
     // Cache the result — upsert on entityId unique constraint (AI-03)
-    // Append PROMPT_VERSION to model field for future version checks
+    // Append PROMPT_VERSION to model field for future version checks.
+    //
+    // Note: facts_block column added to ai_summaries by migration 0011 is
+    // intentionally NOT populated here. FactBlock renders client-side from
+    // aggregates passed as props in AISummary; persisting facts_block would
+    // require pulling computeAggregates (and its drizzle/postgres transitive
+    // graph) into the summary server-fn, which bleeds into the client bundle
+    // because AISummary imports getOrGenerateSummary. The column is reserved
+    // for a follow-up that persists facts via a dedicated server-fn.
     await db.insert(aiSummaries).values({
       entityId: data.entityId,
       summaryText,

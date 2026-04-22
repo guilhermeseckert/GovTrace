@@ -2,6 +2,13 @@ import { expandAcronym } from './acronyms.ts'
 import { honAfterCommaRe, honPrefixRe } from './honorifics.ts'
 import { stripLegalSuffixes } from './strip-suffixes.ts'
 
+// U+2502 box-drawing char + bilingual-column phrases are CSV artifacts, not
+// entity names. Reject by returning '' — downstream matcher already treats
+// empty normalized_name as "skip" (see matcher/deterministic.ts findDeterministicMatch).
+// Hoisted to module scope per Biome perf rule; matches U+2502 ("│"), U+007C
+// ASCII pipe, and common bilingual column labels like "report / rapport".
+const BILINGUAL_ARTIFACT_RE = /[│|]|\breport\s+rapport\b|\brapport\s+report\b|rapport\s+en\s+lots/i
+
 /**
  * Normalizes an entity name for matching comparison (V3).
  *
@@ -25,6 +32,12 @@ export function normalizeName(input: string): string {
   if (!input || input.trim() === '') return ''
 
   let name = input.trim()
+
+  // Reject bilingual CSV-header artifacts (e.g. "batch report│rapport en lots").
+  // These are column-header strings that bleed into data rows during CSV
+  // parsing and must NEVER become entities. Returning '' signals skip to the
+  // matcher, which already bails out on empty normalizedName.
+  if (BILINGUAL_ARTIFACT_RE.test(name)) return ''
 
   // Step 1: try acronym expansion (whole-name only). Unchanged from V2.
   const expanded = expandAcronym(name)

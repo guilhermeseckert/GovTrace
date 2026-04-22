@@ -103,7 +103,12 @@ export const searchEntities = createServerFn({ method: 'GET' })
     }>
 
     if (normalizedQuery.length >= 2) {
-      // Search mode: use pg_trgm similarity
+      // Search mode: pg_trgm similarity with ILIKE fallback.
+      // Single-token queries like "trudeau" against "justin trudeau" can fall
+      // below the default pg_trgm.similarity_threshold (0.3), so widen the
+      // predicate with a substring match to guarantee recall for politicians
+      // and other multi-word entities.
+      const likePattern = `%${normalizedQuery}%`
       const rows = await db.execute<{
         id: string
         canonical_name: string
@@ -114,7 +119,7 @@ export const searchEntities = createServerFn({ method: 'GET' })
         SELECT id, canonical_name, entity_type, province,
                similarity(normalized_name, ${normalizedQuery}) AS score
         FROM entities
-        WHERE normalized_name % ${normalizedQuery}
+        WHERE (normalized_name % ${normalizedQuery} OR normalized_name ILIKE ${likePattern})
           AND is_active = true
           ${typeFilter}
           ${provinceFilter}
