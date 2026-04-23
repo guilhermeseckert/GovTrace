@@ -5,6 +5,7 @@ import { getDb } from '@govtrace/db/client'
 import { contracts, donations, grants, internationalAid, lobbyRegistrations } from '@govtrace/db/schema/raw'
 import { entities } from '@govtrace/db/schema/entities'
 import { cached } from '@/lib/cache'
+import { getDepartmentName } from '@/lib/department-codes'
 import type { EntityAggregates, LargestDeal } from '@/server-fns/entity-aggregates-types'
 
 // Re-export types for backward compatibility with existing callers.
@@ -187,25 +188,33 @@ async function computeAggregates(entityId: string): Promise<EntityAggregates> {
   const earliestYear = yearRow?.min_year ?? null
   const latestYear = yearRow?.max_year ?? null
 
-  // Primary department = higher total across top contracts department and top grants department
+  // Primary department = higher total across top contracts department and top grants department.
+  // Resolve raw Open Canada bilingual codes (e.g. "pwgsc-tpsgc") to friendly English names
+  // ("Public Services and Procurement Canada") at the TS boundary; DB still stores raw codes.
   const contractsDept = contractsDeptRows[0] as DeptRow | undefined
   const grantsDept = grantsDeptRows[0] as DeptRow | undefined
-  let primaryDepartment: string | null = null
+  let primaryDepartmentRaw: string | null = null
   if (contractsDept && grantsDept) {
     const cTotal = Number(contractsDept.total ?? 0)
     const gTotal = Number(grantsDept.total ?? 0)
-    primaryDepartment = cTotal >= gTotal ? contractsDept.department : grantsDept.department
+    primaryDepartmentRaw = cTotal >= gTotal ? contractsDept.department : grantsDept.department
   } else if (contractsDept) {
-    primaryDepartment = contractsDept.department
+    primaryDepartmentRaw = contractsDept.department
   } else if (grantsDept) {
-    primaryDepartment = grantsDept.department
+    primaryDepartmentRaw = grantsDept.department
   }
+  const primaryDepartment: string | null = primaryDepartmentRaw
+    ? getDepartmentName(primaryDepartmentRaw)
+    : null
 
   const largestRaw = Array.from(largestRows)[0]
+  const largestDealDepartment: string | null = largestRaw?.department
+    ? getDepartmentName(largestRaw.department)
+    : null
   const largestDeal: LargestDeal | null = largestRaw && largestRaw.value !== null
     ? {
         value: Number(largestRaw.value),
-        department: largestRaw.department ?? null,
+        department: largestDealDepartment,
         year: largestRaw.year ?? null,
         dataset: largestRaw.dataset,
       }
