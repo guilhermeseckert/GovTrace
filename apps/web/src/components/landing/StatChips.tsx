@@ -9,11 +9,20 @@ function formatCount(n: number): string {
   return n.toLocaleString()
 }
 
+function formatDollars(n: number): string {
+  if (n >= 1_000_000_000_000) return `$${(n / 1_000_000_000_000).toFixed(1)}T`
+  if (n >= 1_000_000_000) return `$${(n / 1_000_000_000).toFixed(1)}B`
+  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`
+  if (n >= 1_000) return `$${(n / 1_000).toFixed(0)}K`
+  return `$${n.toFixed(0)}`
+}
+
 type StatChipsProps = { stats: PlatformStats | null }
 
 type ChipData = {
-  value: string
+  headline: string
   label: string
+  sub: string
   icon: ReactNode
   delay: string
 }
@@ -23,17 +32,41 @@ export function StatChips({ stats }: StatChipsProps) {
     return (
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[1, 2, 3, 4].map((i) => (
-          <Skeleton key={i} className="h-20 rounded-lg" />
+          <Skeleton key={i} className="h-24 rounded-lg" />
         ))}
       </div>
     )
   }
 
   const chips: ChipData[] = [
-    { value: formatCount(stats.totalDonations), label: 'Donations', icon: <DollarSign className="h-4 w-4" />, delay: '0s' },
-    { value: formatCount(stats.totalContracts), label: 'Contracts', icon: <FileText className="h-4 w-4" />, delay: '0.1s' },
-    { value: formatCount(stats.totalGrants), label: 'Grants', icon: <Gift className="h-4 w-4" />, delay: '0.2s' },
-    { value: formatCount(stats.totalLobbying), label: 'Lobbying', icon: <Users className="h-4 w-4" />, delay: '0.3s' },
+    {
+      headline: formatDollars(stats.totalDonationsValue),
+      label: 'Donations',
+      sub: `${formatCount(stats.totalDonations)} records`,
+      icon: <DollarSign className="h-4 w-4" />,
+      delay: '0s',
+    },
+    {
+      headline: formatDollars(stats.totalContractsValue),
+      label: 'Contracts',
+      sub: `${formatCount(stats.totalContracts)} records`,
+      icon: <FileText className="h-4 w-4" />,
+      delay: '0.1s',
+    },
+    {
+      headline: formatDollars(stats.totalGrantsValue),
+      label: 'Grants',
+      sub: `${formatCount(stats.totalGrants)} records`,
+      icon: <Gift className="h-4 w-4" />,
+      delay: '0.2s',
+    },
+    {
+      headline: formatCount(stats.totalLobbying),
+      label: 'Lobbying',
+      sub: 'registrations',
+      icon: <Users className="h-4 w-4" />,
+      delay: '0.3s',
+    },
   ]
 
   return (
@@ -48,7 +81,8 @@ export function StatChips({ stats }: StatChipsProps) {
             {chip.icon}
             <span className="text-xs font-medium uppercase tracking-wider">{chip.label}</span>
           </div>
-          <span className="tabular-nums text-2xl font-medium tracking-tight">{chip.value}</span>
+          <span className="tabular-nums text-2xl font-medium tracking-tight">{chip.headline}</span>
+          <span className="tabular-nums text-xs text-muted-foreground/70">{chip.sub}</span>
         </div>
       ))}
     </div>
