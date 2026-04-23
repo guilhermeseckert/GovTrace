@@ -94,28 +94,87 @@ export const searchEntities = createServerFn({ method: 'GET' })
       ? sql`AND created_at <= ${data.dateTo}::date`
       : sql``
 
-    let results: Array<{
+    type SearchRow = {
       id: string
       canonical_name: string
       entity_type: string
       province: string | null
       score: number
-    }>
+    }
 
-    if (normalizedQuery.length >= 2) {
-      // Search mode: pg_trgm similarity with ILIKE fallback.
+    let results: Array<SearchRow>
+
+    if (data.type === 'all' && normalizedQuery.length >= 2) {
+      // Bucket-aware top-N: when the caller wants everything, run three parallel
+      // bucketed queries (politician / org-group / person-group) with LIMIT 10
+      // each, then merge. This guarantees politicians like "TRUDEAU, Justin" are
+      // not buried by shorter pg_trgm similarity hits on person names like
+      // "JUSTIN" the donor. Merge order is politician → org-group → person-group
+      // so politician matches surface first for name-type queries.
+      const likePattern = `%${normalizedQuery}%`
+      const [politicianRows, orgGroupRows, personGroupRows] = await Promise.all([
+        db.execute<SearchRow>(sql`
+          SELECT id, canonical_name, entity_type, province,
+                 similarity(normalized_name, ${normalizedQuery}) AS score
+          FROM entities
+          WHERE (normalized_name % ${normalizedQuery} OR normalized_name ILIKE ${likePattern})
+            AND is_active = true
+            AND entity_type = 'politician'
+            ${provinceFilter}
+            ${dateFromFilter}
+            ${dateToFilter}
+          ORDER BY score DESC
+          LIMIT 10
+        `),
+        db.execute<SearchRow>(sql`
+          SELECT id, canonical_name, entity_type, province,
+                 similarity(normalized_name, ${normalizedQuery}) AS score
+          FROM entities
+          WHERE (normalized_name % ${normalizedQuery} OR normalized_name ILIKE ${likePattern})
+            AND is_active = true
+            AND entity_type IN ('organization', 'company', 'department')
+            ${provinceFilter}
+            ${dateFromFilter}
+            ${dateToFilter}
+          ORDER BY score DESC
+          LIMIT 10
+        `),
+        db.execute<SearchRow>(sql`
+          SELECT id, canonical_name, entity_type, province,
+                 similarity(normalized_name, ${normalizedQuery}) AS score
+          FROM entities
+          WHERE (normalized_name % ${normalizedQuery} OR normalized_name ILIKE ${likePattern})
+            AND is_active = true
+            AND entity_type = 'person'
+            ${provinceFilter}
+            ${dateFromFilter}
+            ${dateToFilter}
+          ORDER BY score DESC
+          LIMIT 10
+        `),
+      ])
+
+      const merged: Array<SearchRow> = []
+      const seen = new Set<string>()
+      for (const row of [
+        ...Array.from(politicianRows),
+        ...Array.from(orgGroupRows),
+        ...Array.from(personGroupRows),
+      ]) {
+        if (seen.has(row.id)) continue
+        seen.add(row.id)
+        merged.push(row)
+        if (merged.length >= 30) break
+      }
+      results = merged
+    } else if (normalizedQuery.length >= 2) {
+      // Search mode (single bucket): pg_trgm similarity with ILIKE fallback.
       // Single-token queries like "trudeau" against "justin trudeau" can fall
       // below the default pg_trgm.similarity_threshold (0.3), so widen the
       // predicate with a substring match to guarantee recall for politicians
       // and other multi-word entities.
       const likePattern = `%${normalizedQuery}%`
-      const rows = await db.execute<{
-        id: string
-        canonical_name: string
-        entity_type: string
-        province: string | null
-        score: number
-      }>(sql`
+      const rows = await db.execute<SearchRow>(sql`
         SELECT id, canonical_name, entity_type, province,
                similarity(normalized_name, ${normalizedQuery}) AS score
         FROM entities
